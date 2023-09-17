@@ -1,0 +1,156 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: a
+  value: 24
+  min: 10
+  max: 25
+- name: b
+  value: -2
+  min: -2.5
+  max: -0.1
+  round: 0.1
+calcs:
+  q1: "(params.a)"
+  q2: "(params.a*(2^(params.b)))"
+  q4: "(params.a*(4^(params.b)))"
+  logQ1: "(log(calcs.q1))"
+  logQ2: "(log(calcs.q2))"
+  logQ4: "(log(calcs.q4))"
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Q
+        orient: bottom
+        min: 0
+        max: 25
+        ticks: 0
+      yAxis:
+        title: P
+        orient: left
+        min: 0
+        max: 5
+        ticks: 0
+      objects:
+      - type: Point
+        def:
+          color: colors.red
+          coordinates:
+          - params.a
+          - 1
+          droplines:
+            vertical: calcs.q1.toFixed(0)
+            horizontal: 1
+          drag:
+            - horizontal: a
+      - type: Point
+        def:
+          color: colors.orange
+          coordinates:
+          - calcs.q2
+          - 2
+          droplines:
+            vertical: calcs.q2.toFixed(2)
+            horizontal: 2
+      #- type: Point
+      #  def:
+      #    color: colors.green
+      #    coordinates:
+      #    - calcs.q3
+      #    - 3
+      #    droplines:
+      #      vertical: calcs.q3.toFixed(1)
+      #      horizontal: 3
+      - type: Point
+        def:
+          color: colors.purple
+          coordinates:
+          - calcs.q4
+          - 4
+          droplines:
+            vertical: calcs.q4.toFixed(2)
+            horizontal: 4
+      - type: Curve
+        def:
+          color: colors.demand
+          univariateFunction:
+            fn: "params.a*((y)^(params.b))"
+            samplePoints: 200
+            ind: y
+          strokeWidth: 4
+    bottomGraph:
+      xAxis:
+        title: ln Q
+        orient: bottom
+        min: -1.782
+        max: 3.218
+        ticks: 0
+      yAxis:
+        title: ln P
+        orient: left
+        min: 0
+        max: 2.5
+        ticks: 0
+      objects:
+      - type: Point
+        def:
+          color: colors.red
+          coordinates:
+          - calcs.logQ1
+          - log(1)
+          droplines:
+            vertical: "`\\\\ln(${calcs.q1.toFixed(0)})`"
+      - type: Point
+        def:
+          color: colors.orange
+          coordinates:
+          - calcs.logQ2
+          - log(2)
+          droplines:
+            vertical: "`\\\\ln(${calcs.q2.toFixed(2)})`"
+            horizontal: "\\ln(2)"
+      #- type: Point
+      #  def:
+      #    color: colors.green
+      #    coordinates:
+      #    - calcs.logQ3
+      #    - log(3)
+      #    droplines:
+      #      vertical: "`\\\\ln(${calcs.q3.toFixed(1)})`"
+      #      horizontal: "\\ln(3)"
+      - type: Point
+        def:
+          color: colors.purple
+          coordinates:
+          - calcs.logQ4
+          - log(4)
+          droplines:
+            vertical: "`\\\\ln(${calcs.q4.toFixed(2)})`"
+            horizontal: "\\ln(4)"
+      - type: EconLinearDemand
+        def:
+          name: demand
+          xIntercept: calcs.logQ1
+          invSlope: params.b
+          strokeWidth: 4
+    sidebar:
+      controls:
+      - title: Elasticity and Logs
+        description: A multiplicative relationship between P and Q translates into
+          a linear relationship between ln(P) and ln(Q).
+        sliders:
+        - param: a
+          label: "Q(1)"
+        - param: b
+          label: "\\epsilon"
+        divs:
+        - html: "`The top graph shows the demand curve $$Q = ${calcs.q1.toFixed(0)}P^{${params.b.toFixed(1)}}$$If
+            we take the natural log of both sides of that equation, we get$$\\\\ln
+            Q = ${calcs.q1.toFixed(0)} ${params.b.toFixed(1)} \\\\ln P$$This linear
+            relationship between $\\\\ln P$ and $\\\\ln Q$ is illustrated in the bottom
+            graph. The (inverse) slope of the line in the bottom graph
+            $$ \\\\frac{\\\\Delta \\\\ln Q}{\\\\Delta \\\\ln P} = ${params.b.toFixed(1)}$$
+            is the price elasticity of demand, which in this case is constant.`"

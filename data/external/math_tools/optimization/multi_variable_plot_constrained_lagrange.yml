@@ -1,0 +1,87 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: l
+    value: 0
+    min: 0
+    max: 4
+    round: 0.01
+calcs:
+  maxLagrange: (24 - 3*params.l + 0.75*(params.l)^2)
+layout:
+  MathboxPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 8
+        ticks: 4
+        title: x1
+      yAxis:
+        min: 0
+        max: 8
+        ticks: 4
+        title: x2
+      zAxis:
+        min: 0
+        max: 30
+        ticks: 5
+        title: y
+      objects:
+
+        - Point:
+            x: 1
+            y: 3
+            z: 21
+            stroke: grey
+            droplines: true
+
+        - Point:
+            x: (2 - 0.5*params.l)
+            y: (4 - 0.5*params.l)
+            z: calcs.maxLagrange
+            stroke: grey
+            droplines: true
+
+        # Objective Function
+        - FunctionSurface:
+            fn:
+              fn: 24 - 2*((x) - 2)^2 - ((y) - 4)^2 + params.l*(5 - 2*(x) - (y))
+              samplePoints: 100
+            shaded: true
+            fill: colors.purple
+            opacity: 0.5
+
+        # Constraint
+        - Curve:
+            fn:
+              fn: 5 - 2*(x)
+              fnZ: 24 - 2*((x) - 2)^2 - (5 - 2*(x) - 4)^2
+            stroke: green
+            strokeWidth: 10
+
+        # Gradient plane at (1,3)
+        - FunctionSurface:
+            fn:
+              fn: 11 + 5*params.l + (4 - 2*params.l)*(x) + (2 - params.l)*(y)
+              samplePoints: 6
+            fill: blue
+            opacity: 0.5
+
+        # Maximum point along Lagrangian
+        - Plane:
+            z: calcs.maxLagrange
+            fill: blue
+            opacity: 0.5
+
+    sidebar:
+      controls:
+        - title: Plotting the Lagrangian
+          description: The Lagrangian "punishes" the function for exceeding the constraint. The higher lambda, the greater the punishment. For a specific value of lambda, the unconstrained maximum of the Lagrangian corresponds to the constrained maximum along the green curve. Can you find that point?
+          sliders:
+            - param: l
+              label: \lambda
+          divs:
+            - html: $$\begin{aligned}\mathcal{L}(x_1,x_2,\lambda) = &8x_1 - 2x_1^2 + 8x_2 - x_2^2\\ & + \lambda(5 - 2x_1 - x_2)\end{aligned}$$
+

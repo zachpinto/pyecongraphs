@@ -1,0 +1,154 @@
+---
+schema: EconSchema
+colors:
+  ppf: colors.red
+  mrt: colors.orange
+version: 1
+params:
+  - name: L1
+    value: 64
+    min: 0
+    max: 100
+    round: 1
+calcs:
+  L2: (100-params.L1)
+  q1: (10*sqrt(params.L1))
+  q2: (6*sqrt(calcs.L2))
+  MPL1: (5/sqrt(params.L1))
+  MPL2: (3/sqrt(calcs.L2))
+  MRT: (calcs.MPL2/calcs.MPL1)
+layout:
+  SquarePlusTwoVerticalGraphs:
+    bigGraph:
+      xAxis:
+        title: Fish ($x_1$)
+        orient: bottom
+        min: 0
+        max: 120
+      yAxis:
+        title: Coconuts ($x_2$)
+        orient: left
+        min: 0
+        max: 120
+      objects:
+        - Ellipse:
+            center: [0,0]
+            color: ppf
+            strokeWidth: 2
+            rx: 100
+            ry: 60
+            label:
+              coordinates: [20,60]
+              position: tr
+              text: PPF
+        - Point:
+            color: ppf
+            coordinates: [calcs.q1, calcs.q2]
+            droplines:
+              vertical: calcs.q1.toFixed(0)
+              horizontal: calcs.q2.toFixed(0)
+        - Line:
+            color: colors.mrt
+            point: [calcs.q1, calcs.q2]
+            slope: -calcs.MRT
+            min: calcs.q1 - 20
+            max: calcs.q1 + 20
+            label:
+              x: calcs.q1 - 20
+              position: bl
+              text: "`MRT = ${calcs.MRT.toFixed(2)}`"
+    topGraph:
+      xAxis:
+        title: Fish Production Function
+        min: 0
+        max: 110
+      yAxis:
+        min: 0
+        max: 110
+      objects:
+        - Label:
+            coordinates: [110, AXIS]
+            text: L_1
+            color: gray
+        - Label:
+            coordinates: [AXIS, 110]
+            text: x_1
+            color: gray
+        - Curve:
+            color: colors.production
+            samplePoints: 200
+            fn: 10*sqrt((x))
+            label:
+              text: f_1(L_1)
+              x: 90
+              position: tl
+              bgcolor: none
+        - Point:
+            color: colors.production
+            coordinates:
+              - params.L1
+              - calcs.q1
+            drag:
+              - horizontal: L1
+            droplines:
+              vertical: params.L1.toFixed(0)
+              horizontal: calcs.q1.toFixed(0)
+        - Line:
+            color: colors.mpl
+            point: [params.L1, calcs.q1]
+            slope: calcs.MPL1
+            min: params.L1 - 20
+            max: params.L1 + 20
+            label:
+              x: params.L1 + 20
+              position: br
+              text: "`MP_{L1} = ${calcs.MPL1.toFixed(2)}`"
+
+    bottomGraph:
+      xAxis:
+        title: Coconut Production Function
+        min: 0
+        max: 110
+      yAxis:
+        min: 0
+        max: 110
+      objects:
+        - Label:
+            coordinates: [110, AXIS]
+            text: L_2
+            color: gray
+        - Label:
+            coordinates: [AXIS, 110]
+            text: x_2
+            color: gray
+        - Curve:
+            color: colors.production
+            samplePoints: 200
+            fn: 6*sqrt((x))
+            label:
+              text: f_2(L_2)
+              x: 90
+              position: tl
+              bgcolor: none
+        - Point:
+            color: colors.production
+            coordinates:
+              - (100-params.L1)
+              - calcs.q2
+            drag:
+              - directions: x
+                param: L1
+                expression: params.L1 - drag.dx
+            droplines:
+              vertical: "(100-params.L1).toFixed(0)"
+              horizontal: calcs.q2.toFixed(0)
+        - Line:
+            color: colors.mpl
+            point: [calcs.L2, calcs.q2]
+            slope: calcs.MPL2
+            min: calcs.L2 - 20
+            max: calcs.L2 + 20
+            label:
+              x: calcs.L2 + 20
+              position: br
+              text: "`MP_{L2} = ${calcs.MPL2.toFixed(2)}`"

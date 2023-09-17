@@ -1,0 +1,74 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: y
+    value: 0
+    min: 0
+    max: 24
+    round: 1
+layout:
+  MathboxPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 8
+        ticks: 4
+        title: x1
+      yAxis:
+        min: 0
+        max: 8
+        ticks: 4
+        title: x2
+      zAxis:
+        min: 0
+        max: 30
+        ticks: 5
+        title: y
+      objects:
+
+        - Point:
+            x: 1
+            y: 3
+            z: 21
+            stroke: grey
+            droplines: true
+
+        - Point:
+            x: 2
+            y: 4
+            z: 24
+            stroke: grey
+            droplines: true
+
+        # Function surface
+        - FunctionSurface:
+            fn:
+              fn: 24 - 2*((x) - 2)^2 - ((y) - 4)^2
+              samplePoints: 100
+            shaded: false
+            fill: colors.purple
+            opacity: 0.5
+
+        # Function surface
+        - Curve:
+            fn:
+              fn: 5 - 2*(x)
+              fnZ: 24 - 2*((x) - 2)^2 - (5 - 2*(x) - 4)^2
+            stroke: green
+            strokeWidth: 10
+
+        # Level set
+        - Plane:
+            z: params.y
+            fill: blue
+            opacity: 0.5
+
+    sidebar:
+      controls:
+        - title: The Constrained Optimization Problem
+          description: The unconstrained maximum of this function occurs at (2,4), where the function achieves a height of 24. However, the highest point along the green line occurs at (1,3), at a height of 21.
+          sliders:
+            - param: y
+              label: y

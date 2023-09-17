@@ -1,0 +1,104 @@
+schema: EconSchema
+version: 1
+params:
+  - name: fracL1
+    value: 0.5
+    min: 0
+    max: 1
+    round: 0.02
+  - name: maxL
+    value: 150
+    min: 50
+    max: 200
+    round: 5
+  - name: A1
+    value: 3
+    min: 1
+    max: 4
+    round: 0.1
+  - name: A2
+    value: 2
+    min: 1
+    max: 4
+    round: 0.1
+calcs:
+  L1: (params.fracL1*params.maxL)
+  L2: ((1-params.fracL1)*params.maxL)
+  q1: (params.A1*calcs.L1)
+  q2: (params.A2*calcs.L2)
+  Q1: (params.A1*params.maxL)
+  Q2: (params.A2*params.maxL)
+
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        title: "`Labor Devoted to Fish ($ ${idioms.labor1label} $)`"
+        orient: bottom
+        min: 0
+        max: 200
+      yAxis:
+        title: Labor Devoted to Coconuts ($L_2$)
+        orient: left
+        min: 0
+        max: 200
+      objects:
+        - Line:
+            xIntercept: params.maxL
+            yIntercept: params.maxL
+            areaBelow: true
+            label:
+              x: (0.2*params.maxL)
+              position: bl
+              text: Resource constraint
+              plainText: true
+        - Point:
+            coordinates: [calcs.L1, calcs.L2]
+            color: orange
+            drag:
+              - directions: xy
+                param: fracL1
+                expression: drag.x/params.maxL
+            droplines:
+              vertical: calcs.L1.toFixed(0)
+              horizontal: calcs.L2.toFixed(0)
+    rightGraph:
+      xAxis:
+        title: Fish ($x_1$)
+        orient: bottom
+        min: 0
+        max: 500
+        ticks: 5
+      yAxis:
+        title: Coconuts ($x_2$)
+        orient: left
+        min: 0
+        max: 500
+        ticks: 5
+      objects:
+        - Line:
+            xIntercept: calcs.Q1
+            yIntercept: calcs.Q2
+            color: colors.ppf
+            areaBelow: true
+            label:
+              x: (0.2*calcs.Q1)
+              position: bl
+              text: idioms.PPFlabel
+              plainText: true
+        - Point:
+            coordinates: [calcs.q1, calcs.q2]
+            color: colors.ppf
+            droplines:
+              vertical: calcs.q1.toFixed(0)
+              horizontal: calcs.q2.toFixed(0)
+    sidebar:
+      controls:
+        - title: "`The Resource Constraint and the ${idioms.PPFlabel}`"
+          description: Drag the orange dot in the left-hand graph to reallocate labor between fish and coconuts.
+
+    explanation:
+      divs:
+        - html: <hr/>
+        - html: "`Suppose Chuck has $\\\\overline L = ${params.maxL.toFixed(0)}$ hours of labor, and can produce ${params.A1.toFixed(0)} fish or ${params.A2.toFixed(0)} coconuts per hour.`"
+        - html: "`If he devotes $L_1 = ${calcs.L1.toFixed(0)}$ hours to producing fish and $L_2 = ${calcs.L2.toFixed(0)}$ hours to producing coconuts, he produces:$$\\\\begin{aligned}x_1 &= ${params.A1.toFixed(0)} \\\\times ${calcs.L1.toFixed(0)} = ${calcs.q1.toFixed(0)}\\\\\\\\ x_2 &= ${params.A2.toFixed(0)} \\\\times ${calcs.L2.toFixed(0)} = ${calcs.q2.toFixed(0)}\\\\end{aligned}$$`"

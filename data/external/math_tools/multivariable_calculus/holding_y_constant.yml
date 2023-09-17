@@ -1,0 +1,200 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x
+    value: 4
+    min: 1
+    max: 8
+    round: 0.1
+  - name: y
+    value: 3
+    min: 1
+    max: 9
+    round: 0.1
+  - name: f
+    value: 0
+calcs:
+  z1: (4*sqrt(params.x)*params.y)
+  dfdx1: (2*params.y/sqrt(params.x))
+  z2: (2*params.x + 4*params.y)
+  dfdx2: (2)
+  z3: (params.x*params.x + params.y*params.y)
+  dfdx3: (2*params.x)
+  z: "((params.f == 0) ? calcs.z1 : (params.f == 1) ? calcs.z2 : calcs.z3)"
+  m: "((params.f == 0) ? calcs.dfdx1 : (params.f == 1) ? calcs.dfdx2 : calcs.dfdx3)"
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 10
+        step: 2
+        title: x
+      yAxis:
+        min: 0
+        max: 10
+        step: 2
+        title: y
+      zAxis:
+        min: 0
+        max: 100
+        step: 20
+        title: z
+      objects:
+        - Plane:
+            y: params.y
+            fill: colors.orange
+            opacity: 0.3
+            shaded: false
+        - Line:
+            x1: params.x - 2
+            y1: params.y
+            z1: calcs.z - 2*calcs.m
+            x2: params.x + 2
+            y2: params.y
+            z2: calcs.z + 2*calcs.m
+            strokeWidth: 10
+            stroke: orange
+        - FunctionSurface:
+            fn:
+              fn: "(4*((x)^0.5)*(y))"
+              samplePoints: 20
+            shaded: false
+            show: (params.f == 0)
+            fill: colors.purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "(params.y)"
+              fnZ: "(4*((x)^0.5)*params.y)"
+            strokeWidth: 5
+            stroke: blue
+            show: (params.f == 0)
+        - FunctionSurface:
+            fn:
+              fn: "(2*(x) + 4*(y))"
+              samplePoints: 20
+            shaded: false
+            show: (params.f == 1)
+            fill: colors.purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "(params.y)"
+              fnZ: "(2*(x) + 4*(params.y))"
+            strokeWidth: 5
+            stroke: blue
+            show: (params.f == 1)
+        - FunctionSurface:
+            fn:
+              fn: "((x)^2)+((y)^2)"
+              samplePoints: 20
+            shaded: false
+            show: (params.f == 2)
+            fill: colors.purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "(params.y)"
+              fnZ: "((x)^2)+((params.y)^2)"
+            strokeWidth: 5
+            stroke: blue
+            show: (params.f == 2)
+        # Original point
+        - Point:
+            x: params.x
+            y: params.y
+            z: calcs.z
+            stroke: blue
+        # Dropline to x axis
+        - Line:
+            x1: params.x
+            x2: params.x
+            y2: params.y
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Dropline to y axis
+        - Line:
+            y1: params.y
+            x2: params.x
+            y2: params.y
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - Line:
+            x1: params.x
+            y1: params.y
+            x2: params.x
+            y2: params.y
+            z2: calcs.z
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+    graph:
+      yAxis:
+        max: 100
+      objects:
+
+        - Curve:
+            fn: "4*params.y*sqrt((x))"
+            color: blue
+            show: (params.f == 0)
+            label:
+              text: "`f(x|\\\\overline y = ${params.y.toFixed(1)}) = 4x^{1 \\\\over 2}\\\\times ${params.y.toFixed(1)}`"
+              x: 9
+              position: br
+
+        - Curve:
+            fn: "2*(x) + 4*params.y"
+            color: blue
+            show: (params.f == 1)
+            label:
+              text: "`f(x|\\\\overline y = ${params.y.toFixed(1)}) = 2x + 4\\\\times${params.y.toFixed(1)}`"
+              x: 9
+              position: br
+
+        - Curve:
+            fn: "(x)^2 + params.y*params.y"
+            color: blue
+            show: (params.f == 2)
+            label:
+              text: "`f(x|\\\\overline y = ${params.y.toFixed(1)}) = x^2 + (${params.y.toFixed(1)})^2`"
+              x: 9
+              position: br
+
+        # Point x
+        - Point:
+            coordinates: [params.x, calcs.z]
+            color: blue
+            drag:
+              - horizontal: x
+            droplines:
+              vertical: x
+              horizontal: f(x)
+
+        - Line:
+            point: [params.x, calcs.z]
+            slope: calcs.m
+            color: orange
+            strokeWidth: 4
+            min: params.x - 2
+            max: params.x + 2
+
+    sidebar:
+      controls:
+        - title: Holding Y Constant
+          sliders:
+            - param: x
+              label: x
+            - param: y
+              label: \overline y
+          radioGroup:
+            param: f
+            options:
+              - $f(x|\overline y) = 4x^{1 \over 2}\overline y$
+              - $f(x|\overline y) = 2x + 4\overline y$
+              - $f(x|\overline y) = x^2 + \overline y^2$

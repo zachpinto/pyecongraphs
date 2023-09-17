@@ -1,0 +1,105 @@
+schema: EconSchema
+version: 1
+params:
+  - name: L1
+    value: 36
+    min: 0
+    max: 100
+    round: 1
+  - name: K1
+    value: 64
+    min: 0
+    max: 100
+    round: 1
+  - name: A1
+    value: 1.25
+    min: 0.25
+    max: 1.5
+    round: 0.05
+  - name: A2
+    value: 1
+    min: 0.25
+    max: 1.5
+    round: 0.05
+calcs:
+  y1: "(100/(2^0.5))"
+  y2: "(100/(2^0.5))"
+  K2: (100 - params.K1)
+  SRmax1: "((100*params.K1)^0.5)"
+  SRmax2: "((100*(100-params.K1))^0.5)"
+  LRmax1: "(100*params.A1)"
+  LRmax2: "(100*params.A2)"
+  SRPPFLabelX: (9.9*params.A1*sqrt(params.K1))
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Fish $(x_1)$
+        orient: bottom
+        min: 0
+        max: 150
+      yAxis:
+        title: Coconuts $(x_2)$
+        orient: left
+        min: 0
+        max: 150
+      objects:
+        - Ellipse:
+              color: colors.ppf
+              fill: red
+              c: [0,0]
+              rx: "(params.A1*(100*params.K1)^0.5)"
+              ry: "(params.A2*(100*calcs.K2)^0.5)"
+              curvature: 0.5
+              L1: params.L1
+              label:
+                text: "`PPF_{K_1 = ${params.K1.toFixed(0)}}`"
+                coordinates: [calcs.SRPPFLabelX,5]
+                align: right
+        - Line:
+            color: colors.ppf
+            areaBelow: true
+            xIntercept: calcs.LRmax1
+            yIntercept: calcs.LRmax2
+            label:
+              text: PPF_{LR}
+              x: (0.2*calcs.LRmax1)
+              position: bl
+              bgcolor: none
+        - type: Point
+          def:
+            color: colors.longRun
+            show: params.showLR
+            coordinates:
+              - calcs.LRmax1
+              - 0
+            r: 4
+            drag:
+              - directions: x
+                param: A1
+                expression: drag.x/100
+        - type: Point
+          def:
+            color: colors.longRun
+            show: params.showLR
+            coordinates:
+              - 0
+              - calcs.LRmax2
+            r: 4
+            drag:
+              - directions: y
+                param: A2
+                expression: drag.y/100
+    sidebar:
+      controls:
+        - title: Improvements in Technology
+          description: Use the sliders to change Chuck's production functions, or his allocation of capital.
+          sliders:
+            - param: A1
+              label: A_1
+            - param: A2
+              label: A_2
+            - param: K1
+              label: K_1
+          divs:
+            - html: "Production functions: $$\\begin{aligned}f_1(L_1,K_1) &= A_1\\sqrt{L_1K_1}\\\\f_2(L_2,K_2) &= A_2\\sqrt{L_2K_2}\\end{aligned}$$"

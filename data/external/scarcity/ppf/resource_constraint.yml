@@ -1,0 +1,68 @@
+schema: EconSchema
+version: 1
+params:
+- name: fracL1
+  value: 0.5
+  min: 0
+  max: 1
+  round: 0.02
+- name: maxL
+  value: 150
+  min: 50
+  max: 200
+  round: 5
+- name: A1
+  value: 3
+  min: 1
+  max: 4
+  round: 0.1
+- name: A2
+  value: 2
+  min: 1
+  max: 4
+  round: 0.1
+calcs:
+  L1: (params.fracL1*params.maxL)
+  L2: ((1-params.fracL1)*params.maxL)
+
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Labor Devoted to Fish ($L_1$)
+        orient: bottom
+        min: 0
+        max: 200
+      yAxis:
+        title: Labor Devoted to Coconuts ($L_2$)
+        orient: left
+        min: 0
+        max: 200
+      objects:
+      - Line:
+          xIntercept: params.maxL
+          yIntercept: params.maxL
+          areaBelow: true
+          label:
+            x: (0.2*params.maxL)
+            position: bl
+            text: "\\text{Resource constraint: }L_1 + L_2 \\le \\overline L"
+      - Point:
+          coordinates: [calcs.L1, calcs.L2]
+          color: orange
+          drag:
+          - directions: xy
+            param: fracL1
+            expression: drag.x/params.maxL
+          droplines:
+            vertical: calcs.L1.toFixed(0)
+            horizontal: calcs.L2.toFixed(0)
+
+    sidebar:
+      controls:
+      - title: The Resource Constraint
+        description: Drag the orange dot in the left-hand graph to reallocate labor between fish and coconuts, and use the slider below to change the total amount of time available.
+        sliders:
+          - param: maxL
+            label: \overline L
+

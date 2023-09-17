@@ -1,0 +1,171 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: demandIntercept
+  value: 80
+  min: 20
+  max: 100
+  round: 1
+- name: demandSlope
+  value: -1
+  min: -10
+  max: 0.05
+  round: 0.1
+- name: a
+  value: 0.8
+  min: 0
+  max: 1
+  round: 0.05
+- name: showRegions
+  value: false
+calcs:
+  p: "(-1*params.a*params.demandIntercept/params.demandSlope)"
+  q: "(params.demandIntercept*(1-params.a))"
+  price: "((-1*params.a*params.demandIntercept/params.demandSlope).toFixed(2))"
+  quantity: "((params.demandIntercept*(1-params.a)).toFixed(2))"
+  e: "(params.a == 1 ? '-\\\\infty' : (params.demandSlope*calcs.price/calcs.quantity).toFixed(2))"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Quantity
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 3
+      yAxis:
+        title: Price
+        orient: left
+        min: 0
+        max: 100
+        ticks: 3
+      objects:
+      - type: EconLinearDemand
+        def:
+          name: demand
+          xIntercept: params.demandIntercept
+          invSlope: params.demandSlope
+          label:
+            text: "`Q(P) = ${params.demandIntercept}${params.demandSlope.toFixed(2)}P`"
+            x: "(0.9*params.demandIntercept)"
+            align: left
+            xPixelOffset: 15
+            show: "!params.showRegions"
+          handles: true
+          draggable: true
+          strokeWidth: 4
+      - type: Point
+        def:
+          color: colors.grey
+          coordinates:
+          - 100
+          - calcs.p
+          lineStyle: dotted
+          r: 0
+          droplines:
+            horizontal: "`P = ${calcs.price}`"
+          drag:
+          - directions: y
+            param: a
+            expression: drag.y/calcs.demand.yIntercept
+      - type: Point
+        def:
+          color: colors.demand
+          coordinates:
+          - calcs.q
+          - calcs.p
+          lineStyle: dotted
+          droplines:
+            vertical: "`Q = ${calcs.quantity}`"
+          drag:
+          - directions: y
+            param: a
+            expression: "(drag.y/calcs.demand.yIntercept)"
+      - type: Segment
+        def:
+          a:
+          - params.demandIntercept
+          - 0
+          b:
+          - "(0.5*params.demandIntercept)"
+          - "(0.5*calcs.demand.yIntercept)"
+          color: colors.red
+          startArrow: true
+          endArrow: true
+          label:
+            text: "\\text{Inelastic Region}"
+          show: params.showRegions
+      - type: Segment
+        def:
+          a:
+          - 0
+          - calcs.demand.yIntercept
+          b:
+          - "(0.5*params.demandIntercept)"
+          - "(0.5*calcs.demand.yIntercept)"
+          color: colors.green
+          startArrow: true
+          endArrow: true
+          label:
+            text: "\\text{Elastic Region}"
+          show: params.showRegions
+      - type: Segment
+        def:
+          a:
+          - "(0.5*params.demandIntercept+5)"
+          - "(0.5*calcs.demand.yIntercept+5)"
+          b:
+          - "(0.5*params.demandIntercept+1)"
+          - "(0.5*calcs.demand.yIntercept+1)"
+          color: colors.grey
+          endArrow: true
+          label:
+            text: "\\text{Unit Elastic}"
+            location: '1'
+            position: bl
+          show: params.showRegions
+      - type: Segment
+        def:
+          a:
+          - params.demandIntercept + 5
+          - 5
+          b:
+          - params.demandIntercept + 1
+          - 1
+          color: colors.red
+          endArrow: true
+          label:
+            text: "\\text{Perfectly Inlastic}"
+            location: '1'
+            position: bl
+          show: params.showRegions
+      - type: Segment
+        def:
+          a:
+          - 5
+          - calcs.demand.yIntercept + 5
+          b:
+          - 1
+          - calcs.demand.yIntercept + 1
+          color: colors.green
+          endArrow: true
+          label:
+            text: "\\text{Perfectly Elastic}"
+            location: '1'
+            position: bl
+          show: params.showRegions
+    sidebar:
+      controls:
+      - title: "Elasticity along a Linear Demand Curve: The Point-Slope Method"
+        description: Drag the demand curve to change its position and slope; drag
+          the price line up and down to see how elasticity changes along the demand
+          curve.
+        checkboxes:
+        - param: showRegions
+          label: "\\text{Show regions of elasticity}"
+        divs:
+        - html: "`$$\\\\begin{aligned}\\\\epsilon_{Q,P} &= \\\\frac{\\\\Delta Q}{\\\\Delta
+            P}\\\\times \\\\frac{P}{Q}\\\\\\\\&=${params.demandSlope.toFixed(2)}\\\\times
+            \\\\frac{${calcs.price}}{${calcs.quantity}}\\\\\\\\& = ${calcs.e}\\\\end{aligned}$$`"

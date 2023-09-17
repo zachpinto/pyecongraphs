@@ -1,0 +1,98 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: z
+    value: 20
+    min: 0
+    max: 100
+    round: 1
+  - name: f
+    value: 0
+calcs:
+  x1: ((params.z/4)^(2/3))
+  x2: (params.z/6)
+  x3: (sqrt(params.z/2))
+  x: "((params.f == 0) ? calcs.x1 : (params.f == 1) ? calcs.x2 : calcs.x3)"
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      objects:
+        - Contour:
+            fn: "(4*sqrt((x))*(y))"
+            level: params.z
+            color: purple
+            xMax: 11
+            yMax: 11
+            strokeWidth: 5
+            show: (params.f == 0)
+        - ContourMap:
+            levels: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+            fn: "(4*sqrt((x))*(y))"
+            xMax: 11
+            yMax: 11
+            show: (params.f == 0)
+        - Contour:
+            fn: "(2*(x) + 4*(y))"
+            level: params.z
+            color: purple
+            xMin: -1
+            xMax: 11
+            yMin: -1
+            yMax: 11
+            strokeWidth: 5
+            show: (params.f == 1)
+        - ContourMap:
+            levels: [8, 16, 24, 32, 40, 48, 56]
+            fn: "(2*(x) + 4*(y))"
+            xMin: -1
+            xMax: 11
+            yMin: -1
+            yMax: 11
+            show: (params.f == 1)
+        - Contour:
+            fn: "((x)^2 + (y)^2)"
+            level: params.z
+            color: purple
+            xMin: -1
+            xMax: 11
+            yMin: -1
+            yMax: 11
+            strokeWidth: 5
+            show: (params.f == 2)
+        - ContourMap:
+            levels: [25, 50, 75, 100, 125, 150, 175]
+            fn: "((x)^2 + (y)^2)"
+            xMin: -1
+            xMax: 11
+            yMin: -1
+            yMax: 11
+            show: (params.f == 2)
+        - Label:
+            coordinates: [calcs.x, calcs.x]
+            text: "`\\\\text{Level set for } z=${params.z}`"
+            color: purple
+        - Label:
+            coordinates: [10, 0]
+            text: x
+            yPixelOffset: -30
+        - Label:
+            coordinates: [0, 10]
+            text: y
+            xPixelOffset: -30
+
+
+    sidebar:
+      controls:
+        - title: Contour Maps
+          description: The plot to the left shows the contour map for the selected function, as well as the level set for a particular value of z. Try adjusting the z value to see how the level set changes.
+          sliders:
+            - param: z
+              label: z
+          radioGroup:
+            param: f
+            options:
+              - $f(x,y) = 4x^{1 \over 2}y$
+              - $f(x,y) = 2x + 4y$
+              - $f(x,y) = x^2 + y^2$

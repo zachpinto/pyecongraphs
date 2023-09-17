@@ -1,0 +1,110 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x
+  value: 4
+  min: 0
+  max: 10
+  round: 0.1
+- name: y
+  value: 3
+  min: 0
+  max: 10
+  round: 0.1
+- name: f
+  value: 0
+calcs:
+  z1: (4*sqrt(params.x)*params.y)
+  z2: (2*params.x + 4*params.y)
+  z3: (params.x*params.x + params.y*params.y)
+  z: "((params.f == 0) ? calcs.z1 : (params.f == 1) ? calcs.z2 : calcs.z3)"
+layout:
+  MathboxPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 10
+        step: 1
+        title: x
+      yAxis:
+        min: 0
+        max: 10
+        step: 1
+        title: y
+      zAxis:
+        min: 0
+        max: 100
+        step: 10
+        title: z
+      objects:
+      - MathboxFunctionSurface:
+          fn:
+            fn: "(4*((x)^0.5)*(y))"
+            samplePoints: 20
+          shaded: false
+          show: (params.f == 0)
+          fill: colors.purple
+          opacity: 0.4
+      - MathboxFunctionSurface:
+          fn:
+            fn: "(2*(x) + 4*(y))"
+            samplePoints: 20
+          shaded: false
+          show: (params.f == 1)
+          fill: colors.purple
+          opacity: 0.4
+      - MathboxFunctionSurface:
+          fn:
+            fn: "((x)^2)+((y)^2)"
+            samplePoints: 20
+          shaded: false
+          show: (params.f == 2)
+          fill: colors.purple
+          opacity: 0.4
+      - MathboxPoint:
+          x: params.x
+          y: params.y
+          z: calcs.z
+          stroke: colors.demand
+      - MathboxLine:
+          x1: params.x
+          x2: params.x
+          y2: params.y
+          stroke: colors.demand
+          strokeWidth: 10
+          lineStyle: dotted
+      - MathboxLine:
+          y1: params.y
+          x2: params.x
+          y2: params.y
+          stroke: colors.demand
+          strokeWidth: 10
+          lineStyle: dotted
+      - MathboxLine:
+          x1: params.x
+          y1: params.y
+          x2: params.x
+          y2: params.y
+          z2: calcs.z
+          stroke: colors.demand
+          strokeWidth: 10
+          lineStyle: dotted
+    sidebar:
+      controls:
+      - title: Multivariable Functions
+        description: The plot to the left shows the surface plot for the multivariable functions below. Try selecting different functions, and changing the x- and y-coordinates.
+        sliders:
+          - param: x
+            label: x
+          - param: y
+            label: y
+        radioGroup:
+          param: f
+          options:
+            - $f(x,y) = 4x^{1 \over 2}y$
+            - $f(x,y) = 2x + 4y$
+            - $f(x,y) = x^2 + y^2$
+        divs:
+          - html: "`$$f(${params.x.toFixed(2)},${params.y.toFixed(2)}) = ${calcs.z.toFixed(2)}$$`"

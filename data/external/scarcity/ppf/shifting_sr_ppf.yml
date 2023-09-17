@@ -1,0 +1,132 @@
+schema: EconSchema
+colors:
+  ppf: colors.red
+version: 1
+params:
+  - name: L1
+    value: 36
+    min: 0
+    max: 100
+    round: 1
+  - name: K1
+    value: 64
+    min: 0
+    max: 100
+    round: 1
+calcs:
+  L2: (100 - params.L1)
+  K2: (100 - params.K1)
+  y1: (1.25*sqrt(params.L1*params.K1))
+  y2: (sqrt(calcs.L2*calcs.K2))
+  SRPPFLabelX: (12.4*sqrt(params.K1))
+layout:
+  SquarePlusTwoVerticalGraphs:
+    bigGraph:
+      xAxis:
+        title: Fish $(x_1)$
+        orient: bottom
+        min: 0
+        max: 150
+      yAxis:
+        title: Coconuts $(x_2)$
+        orient: left
+        min: 0
+        max: 150
+      objects:
+        - type: Ellipse
+          def:
+            color: colors.ppf
+            fill: red
+            c: [0,0]
+            rx: "(1.25*(100*params.K1)^0.5)"
+            ry: "((100*calcs.K2)^0.5)"
+            curvature: 0.5
+            L1: params.L1
+            handles: false
+            draggable: false
+            label:
+              text: "`PPF_{K_1 = ${params.K1.toFixed(0)}}`"
+              coordinates: [calcs.SRPPFLabelX,5]
+              align: right
+        - Point:
+            coordinates:
+              - calcs.y1
+              - calcs.y2
+            color: ppf
+            droplines:
+              vertical: calcs.y1.toFixed(0)
+              horizontal: calcs.y2.toFixed(0)
+    topGraph:
+      xAxis:
+        title: Labor Allocation
+        orient: bottom
+        min: 0
+        max: 110
+      yAxis:
+        orient: left
+        min: 0
+        max: 110
+      objects:
+        - Label:
+            coordinates: [110,AXIS]
+            text: L_1
+            color: gray
+        - Label:
+            coordinates: [AXIS,110]
+            text: L_2
+            color: gray
+        - Line:
+            xIntercept: 100
+            yIntercept: 100
+            areaBelow: true
+            label:
+              x: 80
+              position: bl
+              text: \text{Labor constraint}
+        - Point:
+            coordinates: [params.L1, calcs.L2]
+            color: orange
+            drag:
+              - directions: xy
+                param: L1
+                expression: drag.x
+            droplines:
+              vertical: params.L1.toFixed(0)
+              horizontal: calcs.L2.toFixed(0)
+    bottomGraph:
+      xAxis:
+        title: Capital Allocation
+        orient: bottom
+        min: 0
+        max: 110
+      yAxis:
+        orient: left
+        min: 0
+        max: 110
+      objects:
+        - Label:
+            coordinates: [110, AXIS]
+            text: K_1
+            color: gray
+        - Label:
+            coordinates: [AXIS, 110]
+            text: K_2
+            color: gray
+        - Line:
+            xIntercept: 100
+            yIntercept: 100
+            areaBelow: true
+            label:
+              x: 80
+              position: bl
+              text: \text{Capital constraint}
+        - Point:
+            coordinates: [params.K1, calcs.K2]
+            color: orange
+            drag:
+              - directions: xy
+                param: K1
+                expression: drag.x
+            droplines:
+              vertical: params.K1.toFixed(0)
+              horizontal: calcs.K2.toFixed(0)

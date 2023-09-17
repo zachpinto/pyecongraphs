@@ -1,0 +1,183 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x
+    value: 4
+    min: 1
+    max: 8
+    round: 0.1
+  - name: dx
+    value: 2
+    min: 0
+    max: 2
+    round: 0.01
+  - name: y
+    value: 3
+    min: 1
+    max: 9
+    round: 0.1
+  - name: f
+    value: 0
+  - name: showPlane
+    value: 0
+calcs:
+  xPlusDx: params.x + params.dx
+  z1: (4*sqrt(params.x)*params.y)
+  zPlusDz1: (4*sqrt(calcs.xPlusDx)*params.y)
+  dfdx1: (2*params.y/sqrt(params.x))
+  z2: (2*params.x + 4*params.y)
+  zPlusDz2: (2*calcs.xPlusDx + 4*params.y)
+  dfdx2: (2)
+  z3: (params.x*params.x + params.y*params.y)
+  zPlusDz3: (calcs.xPlusDx*calcs.xPlusDx + params.y*params.y)
+  dfdx3: (2*params.x)
+  z: "((params.f == 0) ? calcs.z1 : (params.f == 1) ? calcs.z2 : calcs.z3)"
+  zPlusDz: "((params.f == 0) ? calcs.zPlusDz1 : (params.f == 1) ? calcs.zPlusDz2 : calcs.zPlusDz3)"
+  dz: calcs.zPlusDz - calcs.z
+  dfdx: "((params.f == 0) ? calcs.dfdx1 : (params.f == 1) ? calcs.dfdx2 : calcs.dfdx3)"
+  m: "((params.dx > 0.01) ? (calcs.dz/params.dx) : calcs.dfdx)"
+layout:
+  MathboxPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 10
+        ticks: 5
+        title: x
+      yAxis:
+        min: 0
+        max: 10
+        ticks: 5
+        title: y
+      zAxis:
+        min: 0
+        max: 100
+        ticks: 5
+        title: z
+      objects:
+        - MathboxPlane:
+            y: params.y
+            fill: colors.orange
+            opacity: 0.3
+            show: params.showPlane
+            shaded: false
+        - MathboxLine:
+            x1: params.x - 2
+            y1: params.y
+            z1: calcs.z - 2*calcs.m
+            x2: calcs.xPlusDx + 2
+            y2: params.y
+            z2: calcs.zPlusDz + 2*calcs.m
+            strokeWidth: 10
+            stroke: colors.orange
+        - MathboxFunctionSurface:
+            fn:
+              fn: "(4*((x)^0.5)*(y))"
+              samplePoints: 20
+            shaded: false
+            show: (params.f == 0)
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxFunctionSurface:
+            fn:
+              fn: "(2*(x) + 4*(y))"
+              samplePoints: 20
+            shaded: false
+            show: (params.f == 1)
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxFunctionSurface:
+            fn:
+              fn: "((x)^2)+((y)^2)"
+              samplePoints: 20
+            shaded: false
+            show: (params.f == 2)
+            fill: colors.purple
+            opacity: 0.4
+        # Second Point; put first so it's behind the other one when they're the same
+        - MathboxPoint:
+            x: calcs.xPlusDx
+            y: params.y
+            z: calcs.zPlusDz
+            stroke: orange
+        # Dropline to x axis
+        - MathboxLine:
+            x1: calcs.xPlusDx
+            x2: calcs.xPlusDx
+            y2: params.y
+            stroke: orange
+            strokeWidth: 10
+            lineStyle: dotted
+        # Dropline to y axis
+        - MathboxLine:
+            x1: params.x
+            y1: params.y
+            x2: calcs.xPlusDx
+            y2: params.y
+            stroke: orange
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - MathboxLine:
+            x1: calcs.xPlusDx
+            y1: params.y
+            x2: calcs.xPlusDx
+            y2: params.y
+            z2: calcs.zPlusDz
+            stroke: orange
+            strokeWidth: 10
+            lineStyle: dotted
+        # Original point
+        - MathboxPoint:
+            x: params.x
+            y: params.y
+            z: calcs.z
+            stroke: blue
+        # Dropline to x axis
+        - MathboxLine:
+            x1: params.x
+            x2: params.x
+            y2: params.y
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Dropline to y axis
+        - MathboxLine:
+            y1: params.y
+            x2: params.x
+            y2: params.y
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - MathboxLine:
+            x1: params.x
+            y1: params.y
+            x2: params.x
+            y2: params.y
+            z2: calcs.z
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+
+    sidebar:
+      controls:
+        - title: Partial Derivative with respect to X
+          sliders:
+            - param: x
+              label: x
+            - param: y
+              label: y
+            - param: dx
+              label: \Delta x
+          checkboxes:
+            - param: showPlane
+              label: "`\\\\text{Show plane at }y = ${params.y.toFixed(1)}`"
+          radioGroup:
+            param: f
+            options:
+              - $f(x,y) = 4x^{1 \over 2}y$
+              - $f(x,y) = 2x + 4y$
+              - $f(x,y) = x^2 + y^2$

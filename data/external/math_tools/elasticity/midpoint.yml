@@ -1,0 +1,169 @@
+params:
+- name: Q
+  value: 72
+  min: 40
+  max: 90
+- name: P
+  value: 35
+  min: 10
+  max: 60
+- name: DQ
+  value: 24
+  min: 0
+  max: 30
+  round: 2
+- name: DP
+  value: 10
+  min: 0
+  max: 30
+  round: 2
+calcs:
+  MQ: params.Q - 0.5*params.DQ
+  MP: params.P + 0.5*params.DP
+  BQ: params.Q - params.DQ
+  BP: params.P + params.DP
+  showHorizontalArrow: "(params.DQ > 0)"
+  showVerticalArrow: "(params.DP > 0)"
+  slope: "-(params.DP)/(params.DQ)"
+  pctDQ: "(round(100*params.DQ/(params.Q - 0.5*params.DQ)))"
+  pctDP: "(round(100*params.DP/(params.P + 0.5*params.DP)))"
+  e: "(calcs.pctDQ/calcs.pctDP)"
+  unitElastic: "(calcs.e - 1 == 0)"
+  perfectlyElastic: "(params.DP == 0)"
+  perfectlyInelastic: "(params.DQ == 0)"
+  elastic: "(calcs.e > 1)"
+  inelastic: "(calcs.e < 1)"
+  anyChange: "(or((params.DQ > 0),(params.DP > 0)))"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Quantity
+        min: 0
+        max: 100
+        ticks: 0
+      yAxis:
+        title: Price
+        min: 0
+        max: 100
+        ticks: 0
+      objects:
+      - Point:
+          color: colors.blue
+          coordinates:
+          - params.Q
+          - params.P
+          label:
+            text: A
+          droplines:
+            vertical: params.Q
+            horizontal: params.P
+          drag:
+          - directions: x
+            param: Q
+            expression: params.Q + drag.dx
+          - directions: y
+            param: P
+            expression: params.P + drag.dy
+      - Point:
+          color: colors.blue
+          coordinates:
+          - calcs.BQ
+          - calcs.BP
+          label:
+            text: B
+          droplines:
+            vertical: calcs.BQ
+            horizontal: calcs.BP
+          drag:
+          - directions: x
+            param: DQ
+            expression: params.DQ - drag.dx
+          - directions: y
+            param: DP
+            expression: params.DP + drag.dy
+      - Point:
+          color: grey
+          r: 4
+          coordinates: [calcs.MQ, calcs.MP]
+          droplines:
+            vertical: calcs.MQ
+            horizontal: calcs.MP
+          label:
+            text: M
+      - type: Segment
+        def:
+          color: colors.red
+          a:
+          - params.Q
+          - 5
+          b:
+          - calcs.BQ
+          - 5
+          endArrow: true
+          show: calcs.showHorizontalArrow
+          label:
+            text: "\\Delta Q"
+      - type: Segment
+        def:
+          color: colors.green
+          a:
+          - 5
+          - params.P
+          b:
+          - 5
+          - calcs.BP
+          endArrow: true
+          show: calcs.showVerticalArrow
+          label:
+            text: "\\Delta P"
+      - type: Line
+        def:
+          color: colors.blue
+          point:
+          - params.Q
+          - params.P
+          slope: calcs.slope
+          endArrow: true
+          label:
+            text: D
+            location: 0.9
+    sidebar:
+      controls:
+      - title: 'Demand Elasticity: Midpoint Method'
+        description: Drag point A to change the starting price and quantity; drag
+          point B to change the magnitudes of the price and quantity changes.
+        divs:
+        - html: "`This diagram shows the effect of a price increase of $\\\\color{${colors.green}}\\\\Delta
+            P = +${params.DP.toFixed(0)}$, from $P_A = ${params.P.toFixed(0)}$ to
+            $P_B = ${calcs.BP.toFixed(0)}$. This price change results in a decrease in the quantity demanded
+            of $\\\\color{${colors.red}}\\\\Delta Q = -${params.DQ}$, from $Q_A =
+            ${params.Q}$ to $Q_B = ${calcs.BQ}$.`"
+          show: "(calcs.anyChange)"
+        - html: "`So the percentage change in price (using the midpoint $P_M = ${calcs.MP}$
+            as the basis) is $$\\\\color{${colors.green}}\\\\% \\\\Delta P = \\\\dfrac{\\\\Delta
+            P}{P_M} = \\\\dfrac{+${params.DP}}{${calcs.MP}} = +${calcs.pctDP}\\\\%$$`"
+          show: "(calcs.anyChange)"
+        - html: "`Likewise, the percentage change in quantity is $$\\\\color{${colors.red}}\\\\%
+            \\\\Delta Q = \\\\frac{\\\\Delta Q}{Q_M}=\\\\frac{-${params.DQ}}{${calcs.MQ}}=-${calcs.pctDQ}\\\\%$$`"
+          show: "(calcs.anyChange)"
+        - html: "`The price elasticity of demand is the ratio of these two percentages:
+            $$\\\\epsilon_{Q,P} = \\\\frac{\\\\color{${colors.red}}\\\\%\\\\Delta
+            Q}{\\\\color{${colors.green}}\\\\%\\\\Delta P}=\\\\frac{\\\\color{${colors.red}}-${calcs.pctDQ}\\\\%}{\\\\color{${colors.green}}+${calcs.pctDP}\\\\%}
+            = -${calcs.perfectlyElastic ? '\\\\infty' : calcs.e.toFixed(2)}$$`"
+          show: "(calcs.anyChange)"
+        - html: Since $|\epsilon| = 0$, we say that demand is <strong>perfectly inelastic</strong>.
+          show: "(calcs.perfectlyInelastic)"
+        - html: Since $|\epsilon| < 1$, we say that demand is <strong>inelastic</strong>
+            in this region.
+          show: "(calcs.inelastic && !calcs.perfectlyInelastic)"
+        - html: Since $|\epsilon| = 1$, we say that demand is <strong>unit elastic</strong>
+            in this region.
+          show: "(calcs.unitElastic)"
+        - html: Since $|\epsilon| > 1$, we say that demand is <strong>elastic</strong>
+            in this region.
+          show: "(calcs.elastic && !calcs.perfectlyElastic)"
+        - html: Since $|\epsilon| = \infty$, we say that demand is <strong>perfectly
+            elastic</strong>.
+          show: "(calcs.perfectlyElastic)"

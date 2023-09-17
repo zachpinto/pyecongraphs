@@ -1,0 +1,140 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: p
+  value: 1
+  min: 0.5
+  max: 2
+  round: 0.01
+- name: a
+  value: 0.65
+  min: 0.01
+  max: 0.99
+  round: 0.01
+- name: b
+  value: 0.5
+  min: 0.3
+  max: 1
+  round: 0.01
+- name: max1
+  value: 10
+  min: 20
+  max: 140
+  round: 0.01
+- name: max2
+  value: 20
+  min: 20
+  max: 140
+  round: 0.01
+- name: L1
+  value: 64
+  min: 1
+  max: 99
+  round: 1
+calcs:
+  y1: "(100*params.p/((1+params.p*params.p)^0.5))"
+  y2: "(100/((1+params.p*params.p)^0.5))"
+  showSurplus: "(params.p < 0.98 || params.p > 1.02)"
+  p2: "(1/params.p)"
+layout:
+  type: SquarePlusTwoVerticalGraphs
+  def:
+    bigGraph:
+      xAxis:
+        title: Quantity of Good 1
+        orient: bottom
+        min: 0
+        max: 30
+      yAxis:
+        title: Quantity of Good 2
+        orient: left
+        min: 0
+        max: 30
+      objects:
+      - type: EconPPF
+        def:
+          max1: params.max1
+          max2: params.max2
+          curvature: params.b
+          L1: params.L1
+          handles: true
+          draggable: true
+          label:
+            text: PPF
+            t: 5
+      - type: Point
+        def:
+          color: colors.supply
+          coordinates:
+          - calcs.ppf.y1
+          - calcs.ppf.y2
+          droplines:
+            vertical: calcs.ppf.y1.toFixed(1)
+            horizontal: calcs.ppf.y2.toFixed(1)
+    topGraph:
+      xAxis:
+        title: Labor Devoted to Good 1 $(L_1)$
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Good 1 Produced $(y_1)$
+        orient: left
+        min: 0
+        max: 30
+      objects:
+      - type: Curve
+        def:
+          color: colors.supply
+          univariateFunction:
+            fn: "(((params.max1/(100^params.b)))*((x)^params.b))"
+          label:
+            text: f(L_1)
+            x: 20
+      - type: Point
+        def:
+          color: colors.supply
+          coordinates:
+          - params.L1
+          - calcs.ppf.y1
+          drag:
+          - directions: x
+            param: L1
+            expression: params.L1 + drag.dx
+          droplines:
+            vertical: params.L1.toFixed(0)
+            horizontal: calcs.ppf.y1.toFixed(1)
+    bottomGraph:
+      xAxis:
+        title: Labor Devoted to Good 2 $(L_2)$
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Good 2 Produced $(y_2)$
+        orient: left
+        min: 0
+        max: 30
+      objects:
+      - type: Curve
+        def:
+          color: colors.supply
+          univariateFunction:
+            fn: "(((params.max2/(100^params.b)))*((x)^params.b))"
+          label:
+            text: f(L_2)
+            x: 20
+      - type: Point
+        def:
+          color: colors.supply
+          coordinates:
+          - "(100-params.L1)"
+          - calcs.ppf.y2
+          drag:
+          - directions: x
+            param: L1
+            expression: params.L1 - drag.dx
+          droplines:
+            vertical: "(100-params.L1).toFixed(0)"
+            horizontal: calcs.ppf.y2.toFixed(1)

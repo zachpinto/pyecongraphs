@@ -1,0 +1,106 @@
+params:
+  - name: x
+    value: 4
+    min: 1
+    max: 8
+    round: 0.1
+  - name: dx
+    value: 2
+    min: 0
+    max: 2
+    round: 0.01
+  - name: f
+    value: 0
+calcs:
+  xPlusDx: params.x + params.dx
+  z1: (12*sqrt(params.x))
+  zPlusDz1: (12*sqrt(calcs.xPlusDx))
+  dfdx1: (6/sqrt(params.x))
+  z2: (2*params.x + 12)
+  zPlusDz2: (2*calcs.xPlusDx + 12)
+  dfdx2: (2)
+  z3: (params.x*params.x + 9)
+  zPlusDz3: (calcs.xPlusDx*calcs.xPlusDx + 9)
+  dfdx3: (2*params.x)
+  z: "((params.f == 0) ? calcs.z1 : (params.f == 1) ? calcs.z2 : calcs.z3)"
+  zPlusDz: "((params.f == 0) ? calcs.zPlusDz1 : (params.f == 1) ? calcs.zPlusDz2 : calcs.zPlusDz3)"
+  dz: calcs.zPlusDz - calcs.z
+  dfdx: "((params.f == 0) ? calcs.dfdx1 : (params.f == 1) ? calcs.dfdx2 : calcs.dfdx3)"
+  m: "((params.dx > 0.01) ? (calcs.dz/params.dx) : calcs.dfdx)"
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      yAxis:
+        max: 100
+      objects:
+
+      - Curve:
+          fn: "12*sqrt((x))"
+          color: blue
+          show: (params.f == 0)
+          label:
+            text: "`f(x) = 12x^{1 \\\\over 2}`"
+            x: 9
+            position: tl
+
+      - Curve:
+          fn: "2*(x) + 12"
+          color: blue
+          show: (params.f == 1)
+          label:
+            text: "`f(x) = 2x + 12`"
+            x: 9
+            position: br
+
+      - Curve:
+          fn: "(x)^2 + 9"
+          color: blue
+          show: (params.f == 2)
+          label:
+            text: "`f(x) = x^2 + 9`"
+            x: 9
+            position: br
+
+      # Point x + dx
+      - Point:
+          coordinates: [calcs.xPlusDx, calcs.zPlusDz]
+          color: orange
+          drag:
+          - horizontal: dx
+          droplines:
+            vertical: x + \Delta x
+            horizontal: f(x + \Delta x)
+
+      # Point x
+      - Point:
+          coordinates: [params.x, calcs.z]
+          color: blue
+          drag:
+          - horizontal: x
+          droplines:
+            vertical: x
+            horizontal: f(x)
+
+      - Line:
+          point: [params.x, calcs.z]
+          slope: calcs.m
+          color: orange
+          strokeWidth: 4
+          min: params.x - 2
+          max: calcs.xPlusDx + 2
+
+    sidebar:
+      controls:
+      - title: Definition of a Derivative
+        description: Bring the two dots closer together to see how the derivative is the limit
+        sliders:
+        - param: x
+          label: x
+        - param: dx
+          label: \Delta x
+        radioGroup:
+          param: f
+          options:
+            - $f(x) = 12x^{1 \over 2}$
+            - $f(x) = 2x + 12$
+            - $f(x) = x^2 + 9$

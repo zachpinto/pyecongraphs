@@ -1,0 +1,74 @@
+params:
+- {name: x1, value: 0.5, min: 0, max: 2.5, round: 0.25}
+calcs:
+  x2: (5 - 2*params.x1)
+  y: (8*params.x1 - 2*params.x1*params.x1+ 8*calcs.x2 - calcs.x2*calcs.x2)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 8
+      yAxis:
+        max: 8
+      objects:
+
+      - Label:
+          coordinates: [8, 0]
+          text: x_1
+          position: r
+
+      - Label:
+          coordinates: [0, 8]
+          text: x_2
+          position: b
+
+      - Label:
+          coordinates: [(2 + sqrt(6 - 0.25*calcs.y)), 4]
+          text: "`f(x_1,x_2) = ${calcs.y.toFixed(2)}`"
+          color: purple
+          position: r
+
+
+      - Point:
+          coordinates: [2,4]
+          color: grey
+          r: 2
+
+      - ContourMap:
+          fn: 8*(x)-2*(x)*(x) + 8*(y) - (y)*(y)
+          levels: [0, 3, 7.5, 11.63, 15, 17.63, 19.5, 21, 23, 24]
+          color: grey
+          yMax: 9
+          xMin: -1
+          yMin: -1
+
+      - Line:
+          yIntercept: 5
+          slope: -2
+          color: green
+
+      - Point:
+          coordinates: [params.x1, calcs.x2]
+          color: green
+          r: 4
+          droplines:
+            vertical: params.x1.toFixed(2)
+            horizontal: calcs.x2.toFixed(2)
+          drag:
+          - directions: xy
+            param: x1
+            expression: params.x1 + drag.dx
+
+      - Contour:
+          fn: 8*(x)-2*(x)*(x) + 8*(y) - (y)*(y)
+          level: calcs.y
+          color: purple
+          yMax: 9
+          xMin: -1
+          yMin: -1
+
+
+    sidebar:
+      controls:
+      - title: Level Sets and Constrained Optimization
+        description: Try dragging the point along the constraint; the level set of the objective function will be drawn through the point. Notice that at the maximum value, the level set is tangent to the constraint.

@@ -1,0 +1,222 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: z
+    value: 20
+    min: 0
+    max: 100
+    round: 1
+  - name: f
+    value: 0
+  - name: showProjection
+    value: 0
+layout:
+  MathboxPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 10
+        step: 1
+        title: x
+      yAxis:
+        min: 0
+        max: 10
+        step: 1
+        title: y
+      zAxis:
+        min: 0
+        max: 100
+        step: 10
+        title: z
+      objects:
+        - MathboxPlane:
+            z: params.z
+            fill: blue
+            opacity: 0.5
+        - MathboxFunctionSurface:
+            fn:
+              fn: "(4*((x)^0.5)*(y))"
+              samplePoints: 20
+            shaded: true
+            show: (params.f == 0)
+            fill: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "params.z/(4*(x)^0.5)"
+              fnZ: params.z
+            strokeWidth: 10
+            show: (params.f == 0)
+            stroke: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "(params.z/(4*(y)))^2"
+              fnZ: params.z
+              ind: y
+            strokeWidth: 10
+            show: (params.f == 0)
+            stroke: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "params.z/(4*(x)^0.5)"
+              fnZ: 0
+            strokeWidth: 3
+            show: (params.f == 0 && params.showProjection)
+            stroke: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "(params.z/(4*(y)))^2"
+              fnZ: 0
+              ind: y
+            strokeWidth: 3
+            show: (params.f == 0 && params.showProjection)
+            stroke: purple
+            opacity: 0.4
+        - MathboxLine:
+            x1: (params.z*params.z/1600)
+            x2: (params.z*params.z/1600)
+            y1: 10
+            y2: 10
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 0 && params.showProjection)
+        - MathboxLine:
+            x1: 10
+            x2: 10
+            y1: (params.z/(4*sqrt(10)))
+            y2: (params.z/(4*sqrt(10)))
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 0 && params.showProjection)
+
+        # f(x,y) = 2x + 4y
+        - MathboxFunctionSurface:
+            fn:
+              fn: "(2*(x) + 4*(y))"
+              samplePoints: 20
+            shaded: true
+            show: (params.f == 1)
+            fill: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "0.25*params.z - 0.5*(x)"
+              fnZ: params.z
+            strokeWidth: 10
+            show: (params.f == 1)
+            stroke: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "0.25*params.z - 0.5*(x)"
+              fnZ: 0
+            strokeWidth: 3
+            show: (params.f == 1 && params.showProjection)
+            stroke: purple
+            opacity: 0.4
+        - MathboxLine:
+            y1: (0.25*params.z)
+            y2: (0.25*params.z)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 1 && params.z < 40 && params.showProjection)
+        - MathboxLine:
+            y1: 10
+            y2: 10
+            x1: (0.5*params.z - 20)
+            x2: (0.5*params.z - 20)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 1 && params.z >= 40 && params.z <= 60 && params.showProjection)
+        - MathboxLine:
+            x1: (0.5*params.z)
+            x2: (0.5*params.z)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 1 && params.z < 20 && params.showProjection)
+        - MathboxLine:
+            x1: 10
+            x2: 10
+            y1: (0.25*params.z - 5)
+            y2: (0.25*params.z - 5)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 1 && params.z >= 20 && params.z <= 60 && params.showProjection)
+
+        # f(x,y) = x^2 + y^2
+        - MathboxFunctionSurface:
+            fn:
+              fn: "((x)^2)+((y)^2)"
+              samplePoints: 20
+            shaded: true
+            show: (params.f == 2)
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "sqrt(params.z - (x)*(x))"
+              fnZ: params.z
+            strokeWidth: 10
+            show: (params.f == 2)
+            stroke: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "sqrt(params.z - (y)*(y))"
+              fnZ: params.z
+              ind: y
+            strokeWidth: 10
+            show: (params.f == 2)
+            stroke: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "sqrt(params.z - (x)*(x))"
+              fnZ: 0
+            strokeWidth: 3
+            show: (params.f == 2 && params.showProjection)
+            color: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "sqrt(params.z - (y)*(y))"
+              fnZ: 0
+              ind: y
+            strokeWidth: 3
+            show: (params.f == 2 && params.showProjection)
+            stroke: purple
+            opacity: 0.4
+        - MathboxLine:
+            x1: sqrt(params.z)
+            x2: sqrt(params.z)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 2 && params.showProjection)
+        - MathboxLine:
+            y1: sqrt(params.z)
+            y2: sqrt(params.z)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 2 && params.showProjection)
+
+    sidebar:
+      controls:
+        - title: Level Sets
+          description: The plot to the left shows the surface plot for the multivariable functions below. The horizontal plane has a height set of z; where it intersects the surface plot, it forms a level set. Try adjusting the z value to see how the level set changes.
+          checkboxes:
+            - param: showProjection
+              label: \text{Show 2D projection}
+          sliders:
+            - param: z
+              label: z
+          radioGroup:
+            param: f
+            options:
+              - $f(x,y) = 4x^{1 \over 2}y$
+              - $f(x,y) = 2x + 4y$
+              - $f(x,y) = x^2 + y^2$

@@ -1,0 +1,53 @@
+schema: EconSchema
+version: 1
+params:
+- name: a
+  value: 0.25
+  min: 0.25
+  max: 1
+  round: 0.01
+- name: A
+  value: 8
+  min: 1
+  max: 10
+  round: 0.01
+calcs:
+  maxQ: (params.A*100^(2*params.a))
+  maxAxis: (12*100^(2*params.a))
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Quantity of Good 1 $(x_1)$
+        orient: bottom
+        min: 0
+        max: calcs.maxAxis
+      yAxis:
+        title: Quantity of Good 2 $(x_2)$
+        orient: left
+        min: 0
+        max: calcs.maxAxis
+      objects:
+      - type: EconPPF
+        def:
+          color: colors.longRun
+          max1: calcs.maxQ
+          max2: calcs.maxQ
+          curvature: 2*params.a
+          handles: false
+          draggable: false
+          label:
+            text: PPF
+            t: 95
+
+    sidebar:
+      controls:
+      - title: Returns To Scale and the PPF
+        sliders:
+        - param: A
+          label: A
+        - param: a
+          label: a
+        divs:
+        - html: "`<h4>Production functions:</h4><p>Either good can be produced using the production function $$f(L) = AL^aK^a$$</p><h4>Resource constraints:</h4><p>$$L_1 + L_2 = 100$$ $$K_1 + K_2 = 100$$</p>`"
+        - html: "<i>Note: this is the same PPF as if there were only one input, and the production function were $f(L) = AL^{2a}$.</i>"
