@@ -3,7 +3,7 @@ PyEconGraphs
 
 **Description:**
 
-A Python library designed to render interactive economic graphs with data sourced primarily from econgraphs.org.
+A Python library designed to render dynamic economic graphs with data sourced primarily from econgraphs.org.
 
 **Current Status:**
 
