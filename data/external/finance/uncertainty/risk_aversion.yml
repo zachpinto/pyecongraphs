@@ -1,0 +1,265 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: r
+  value: '0.25'
+  min: '0.05'
+  max: '2'
+  round: '0.01'
+- name: pi
+  value: '0.4'
+  min: '0'
+  max: '1'
+  round: '0.01'
+- name: c1
+  value: '10'
+  min: '10'
+  max: '50'
+  round: '1'
+- name: c2
+  value: '80'
+  min: '50'
+  max: '80'
+  round: '1'
+calcs:
+  u1: "(params.c1^params.r)"
+  u2: "(params.c2^params.r)"
+  EU: "(params.pi*(params.c1^params.r)+(1-params.pi)*(params.c2^params.r))"
+  EC: "(params.pi*params.c1 + (1-params.pi)*params.c2)"
+  CE: "((params.pi*(params.c1^params.r)+(1-params.pi)*(params.c2^params.r))^(1/params.r))"
+  UEC: "((params.pi*params.c1 + (1-params.pi)*params.c2)^params.r)"
+  inequality: "((params.r < 1) ? '<' : (params.r > 1) ? '>' : '=')"
+  aversion: "((params.r < 1) ? 'averse' : (params.r > 1) ? 'loving' : 'neutral')"
+  indCurve: "((params.r < 1) ? 'a higher indifference curve than' : (params.r > 1)
+    ? 'a lower indifference curve than' : 'the same indifference curve as')"
+layout:
+  type: TwoHorizontalGraphsPlusSidebar
+  def:
+    leftGraph:
+      xAxis:
+        title: Consumption
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 0
+      yAxis:
+        title: Utility
+        orient: left
+        min: 0
+        max: "(100^params.r)"
+        ticks: 0
+      objects:
+      - type: Curve
+        def:
+          univariateFunction:
+            fn: "(x)^params.r"
+          samplePoints: 500
+          label:
+            text: u(c)
+            x: 90
+          color: colors.utility
+      - type: Segment
+        def:
+          a:
+          - params.c1
+          - calcs.u1
+          b:
+          - params.c2
+          - calcs.u2
+          lineStyle: dotted
+          color: colors.endowment
+      - type: Point
+        def:
+          coordinates:
+          - params.c1
+          - calcs.u1
+          color: colors.red
+          droplines:
+            vertical: c_1
+            horizontal: u(c_1)
+          r: 4
+          drag:
+          - directions: x
+            param: c1
+            expression: params.c1 + drag.dx
+      - type: Point
+        def:
+          coordinates:
+          - params.c2
+          - calcs.u2
+          color: colors.green
+          droplines:
+            vertical: c_2
+            horizontal: u(c_2)
+          r: 4
+          drag:
+          - directions: x
+            param: c2
+            expression: params.c2 + drag.dx
+      - type: Point
+        def:
+          coordinates:
+          - calcs.EC
+          - Math.max(calcs.UEC,calcs.EU)
+          color: colors.blue
+          r: 0
+          droplines:
+            vertical: "\\mathbb{E}[c]"
+      - type: Point
+        def:
+          coordinates:
+          - calcs.EC
+          - calcs.EU
+          r: 4
+          color: colors.orange
+          droplines:
+            horizontal: "\\mathbb{E}[u(c)]"
+      - type: Point
+        def:
+          coordinates:
+          - calcs.EC
+          - calcs.UEC
+          r: 4
+          color: colors.utility
+          droplines:
+            horizontal: u(\mathbb{E}[c])
+      - type: Segment
+        def:
+          a:
+          - "(calcs.EC)"
+          - "(calcs.EU)"
+          b:
+          - "(params.c2)"
+          - "(calcs.u2)"
+          startArrow: true
+          endArrow: true
+          color: colors.green
+          label:
+            text: "`${(params.pi*100).toFixed(0)}\\\\%`"
+          show: params.showPi
+      - type: Segment
+        def:
+          a:
+          - "(calcs.EC)"
+          - "(calcs.EU)"
+          b:
+          - "(params.c1)"
+          - "(calcs.u1)"
+          startArrow: true
+          endArrow: true
+          color: colors.red
+          label:
+            text: "`${((1-params.pi)*100).toFixed(0)}\\\\%`"
+          show: params.showPi
+    rightGraph:
+      xAxis:
+        title: Consumption in State of the World 1
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 0
+      yAxis:
+        title: Consumption in State of the World 2
+        orient: left
+        min: 0
+        max: 100
+        ticks: 0
+      objects:
+      - type: Point
+        def:
+          coordinates:
+          - params.c1
+          - params.c2
+          color: colors.red
+          droplines:
+            vertical: c_1
+          r: 4
+          drag:
+          - directions: x
+            param: c1
+            expression: params.c1 + drag.dx
+      - type: Point
+        def:
+          coordinates:
+          - params.c1
+          - params.c2
+          r: 4
+          droplines:
+            horizontal: c_2
+          color: colors.green
+          drag:
+          - directions: y
+            param: c2
+            expression: params.c2 + drag.dy
+      - type: EconBundle
+        def:
+          name: endowmentBundle
+          coordinates:
+          - params.c1
+          - params.c2
+          droplines: {}
+          color: colors.orange
+          label: {}
+          r: 4
+          utilityFunction:
+            type: CES
+            def:
+              alpha: params.pi
+              r: params.r
+          drag:
+          - directions: x
+            param: c1
+            expression: params.c1 + drag.dx
+          - directions: y
+            param: c2
+            expression: params.c2 + drag.dy
+          indifferenceCurve:
+            label:
+              text: "\\mathbb{E}[u(c)]"
+            color: colors.orange
+      - type: Point
+        def:
+          coordinates:
+          - calcs.EC
+          - calcs.EC
+          label: {}
+          droplines:
+            vertical: "\\mathbb{E}[c]"
+            horizontal: "\\mathbb{E}[c]"
+          r: 0
+          color: colors.blue
+      - type: EconBundle
+        def:
+          name: fullyInsured
+          coordinates:
+          - calcs.EC
+          - calcs.EC
+          label: {}
+          r: 4
+          droplines: {}
+          utilityFunction:
+            type: CES
+            def:
+              alpha: params.pi
+              r: params.r
+          color: colors.utility
+          indifferenceCurve:
+            label:
+              text: u(\mathbb{E}[c])
+              x: 60
+    sidebar:
+      controls:
+      - title: Risk Aversion and Indifference Curves
+        sliders:
+        - param: r
+          label: r
+        - param: pi
+          label: "\\pi"
+        divs:
+        - html: "`<br/><hr/><br/>In the left graph, $$\\\\textcolor{${colors.orange}}{\\\\mathbb{E}[u(c)]}
+            ${calcs.inequality} \\\\textcolor{${colors.utility}}{u(\\\\mathbb{E}[c])}$$so
+            the consumer is <b>risk ${calcs.aversion}</b>. In the right graph, this
+            means the point $(\\\\textcolor{${colors.blue}}{\\\\mathbb{E}[c]},\\\\textcolor{${colors.blue}}{\\\\mathbb{E}[c]})$
+            lies on ${calcs.indCurve} the point $(\\\\textcolor{${colors.red}}{c_1},\\\\textcolor{${colors.green}}{c_2})$.`"

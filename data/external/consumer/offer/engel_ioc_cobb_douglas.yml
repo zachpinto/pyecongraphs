@@ -1,0 +1,314 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: "0.5"
+    min: "0"
+    max: "1"
+    round: "0.01"
+  - name: p
+    value: "4"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: q
+    value: "4"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: m
+    value: "160"
+    min: "0"
+    max: "200"
+    round: "1"
+  - name: showIOC
+    value: false
+restrictions:
+  - expression: params.a*params.m/params.p
+    min: "1"
+    max: "100"
+  - expression: params.m/params.q
+    min: "1"
+    max: "50"
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 0
+            b:
+              - 100
+              - (params.a*params.q)^(-1)*100*params.p*(1-params.a)
+            stroke: colors.incomeOffer
+            lineStyle: dashed
+            show: params.showIOC
+        - type: Label
+          def:
+            coordinates:
+              - '((params.p)^(-1)*params.a*params.m*2 > 100 ? 100 : (params.p)^(-1)*params.a*params.m*2)'
+              - '((params.p)^(-1)*params.a*params.m*2 > 100 ? (params.a*params.q)^(-1)*100*params.p*(1-params.a) : (params.q)^(-1)*(1-params.a)*params.m*2)'
+            color: colors.incomeOffer
+            text: IOC
+            align: left
+            show: params.showIOC
+        - type: EconOptimalBundle
+          def:
+            name: optimum40
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: 40
+              inMap: true
+            indifferenceCurve:
+              inMap: true
+            label: null
+            droplines: {}
+            r: 4
+            color: colors.incomeOffer
+            show: params.showIOC
+        - type: EconOptimalBundle
+          def:
+            name: optimum80
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: 80
+              inMap: true
+            indifferenceCurve:
+              inMap: true
+            label: null
+            droplines: {}
+            r: 4
+            color: colors.incomeOffer
+            show: params.showIOC
+        - type: EconOptimalBundle
+          def:
+            name: optimum120
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: 120
+              inMap: true
+            indifferenceCurve:
+              inMap: true
+            label: null
+            droplines: {}
+            r: 4
+            color: colors.incomeOffer
+            show: params.showIOC
+        - type: EconOptimalBundle
+          def:
+            name: optimum160
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: 160
+              inMap: true
+            indifferenceCurve:
+              inMap: true
+            label: null
+            droplines: {}
+            r: 4
+            color: colors.incomeOffer
+            show: params.showIOC
+        - type: EconOptimalBundle
+          def:
+            name: optimum
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+              handles: true
+              draggable: true
+    bottomGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Income
+        orient: left
+        min: 0
+        max: 220
+        ticks: 7
+      objects:
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: params.a*y/params.p
+              ind: "y"
+            stroke: colors.incomeOffer
+        - type: Point
+          def:
+            coordinates:
+              - params.a*40/params.p
+              - 40
+            r: 4
+            fill: colors.incomeOffer
+            show: params.showIOC
+        - type: Point
+          def:
+            coordinates:
+              - params.a*80/params.p
+              - 80
+            r: 4
+            fill: colors.incomeOffer
+            show: params.showIOC
+        - type: Point
+          def:
+            coordinates:
+              - params.a*120/params.p
+              - 120
+            r: 4
+            fill: colors.incomeOffer
+            show: params.showIOC
+        - type: Point
+          def:
+            coordinates:
+              - params.a*160/params.p
+              - 160
+            r: 4
+            fill: colors.incomeOffer
+            show: params.showIOC
+        - type: Label
+          def:
+            coordinates:
+              - params.a*190/params.p
+              - 190
+            color: colors.incomeOffer
+            align: left
+            yPixelOffset: 10
+        - type: Segment
+          def:
+            a:
+              - 0
+              - params.m
+            b:
+              - 100
+              - params.m
+            color: colors.budget
+            drag:
+              - directions: "y"
+                param: m
+                expression: params.m + drag.dy
+            label:
+              text: m
+              location: 0.05
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 40
+            b:
+              - 100
+              - 40
+            stroke: green
+            lineStyle: dotted
+            show: params.showIOC
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 80
+            b:
+              - 100
+              - 80
+            stroke: green
+            lineStyle: dotted
+            show: params.showIOC
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 120
+            b:
+              - 100
+              - 120
+            stroke: green
+            lineStyle: dotted
+            show: params.showIOC
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 160
+            b:
+              - 100
+              - 160
+            stroke: green
+            lineStyle: dotted
+            show: params.showIOC
+        - type: Point
+          def:
+            coordinates:
+              - (params.p)^(-1)*params.a*params.m
+              - params.m
+            label:
+              text: x_1^*(m|p_1,p_2)
+            fill: colors.incomeOffer
+            droplines:
+              vertical: x_1^*
+            drag:
+              - directions: "y"
+                param: m
+                expression: params.m + drag.dy
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: \alpha
+          divs:
+            - html: '`$$u(x_1,x_2) = x_1^\\alpha x_2^{1 - \\alpha} = x_1^{${params.a.toFixed(2)}}x_2^{${(1-params.a).toFixed(2)}}$$`'
+        - title: Budget Parameters
+          sliders:
+            - param: p
+              label: p_1
+            - param: q
+              label: p_2
+            - param: m
+              label: m
+        - title: Income Offer Curve
+          checkboxes:
+            - param: showIOC
+              label: \text{Show IOC}
+          divs:
+            - html: '`<table align=''center''><tr><td>$m$</td><td>$x_1^*$</td><td>$x_2^*$</td></tr><tr><td>40</td><td>${(params.a*40/params.p).toFixed(1)}</td><td>${((1-params.a)*40/params.q).toFixed(1)}</td></tr><tr><td>80</td><td>${(params.a*80/params.p).toFixed(1)}</td><td>${((1-params.a)*80/params.q).toFixed(1)}</td></tr><tr><td>120</td><td>${(params.a*120/params.p).toFixed(1)}</td><td>${((1-params.a)*120/params.q).toFixed(1)}</td></tr><tr><td>160</td><td>${(params.a*160/params.p).toFixed(1)}</td><td>${((1-params.a)*160/params.q).toFixed(1)}</td></tr><table>`'

@@ -1,0 +1,113 @@
+schema: EconSchema
+templateDefaults:
+  title: The Keynesian Cross
+  XAxisLabel: Output
+  XAxisUnits: Y
+  YAxisLabel: Aggregate Expenditure
+  YAxisUnits: AE
+  AClabel: AC
+  ACwords: autonomous consumption
+  ACinitial: 200
+  ACmin: 100
+  ACmax: 400
+  ACround: 1
+  MPClabel: MPC
+  MPCwords: marginal propensity to consume
+  MPCinitial: 0.5
+  MPCmin: 0
+  MPCmax: 0.8
+  MPCround: 0.01
+  quantitative: true
+  showQuantCheck: false
+  decimals: 0
+params:
+  - {name: AC, value: template.ACinitial, min: template.ACmin, max: template.ACmax, round: template.ACround}
+  - {name: MPC, value: template.MPCinitial, min: template.MPCmin, max: template.MPCmax, round: template.MPCround }
+  - {name: quantitative, value: template.quantitative}
+calcs:
+  curveLabelX: (0.95*template.axisMax)
+  yStar: (calcs.AE.fixedPoint)
+  ticks: "((params.quantitative) ? 5 : 0)"
+  axisMax: (5*template.ACinitial)
+  labelX: (0.95*calcs.axisMax)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: template.XAxisLabel ($template.XAxisUnits$)
+        max: calcs.axisMax
+        ticks: calcs.ticks
+      yAxis:
+        title: template.YAxisLabel ($$template.YAxisUnits$$)
+        max: calcs.axisMax
+        ticks: calcs.ticks
+      objects:
+
+        # 45-degree Line
+        - Line:
+            slope: 1
+            strokeWidth: 0.75
+            color: grey
+            label: { text: "template.YAxisUnits = template.XAxisUnits", x: calcs.labelX}
+        - AngleMarker:
+            measure: 45
+
+
+        # Aggregate Demand Line
+        - Line:
+            name: AE
+            yIntercept: params.AC
+            slope: params.MPC
+            color: red
+            label:
+              text: "`template.YAxisUnits =  ${((params.quantitative) ? params.AC.toFixed(template.decimals) + '+' + params.MPC.toFixed(2) : 'template.AClabel + template.MPClabel \\\\times')} template.XAxisUnits`"
+              x: calcs.labelX
+        - Point:
+            coordinates: [0, params.AC ]
+            label:
+              text: "((params.quantitative) ? params.AC.toFixed(template.decimals) : 'template.AClabel')"
+              position: r
+              bgcolor: white
+            color: red
+            draggable: true
+
+        # Equilibrium
+        - Point:
+            coordinates: [ calcs.yStar, calcs.yStar ]
+            label:
+              text: \text{Equilibrium}
+              position: tl
+            droplines:
+              vertical: "((params.quantitative) ? calcs.yStar.toFixed(template.decimals) : 'template.XAxisUnits')"
+              horizontal: "((params.quantitative) ? calcs.yStar.toFixed(template.decimals) : 'template.YAxisUnits')"
+
+
+    sidebar:
+      controls:
+        - title: "template.title"
+          description: "Drag the sliders to change the template.ACwords (<em>template.AClabel</em>) and template.MPCwords (<em>template.MPClabel</em>):"
+          sliders:
+            - param: AC
+              label: AC
+              show: (params.quantitative)
+            - param: MPC
+              label: MPC
+              show: (params.quantitative)
+            - param: AC
+              label: AC
+              showNumber: false
+              show: (!params.quantitative)
+            - param: MPC
+              label: MPC
+              showNumber: false
+              show: (!params.quantitative)
+          checkboxes:
+            - param: quantitative
+              label: "Show numbers"
+              plainText: true
+              show: template.showQuantCheck
+          divs:
+            - html: "Equilibrium occurs at the point where $template.XAxisUnits = template.YAxisUnits$: $$\\begin{aligned}template.XAxisUnits &=  template.AClabel + template.MPClabel \\times template.XAxisUnits\\\\template.XAxisUnits - template.MPClabel \\times template.XAxisUnits &= template.AClabel\\\\template.XAxisUnits &= \\frac{template.AClabel}{1 - template.MPClabel}\\end{aligned}$$"
+              show: (!params.quantitative)
+            - html: "`Equilibrium occurs at the point where $template.XAxisUnits = template.YAxisUnits$: $$\\\\begin{aligned}template.XAxisUnits &=  ${params.AC.toFixed(template.decimals)} + ${params.MPC.toFixed(2)}template.XAxisUnits\\\\\\\\template.XAxisUnits - ${params.MPC.toFixed(2)}template.XAxisUnits &= ${params.AC.toFixed(template.decimals)}\\\\\\\\template.XAxisUnits &= \\\\frac{${params.AC.toFixed(template.decimals)}}{1 - ${params.MPC.toFixed(2)}} = ${calcs.yStar.toFixed(template.decimals)}\\\\end{aligned}$$`"
+              show: (params.quantitative)

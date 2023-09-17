@@ -1,0 +1,89 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: 1
+    min: 1
+    max: 5
+  - name: b
+    value: 2
+    min: 1
+    max: 5
+  - name: p
+    value: 4
+    min: 1
+    max: 10
+  - name: q
+    value: 2
+    min: 1
+    max: 10
+  - name: m
+    value: 24
+    min: 0
+    max: 60
+calcs:
+  alpha: (params.a/(params.a+params.b))
+  bundleCost: (params.p*params.a + params.q*params.b)
+  bundles: (params.m/calcs.bundleCost)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 20
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 20
+        ticks: 10
+      objects:
+        - EconIndifferenceMap:
+            utilityFunction:
+              type: PerfectComplements
+              def:
+                alpha: calcs.alpha
+            levels: [1.5, 3, 4.5, 6, 7.5, 9, 10.5, 12]
+        - EconOptimalBundle:
+            name: optimum
+            color: demand
+            utilityFunction:
+              type: PerfectComplements
+              def:
+                alpha: calcs.alpha
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+              handles: true
+              draggable: true
+              color: budget
+            indifferenceCurve:
+              label:
+                text: \text{Ind. curve through }X^*
+                x: 80
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: a
+            - param: b
+              label: b
+        - title: Budget Parameters
+          sliders:
+            - param: p
+              label: p_1
+            - param: q
+              label: p_2
+            - param: m
+              label: m
+          divs:
+            - html: "`With the utility function $$u(x_1,x_2) = \\\\min\\\\left\\\\{ {x_1 \\\\over ${params.a}}, {x_2 \\\\over ${params.b}} \\\\right\\\\}$$the consumer wants to buy as many bundles of (${params.a} units of good 1, ${params.b} units of good 2) as she can with her income. If $p_1 = ${params.p}$ and $p_2 = ${params.q}$, each such bundle costs $ ${params.p} \\\\times ${params.a} + ${params.q} \\\\times ${params.b} = ${calcs.bundleCost}$, so with $m = ${params.m}$, she can afford ${calcs.bundles.toFixed(2)} bundles. Since each bundle contains ${params.a} units of good 1 and ${params.b} units of good 2, she'll demand $x_1^* = ${calcs.optimum.x.toFixed(2)}$ and $x_2^* = ${calcs.optimum.y.toFixed(2)}$.`"
+

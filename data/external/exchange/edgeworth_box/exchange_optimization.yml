@@ -1,0 +1,377 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: w1
+    value: "120"
+    min: "0"
+    max: "200"
+  - name: w2
+    value: "20"
+    min: "0"
+    max: "100"
+  - name: p
+    value: 0.75
+    min: 0.01
+    max: 2
+    round: 0.001
+  - name: a1
+    value: 0.5
+    min: 0.01
+    max: 1
+    round: 0.01
+  - name: a2
+    value: 0.5
+    min: 0.01
+    max: 1
+    round: 0.01
+  - name: showIndifferenceCurves
+    value: false
+  - name: showIndifferenceCurvesOptimum
+    value: true
+  - name: showContractCurve
+    value: false
+  - name: showPOC
+    value: false
+  - name: showBuySell
+    value: false
+layout:
+  type: EdgeworthBoxPlusTwoGraphsPlusSidebar
+  def:
+    totalGood1: 200
+    totalGood2: 100
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+        - type: EconContractCurve
+          def:
+            totalGood1: 200
+            totalGood2: 100
+            a: params.a1
+            b: params.a2
+            show: params.showContractCurve
+            label:
+              text: \text{Contract Curve}
+              x: 180
+        - type: EconPriceOfferCurve
+          def:
+            lineStyle: dashed
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a1
+            budgetLine:
+              p1: params.p
+              p2: 1
+              x: params.w1
+              "y": params.w2
+            good: 1
+            show: params.showPOC
+            stroke: colors.utility
+        - type: EconBundle
+          def:
+            coordinates:
+              - params.w1
+              - params.w2
+            label: {}
+            droplines:
+              vertical: \omega_1^A
+              horizontal: \omega_2^A
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a1
+            indifferenceCurve:
+              show: params.showIndifferenceCurves
+              label:
+                text: null
+        - type: EconOptimalBundle
+          def:
+            name: optimumA
+            label:
+              text: X^A
+            droplines:
+              vertical: x_1^A
+              horizontal: x_2^A
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a1
+            color: colors.utility
+            budgetLine:
+              p1: params.p
+              p2: 1
+              x: params.w1
+              "y": params.w2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+              label: {}
+            indifferenceCurve:
+              show: params.showIndifferenceCurvesOptimum
+              label:
+                text: null
+        - type: EconBundle
+          def:
+            coordinates:
+              - params.w1
+              - params.w2
+            label:
+              text: \text{Endowment}
+            droplines: {}
+            drag:
+              - directions: x
+                param: w1
+                expression: params.w1 + drag.dx
+              - directions: "y"
+                param: w2
+                expression: params.w2 + drag.dy
+            color: colors.endowment
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+        - type: EconPriceOfferCurve
+          def:
+            lineStyle: dashed
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a2
+            budgetLine:
+              p1: params.p
+              p2: 1
+              x: (200-params.w1)
+              "y": (100-params.w2)
+            good: 1
+            show: params.showPOC
+            stroke: colors.orange
+        - type: EconBundle
+          def:
+            coordinates:
+              - (200 - params.w1)
+              - (100 - params.w2)
+            label: {}
+            droplines:
+              vertical: \omega_1^B
+              horizontal: \omega_2^B
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a2
+            indifferenceCurve:
+              show: params.showIndifferenceCurves
+              label:
+                text: null
+              color: colors.orange
+            color: colors.orange
+        - type: EconOptimalBundle
+          def:
+            name: optimumB
+            label:
+              text: X^B
+            droplines:
+              vertical: x_1^B
+              horizontal: x_2^B
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a2
+            color: colors.orange
+            budgetLine:
+              p1: params.p
+              p2: 1
+              x: (200 - params.w1)
+              "y": (100 - params.w2)
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+              label: {}
+              show: false
+            indifferenceCurve:
+              show: params.showIndifferenceCurvesOptimum
+              label:
+                text: null
+              color: colors.orange
+        - type: EconBundle
+          def:
+            coordinates:
+              - (200-params.x1)
+              - (100-params.x2)
+            label:
+              text: X
+            droplines:
+              vertical: x_1^B
+              horizontal: x_2^B
+            color: colors.orange
+            show: params.showPotentialTrade
+    graph1:
+      xAxis:
+        title: A's Units of Good 1
+        max: 150
+      yAxis:
+        title: A's Units of Good 2
+        max: 150
+      objects:
+        - type: EconPriceOfferCurve
+          def:
+            lineStyle: dashed
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a1
+            budgetLine:
+              p1: params.p
+              p2: 1
+              x: params.w1
+              "y": params.w2
+            good: 1
+            show: params.showPOC
+            stroke: colors.utility
+        - type: EconBundle
+          def:
+            coordinates:
+              - params.w1
+              - params.w2
+            label:
+              text: \text{Endowment}
+            droplines:
+              vertical: \omega_1^A
+              horizontal: \omega_2^A
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a1
+            indifferenceCurve:
+              show: params.showIndifferenceCurves
+              label:
+                text: null
+        - type: EconOptimalBundle
+          def:
+            label:
+              text: X^A
+            droplines:
+              vertical: x_1^A
+              horizontal: x_2^A
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a1
+            color: colors.utility
+            budgetLine:
+              p1: params.p
+              p2: 1
+              x: params.w1
+              "y": params.w2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+              label: {}
+            indifferenceCurve:
+              show: params.showIndifferenceCurvesOptimum
+              label:
+                text: null
+    graph2:
+      xAxis:
+        title: B's Units of Good 1
+        max: 150
+      yAxis:
+        title: B's Units of Good 2
+        max: 150
+      objects:
+        - type: EconPriceOfferCurve
+          def:
+            lineStyle: dashed
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a2
+            budgetLine:
+              p1: params.p
+              p2: 1
+              x: (200-params.w1)
+              "y": (100-params.w2)
+            good: 1
+            show: params.showPOC
+            stroke: colors.orange
+        - type: EconBundle
+          def:
+            coordinates:
+              - (200 - params.w1)
+              - (100 - params.w2)
+            label:
+              text: \text{Endowment}
+            droplines:
+              vertical: \omega_1^B
+              horizontal: \omega_2^B
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a2
+            indifferenceCurve:
+              show: params.showIndifferenceCurves
+              label:
+                text: null
+              color: colors.orange
+            color: colors.orange
+        - type: EconOptimalBundle
+          def:
+            label:
+              text: X^B
+            droplines:
+              vertical: x_1^B
+              horizontal: x_2^B
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a2
+            budgetLine:
+              p1: params.p
+              p2: 1
+              x: (200 - params.w1)
+              "y": (100 - params.w2)
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+              label: {}
+            indifferenceCurve:
+              show: params.showIndifferenceCurvesOptimum
+              label:
+                text: null
+              color: colors.orange
+            color: colors.orange
+    sidebar:
+      controls:
+        - title: Exchange Optimization in The Edgeworth Box
+          sliders:
+            - param: p
+              label: \text{Price Ratio}
+          checkboxes:
+            - param: showPOC
+              label: \text{Show offer curves}
+            - param: showContractCurve
+              label: \text{Show contract curve}
+        - title: Utility Functions
+          sliders:
+            - param: a1
+              label: \alpha^A
+            - param: a2
+              label: \alpha^B
+          checkboxes:
+            - param: showIndifferenceCurves
+              label: \text{Show indifference curves through endowment}
+            - param: showIndifferenceCurvesOptimum
+              label: \text{Show indifference curves through optimum}

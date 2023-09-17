@@ -1,0 +1,81 @@
+schema: EconSchema
+params:
+- {name: m, min: 10, max: 200, round: 10, value: 100}
+- {name: p, min: 1, max: 10, round: 0.01, value: 5}
+- {name: gift, min: 0, max: 40, round: 5, value: 25}
+- {name: g, value: 0}
+calcs:
+  xhat: (params.gift/params.p)
+  xIntercept: ((params.m + params.gift)/params.p)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 40
+        ticks: 0
+        title: Lattes
+      yAxis:
+        max: 200
+        title: Dollars Spent on Other Things
+      objects:
+        - Line:
+            yIntercept: params.m
+            color: lightgrey
+            lineStyle: dotted
+            label:
+              text: m
+              x: 28
+        - EconBudgetLine:
+            p1: params.p
+            p2: 1
+            m: params.m + params.gift
+            label:
+              text: 
+            set: (params.g)
+            show: (params.g)
+        - Line:
+            yIntercept: params.m
+            max: calcs.xhat
+            color: budget
+            show: (!params.g)
+        - Line:
+            point: [calcs.xhat, params.m]
+            slope: -params.p
+            min: calcs.xhat
+            color: budget
+            show: (!params.g)
+            name: B
+        - Area:
+            fn: min(params.m, params.m + params.gift - params.p*(x))
+            color: budget
+            show: (!params.g)
+        - Point:
+            coordinates: [calcs.xhat, params.m]
+            r: 0
+            color: budget
+            droplines:
+              vertical: calcs.xhat.toFixed(1)
+        - Label:
+            coordinates: [calcs.xIntercept, AXIS]
+            r: 0
+            text: calcs.xIntercept.toFixed(1)
+            fontSize: 10
+            color: budget
+            
+            
+    sidebar:
+      controls:
+      - title: "Kinked Budget Constraint Example: Gift Cards vs. Cash"
+        description: "Your recipient's budget set is smaller if you give a gift card than if you give cash."
+        sliders:
+        - param: p
+          label: p
+        - param: m
+          label: m
+        - param: gift
+          label: g
+        radioGroup:
+          param: g
+          options:
+          - Gift Card
+          - Cash

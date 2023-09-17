@@ -1,0 +1,119 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+layout:
+  type: TwoHorizontalGraphsPlusSidebar
+  def:
+    leftGraph:
+      xAxis:
+        title: Consumption if Heads ($c_1$)
+        orient: bottom
+        min: 0
+        max: 500
+        ticks: 0
+      yAxis:
+        title: Consumption if Tails ($c_2$)
+        orient: left
+        min: 0
+        max: 500
+        ticks: 0
+      objects:
+      - type: EconBundle
+        def:
+          coordinates:
+          - 250
+          - 250
+          color: colors.endowment
+          droplines:
+            vertical: '250'
+            horizontal: '250'
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          label:
+            text: "\\text{Don't bet}"
+          indifferenceCurve:
+            showPreferred: false
+            color: colors.endowment
+            label:
+              text: 
+      - type: EconBundle
+        def:
+          coordinates:
+          - 100
+          - 400
+          label:
+            text: "\\text{Bet}"
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          droplines:
+            vertical: '100'
+            horizontal: '400'
+          indifferenceCurve:
+            showPreferred: false
+            label:
+              text: 
+    rightGraph:
+      xAxis:
+        title: Consumption if Heads ($c_1$)
+        orient: bottom
+        min: 0
+        max: 500
+        ticks: 0
+      yAxis:
+        title: Consumption if Tails ($c_2$)
+        orient: left
+        min: 0
+        max: 500
+        ticks: 0
+      objects:
+      - type: EconBundle
+        def:
+          coordinates:
+          - 100
+          - 400
+          label:
+            text: "\\text{Bet}"
+          utilityFunction:
+            type: Concave
+            def:
+              alpha: '0.5'
+          droplines:
+            vertical: '100'
+            horizontal: '400'
+          indifferenceCurve:
+            showPreferred: false
+            label:
+              text: 
+      - type: EconBundle
+        def:
+          coordinates:
+          - 250
+          - 250
+          color: colors.endowment
+          utilityFunction:
+            type: Concave
+            def:
+              alpha: '0.5'
+          droplines:
+            vertical: '250'
+            horizontal: '250'
+          label:
+            text: "\\text{Don't bet}"
+          indifferenceCurve:
+            showPreferred: false
+            color: colors.endowment
+            label:
+              text: 
+    sidebar:
+      controls:
+      - title: Preferences over a Fair Coin Toss
+        divs:
+        - html: Depending on the shape of your indifference curves, you might prefer
+            not taking the bet (left) or taking the bet (right).

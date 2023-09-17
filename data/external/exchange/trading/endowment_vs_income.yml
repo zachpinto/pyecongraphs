@@ -1,0 +1,181 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: "0.5"
+    min: "0"
+    max: "1"
+    round: "0.01"
+  - name: p1
+    value: "3"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: p2
+    value: "3"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: m
+    value: "120"
+    min: "0"
+    max: "400"
+    round: "1"
+  - name: w1
+    value: "10"
+    min: "0"
+    max: "50"
+    round: "0.01"
+  - name: w2
+    value: "30"
+    min: "0"
+    max: "50"
+    round: "0.01"
+  - name: showIndW
+    value: false
+  - name: showPOC
+    value: false
+layout:
+  type: TwoHorizontalGraphsPlusSidebar
+  def:
+    leftGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 50
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - type: EconOptimalBundle
+          def:
+            name: incomeBundle
+            label:
+              text: X
+            droplines: {}
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              m: params.m
+              label:
+                text: BL_{m = 120}
+              draggable: false
+              handles: false
+              set: false
+            indifferenceCurve: {}
+        - type: EconPriceOfferCurve
+          def:
+            lineStyle: dashed
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              m: params.m
+            good: 1
+            min: 0.5
+            max: 30
+            show: params.showPOC
+    rightGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 50
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - type: EconOptimalBundle
+          def:
+            name: endowmentOptimalBundle
+            label:
+              text: X
+            droplines: {}
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              x: params.w1
+              "y": params.w2
+              label:
+                text: '`BL_{\\omega_1 = ${params.w1.toFixed(0)},\\omega_2 = ${params.w2.toFixed(0)}}`'
+              draggable: false
+              handles: false
+              set: false
+            indifferenceCurve: {}
+        - type: EconBundle
+          def:
+            name: endowmentBundle
+            coordinates:
+              - params.w1
+              - params.w2
+            droplines: {}
+            color: gray
+            label:
+              text: W
+              position: tr
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            drag:
+              - directions: x
+                param: w1
+                expression: params.w1 + drag.dx
+              - directions: "y"
+                param: w2
+                expression: params.w2 + drag.dy
+            indifferenceCurve:
+              label:
+                text: ""
+              color: gray
+              show: params.showIndW
+        - type: EconPriceOfferCurve
+          def:
+            lineStyle: dashed
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              x: params.w1
+              "y": params.w2
+            good: 1
+            show: params.showPOC
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: \alpha
+          divs:
+            - html: '`$$u(x_1,x_2) = x_1^\\alpha x_2^{1 - \\alpha} = x_1^{${params.a.toFixed(2)}}x_2^{${(1-params.a).toFixed(2)}}$$`'
+        - title: Prices
+          sliders:
+            - param: p1
+              label: p_1
+            - param: p2
+              label: p_2
+          checkboxes:
+            - param: showPOC
+              label: \text{Show offer curves}
+            - param: showIndW
+              label: \text{Show Indifference curve through $W$}

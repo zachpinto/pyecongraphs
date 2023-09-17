@@ -1,0 +1,87 @@
+schema: EconSchema
+params:
+  - { name: alpha, min: 0.09, max: 0.91, value: 0.64, round: 0.01 }
+  - { name: p1, min: 1, max: 5, value: 4, round: 0.1 }
+  - { name: p2, min: 1, max: 5, value: 3, round: 0.1 }
+calcs:
+  p: (params.p1/params.p2)
+  x1: (100*calcs.p/((1+calcs.p*calcs.p)^0.5))
+  x2: (100/((1+calcs.p*calcs.p)^0.5))
+  m: (params.p1*calcs.x1 + params.p2*calcs.x2)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 200
+        ticks: 2
+        title: Good 1
+      yAxis:
+        max: 200
+        title: Good 2
+        ticks: 2
+
+      objects:
+
+        # Iso-GDP lines
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectSubstitutes:
+                coefficients: [params.p1, params.p2]
+            levels: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900]
+
+        # PPF
+        - Circle:
+            c: [ 0,0 ]
+            r: 100
+            stroke: red
+            fill: none
+            strokeWidth: 2
+
+        - Label:
+            text: PPF
+            coordinates: [ 100,5 ]
+            align: left
+            color: red
+            fontSize: 9
+            bgcolor: none
+
+        # Supply Bundle
+        - Point:
+            r: 4
+            name: Y
+            color: supply
+            coordinates: [ calcs.x1, calcs.x2 ]
+            label:
+              text: Y^*
+              position: tr
+            droplines:
+              vertical: calcs.x1.toFixed(2)
+              horizontal: calcs.x2.toFixed(2)
+
+        # Budget Line
+        - EconBudgetLine:
+            p1: params.p1
+            p2: params.p2
+            m: calcs.m
+            label:
+              text: p_1Y_1 + p_2Y_2 = GDP^*
+              position: bl
+
+        # Label
+        - Label:
+            coordinates: [150, 150]
+            color: grey
+            text: \text{(Iso-GDP lines)}
+
+    sidebar:
+      controls:
+        - title: GDP Maximization Subject to a PPF
+          sliders:
+            - param: p1
+              label: p_1
+            - param: p2
+              label: p_2
+          divs:
+            - html: "`$$Y_1^* = ${calcs.x1.toFixed(2)}$$`"
+            - html: "`$$Y_2^* = ${calcs.x2.toFixed(2)}$$`"
+            - html: "`$$GDP^* = p_1Y_1^* + p_2Y_2^* = ${calcs.m.toFixed(2)}$$`"

@@ -1,0 +1,57 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Consumption if Heads ($c_1$)
+        orient: bottom
+        min: 0
+        max: 500
+        ticks: 0
+      yAxis:
+        title: Consumption if Tails ($c_2$)
+        orient: left
+        min: 0
+        max: 500
+        ticks: 0
+      objects:
+      - type: Point
+        def:
+          coordinates:
+          - 250
+          - 250
+          color: colors.endowment
+          droplines:
+            vertical: '250'
+            horizontal: '250'
+          label:
+            text: "\\text{Don't bet}"
+      - type: Point
+        def:
+          coordinates:
+          - 100
+          - 400
+          color: colors.demand
+          droplines:
+            vertical: '100'
+            horizontal: '400'
+          label:
+            text: "\\text{Bet}"
+    sidebar:
+      controls:
+      - title: A Fair Coin Toss
+        divs:
+        - html: 'You have $\$250$ in your pocket and I offer you a bet: if it comes
+            up heads, you win $\$150$, and if it comes up tails, you lose $\$150$.'
+        - html: 'By flipping a coin, I create two states of the world: one in which
+            it comes up heads (state 1), and one in which it comes up tails (state
+            2).'
+        - html: If you don't take the bet, you consume $\$250$ in each state of the
+            world; that is, $c_1 = c_2 = 250$.
+        - html: If you do take the bet, you consume $\$100$ if the coin comes up heads
+            and $\$400$ if the coin comes up tails; that is, $c_1 = 100$ and $c_2
+            = 400$.

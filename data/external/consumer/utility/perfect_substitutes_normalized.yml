@@ -1,0 +1,85 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 10
+    min: 0
+    max: 40
+    round: 1
+  - name: x2
+    value: 10
+    min: 0
+    max: 40
+    round: 1
+  - name: a
+    value: 2
+    min: 1
+    max: 10
+  - name: b
+    value: 8
+    min: 1
+    max: 10
+  - name: alpha
+    value: 0.2
+    min: 0.05
+    max: 0.95
+    round: 0.05
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+        xAxis:
+          max: 40
+          ticks: 4
+          title: Good 1
+        yAxis:
+          max: 40
+          ticks: 4
+          title: Good 2
+        objects:
+          - EconIndifferenceMap:
+              utilityFunction:
+                PerfectSubstitutes:
+                  alpha: (params.a/(params.a+params.b))
+              levels: [ 5, 10, 15, 20, 25, 30, 35 ]
+    leftControls:
+      title: Using 'a' and 'b'
+      sliders:
+        - param: a
+          label: a
+        - param: b
+          label: b
+      divs:
+        - html: "`$$\\\\begin{aligned}u(x_1,x_2) &= ax_1 + bx_2 = ${params.a}x_1 + ${params.b}x_2 \\\\\\\\ MRS &= a/b = ${params.a}/${params.b} = ${(params.a/params.b).toFixed(2)}\\\\end{aligned}$$`"
+    rightGraph:
+      xAxis:
+        max: 40
+        ticks: 4
+        title: Good 1
+      yAxis:
+        max: 40
+        ticks: 4
+        title: Good 2
+      objects:
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectSubstitutes:
+                alpha: params.alpha
+            levels: [ 5, 10, 15, 20, 25, 30, 35 ]
+    rightControls:
+      title: Using 'alpha'
+      sliders:
+        - param: alpha
+          label: \alpha
+      divs:
+        - html: "`$$\\\\begin{aligned}u(x_1,x_2) &= \\\\alpha x_1 + (1-\\\\alpha)x_2 = ${params.alpha.toFixed(2)}x_1 + ${(1-params.alpha).toFixed(2)}x_2 \\\\\\\\ MRS &= \\\\alpha/(1-\\\\alpha) = ${params.alpha.toFixed(2)}/${(1-params.alpha).toFixed(2)} = ${(params.alpha/(1-params.alpha)).toFixed(2)}\\\\end{aligned}$$`"
+    
+    sidebar:
+      controls:
+        - title: Normalizing a Utility Function
+          description: "The left-hand graph defines a utility function using two variables (a and b). The right-hand graph defines the utility function using a single variable (alpha)."
+          divs:
+            - html: Initially, $a = 2$, $b = 8$, and $\alpha = 0.2$. Both of these generate an MRS of 0.25. Can you find other values of $a$ and $b$ that generate this same MRS?
+            - html: Try setting $\alpha = 0.25$ and $\alpha = 0.5$. Which values of $a$ and $b$ correspond to these values of $\alpha$?
+          

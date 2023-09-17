@@ -1,0 +1,116 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 12
+    min: 0
+    max: 20
+  - name: x2
+    value: 2
+    min: 0
+    max: 10
+layout:
+  EdgeworthBoxPlusTwoGraphsPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1 $\rightarrow$
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2 $\rightarrow$
+        ticks: 5
+      objects:
+        - Point:
+            color: colors.grey
+            coordinates: [params.x1, params.x2]
+            r: 2
+            label:
+              text: X
+            drag:
+              - horizontal: x1
+              - vertical: x2
+        - Arrow:
+            begin: [ 0, params.x2 ]
+            end: [ params.x1, params.x2 ]
+            label:
+              text: x_1^A
+            color: colors.blue
+            drag:
+              - horizontal: x1
+            show: (params.x1 > 0)
+        - Arrow:
+            begin: [ params.x1, 0 ]
+            end: [ params.x1, params.x2 ]
+            label:
+              text: x_2^A
+            color: colors.blue
+            drag:
+              - vertical: x2
+            show: (params.x2 > 0)
+        - Arrow:
+            begin: [ 20, params.x2 ]
+            end: [ params.x1, params.x2 ]
+            label:
+              text: x_1^B
+            color: colors.orange
+            drag:
+              - horizontal: x1
+            show: (params.x1 < 20)
+        - Arrow:
+            begin: [ params.x1, 10 ]
+            end: [ params.x1, params.x2 ]
+            label:
+              text: x_2^B
+            color: colors.orange
+            drag:
+              - vertical: x2
+            show: (params.x2 < 10)
+    agentB:
+      xAxis:
+        title:  $\leftarrow$ B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2 $\rightarrow$
+        ticks: 5
+    graph1:
+      xAxis:
+        title: A's Units of Good 1
+        max: 25
+      yAxis:
+        title: A's Units of Good 2
+        max: 25
+      objects:
+        - EconBundle:
+            color: colors.blue
+            coordinates:
+              - params.x1
+              - params.x2
+            label:
+              text: X^A
+            droplines:
+              vertical: x_1^A
+              horizontal: x_2^A
+    graph2:
+      xAxis:
+        title: B's Units of Good 1
+        max: 25
+      yAxis:
+        title: B's Units of Good 2
+        max: 25
+      objects:
+        - EconBundle:
+            coordinates: [ (20-params.x1), (10-params.x2) ]
+            label:
+              text: X^B
+            droplines:
+              vertical: x_1^B
+              horizontal: x_2^B
+            color: colors.orange
+    sidebar:
+      controls:
+        - title: The Edgeworth Box
+          divs:
+            - html: "`<p>At allocation $X$:<ul><li>Alison has ${params.x1} of the 20 units of good 1, while Bob has the remaining ${(20-params.x1)}.</li><li>Alison has ${params.x2} of the 10 units of good 2, while Bob has the remaining ${(10-params.x2)}.</li></ul></p>`"

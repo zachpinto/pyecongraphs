@@ -1,0 +1,105 @@
+schema: EconSchema
+params:
+- name: p
+  value: 2
+  min: 1
+  max: 8
+  round: 0.25
+calcs:
+  xA: (8/params.p)
+  xE: (4/params.p)
+  x: (12/params.p)
+layout:
+  ThreeHorizontalGraphs:
+    leftGraph:
+      xAxis:
+        title: Adam's Quantity Demanded ($A$)
+        max: 12
+        ticks: 0
+      yAxis:
+        title: Price
+        ticks: 0
+      objects:
+      
+      - Curve:
+          fn: 8/x
+          
+      - Label:
+          coordinates: [AXIS, params.p]
+          color: budget
+          text: params.p.toFixed(2)
+          
+      - Line:
+          yIntercept: params.p
+          color: budget
+          label:
+            text: p
+            x: 9
+          drag:
+            - vertical: p
+
+      - Point:
+          coordinates: [calcs.xA, params.p]
+          label:
+            text: d^A(p)
+          droplines:
+            vertical: calcs.xA.toFixed(2)
+
+    middleGraph:
+      xAxis:
+        title: Eve's Quantity Demanded ($E$)
+        max: 12
+        ticks: 0
+      yAxis:
+        title: +
+        ticks: 0
+      objects:
+
+      - Curve:
+          fn: 4/x
+          
+      - Line:
+          yIntercept: params.p
+          color: budget
+          label:
+            text: p
+            x: 9
+          drag:
+            - vertical: p
+
+
+      - Point:
+          coordinates: [calcs.xE, params.p]
+          label:
+            text: d^E(p)
+          droplines:
+            vertical: calcs.xE.toFixed(2)
+            
+    rightGraph:
+      xAxis:
+        title: Market Quantity Demanded
+        max: 12
+        ticks: 0
+      yAxis:
+        title: "||"
+        ticks: 0
+      objects:
+
+      - Curve:
+          fn: 12/x
+
+      - Line:
+          yIntercept: params.p
+          color: budget
+          label:
+            text: p
+            x: 9
+          drag:
+            - vertical: p
+
+      - Point:
+          coordinates: [calcs.x, params.p]
+          label:
+            text: D(p)
+          droplines:
+            vertical: calcs.x.toFixed(2)

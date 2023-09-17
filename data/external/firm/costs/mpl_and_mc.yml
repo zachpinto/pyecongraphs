@@ -1,0 +1,106 @@
+schema: EconSchema
+colors:
+  fixedCost: colors.green
+  variableCost: colors.grey
+  totalCost: colors.red
+params:
+  - {name: w, value: 16, min: 10, max: 20}
+  - {name: r, value: 2, min: 1, max: 5}
+  - {name: K, value: 32, min: 24, max: 48}
+  - {name: q, value: 8, min: 0, max: 40}
+calcs:
+  L: (params.q*params.q/params.K)
+  VC: (params.w*calcs.L)
+  F: (params.r*params.K)
+  TC: (calcs.VC + calcs.F)
+  TClabelX: (min(38, sqrt((400 - params.r*params.K)*params.K/params.w)))
+  MC: (2*params.q*params.w/params.K)
+  MPL: (params.w/calcs.MC)
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        title: Labor ($L$)
+        max: 50
+        ticks: 0
+      yAxis:
+        title: Output ($q$)
+        max: 40
+        ticks: 0
+      objects:
+        - Curve:
+            fn: (sqrt((x)*params.K))
+            samplePoints: 500
+            label:
+              text: "`f(L)`"
+              x: 40
+              color: production
+              position: tl
+        - Point:
+            coordinates: [calcs.L, params.q]
+            drag:
+              - vertical: q
+            droplines:
+              vertical: L
+              horizontal: q
+        - Line:
+            point: [calcs.L, params.q]
+            slope: calcs.MPL
+            ind: y
+            color: mpl
+            label:
+              text: MP_L
+              y: 35
+              position: br
+
+    rightGraph:
+      yAxis:
+        title: Dollars
+        max: 500
+        ticks: 0
+      xAxis:
+        title: Output ($q$)
+        max: 40
+        ticks: 0
+      objects:
+
+      # Total Cost
+      - Curve:
+          fn: calcs.F + (params.w/params.K)*(x)^2
+          color: colors.totalCost
+          label:
+            text: c(q)
+            x: calcs.TClabelX
+            position: br
+
+      - Point:
+          coordinates: [ params.q, calcs.TC ]
+          color: totalCost
+          drag:
+            - horizontal: q
+          droplines:
+            vertical: q
+            horizontal: TC
+
+      - Line:
+          point: [ params.q, calcs.TC ]
+          slope: calcs.MC
+          color: marginalCost
+          label:
+            text: MC
+            x: params.q + 10
+            position: tl
+
+
+    sidebar:
+      controls:
+        - title: Relationship between MPL and MC
+          sliders:
+          - param: w
+            label: w
+          - param: r
+            label: r
+          - param: K
+            label: \overline K
+          divs:
+            - html: "The $MC$ and the $MP_L$ are inversely related: $$MC = w \\times {1 \\over MP_L}$$"

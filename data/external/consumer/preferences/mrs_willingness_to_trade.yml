@@ -1,0 +1,74 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x2
+  value: 20
+  min: 18
+  max: 22
+calcs:
+  dx2: (24 - params.x2)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Apples
+        max: 30
+        ticks: 16
+      yAxis:
+        title: Bananas
+        max: 30
+        ticks: 16
+      objects:
+      - EconBundle:
+          color: blue
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          indifferenceCurve:
+            label:
+              text: \text{Indifference curve through $X$}
+              position: tr
+            showPreferred: true
+            showDispreferred: params.showDispreferred
+          coordinates: [10,24]
+          droplines:
+            horizontal:
+            vertical:
+          label:
+            text: X
+      - Arrow:
+          begin: [12,params.x2]
+          end: [10,24]
+          trim: 0.9
+          color: blue
+      - Point:
+          coordinates: [12, params.x2]
+          label:
+            text: Y
+          droplines:
+            horizontal:
+            vertical: 
+          drag:
+          - vertical: x2
+      - Label:
+          coordinates: [25,25]
+          text: \succ X
+          color: utility
+          bgcolor: none
+      
+    sidebar:
+      controls:
+      - title: MRS and the Willingness to Trade
+        description: If someone has 10 apples and 24 bananas (bundle X), how would trading some bananas for two more apples affect them? Drag bundle Y up and down to see how they would view different trades.
+        divs:
+        - html: <hr/>
+        - html: Exchanging 4 bananas for 2 apples would result in them being on the same indifference curve as they started out; therefore their marginal rate of substitution (MRS) is $$MRS = {4 \text{ bananas} \over 2 \text{ apples}} = 2 \text{ bananas per apple}$$
+          show: (params.x2 == 20)
+        - html: "`Exchanging ${calcs.dx2} bananas for 2 apples would result in this person being better off than they originally were, because the resulting bundle lies in the set of bundles preferred to $A$. They would absolutely take that trade, because this ratio (${calcs.dx2}/2) is less than their MRS.`"
+          show: (params.x2 > 20)
+        - html: "`Exchanging ${calcs.dx2} bananas for 2 apples would result in this person being worse off than they originally were, because the resulting bundle lies in the set of bundles dispreferred to $X$. They would not take that trade, because that ratio (${calcs.dx2}/2) is greater than their MRS.`"
+          show: (params.x2 < 20)
+        

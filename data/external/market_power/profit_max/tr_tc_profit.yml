@@ -1,0 +1,122 @@
+schema: EconSchema
+colors:
+  marginalCost: colors.orange
+  averageCost: colors.purple
+  totalCost: colors.red
+params:
+  - { name: q, value: 8, min: 1.5, max: 14.5, round: 0.1 }
+calcs:
+  tc: (64 + 0.25*params.q^2)
+  mc: (0.25*2*params.q^(2-1))
+  ac: (64/params.q + 0.25*params.q^(2 - 1))
+  p: (20 - params.q)
+  tr: (params.q * calcs.p)
+  mr: (20 - 2*params.q)
+  profit: (calcs.tr - calcs.tc)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      yAxis:
+        title: Dollars
+        max: 120
+        min: -40
+        ticks: 1
+      xAxis:
+        title: Output ($q$)
+        max: 20
+        ticks: 0
+      objects:
+
+        # Total Cost
+        - Curve:
+            fn: 64 + 0.25*(x)^2
+            color: shortRun
+            label:
+              text: TC
+              x: 1
+              position: b
+              bgcolor: none
+
+        - Point:
+            coordinates: [ params.q, calcs.tc ]
+            color: shortRun
+            drag:
+              - horizontal: q
+            droplines:
+              horizontal: calcs.tc.toFixed(2)
+
+        # Total revenue
+        - Curve:
+            fn: 20*(x)-(x)*(x)
+            color: green
+            label:
+              text: TR
+              x: 18
+
+        - Point:
+            coordinates: [ params.q, calcs.tr ]
+            color: green
+            drag:
+              - horizontal: q
+            droplines:
+              horizontal: calcs.tr.toFixed(2)
+
+        # Total profit
+        - Curve:
+            fn: 20*(x)-(x)*(x) - (64 + 0.25*(x)*(x))
+            color: purple
+            label:
+              text: \text{Profit (or Loss)}
+              x: 14.6
+              position: bl
+
+        - Point:
+            coordinates: [ params.q, calcs.profit ]
+            color: purple
+            drag:
+              - horizontal: q
+            droplines:
+              horizontal: calcs.profit.toFixed(2)
+              vertical: params.q.toFixed(1)
+
+        # Profit segments
+        - Arrow:
+            begin: [ params.q, calcs.tr - 2 ]
+            end: [ params.q, calcs.tc + 2 ]
+            color: purple
+            show: (calcs.profit > 8)
+            double: true
+            label:
+              text: "`${calcs.profit.toFixed(2)} \\\\text{ profit}`"
+              fontSize: 9
+              position: r
+
+
+        # Loss segments
+
+        - Arrow:
+            end: [ params.q, calcs.tr + 2 ]
+            begin: [ params.q, calcs.tc - 2 ]
+            color: purple
+            show: (calcs.profit < -8)
+            double: true
+            label:
+              text: "`${-calcs.profit.toFixed(2)} \\\\text{ loss}`"
+              fontSize: 9
+              position: r
+
+
+
+
+
+
+    sidebar:
+      controls:
+        - title: Total Revenue, Cost, and Profit
+          sliders:
+            - param: q
+              label: q
+          divs:
+            - html: "`$$\\\\textcolor{${colors.green}}{r(q) = 20q - q^2\\\\\\\\ r(${params.q.toFixed(2)}) = ${calcs.tr.toFixed(2)}}$$`"
+            - html: "`$$\\\\textcolor{${colors.red}}{c(q) = 64 + \\\\tfrac{1}{4}q^2 \\\\\\\\ c(${params.q.toFixed(2)}) = ${calcs.tc.toFixed(2)}}$$`"
+            - html: "`$$\\\\textcolor{${colors.purple}}{\\\\pi(q) = r(q) - c(q)\\\\\\\\ \\\\pi(${params.q.toFixed(2)}) = ${calcs.tr.toFixed(2)} - ${calcs.tc.toFixed(2)} = ${calcs.profit.toFixed(2)}}$$`"

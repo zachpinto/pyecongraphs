@@ -1,0 +1,144 @@
+schema: EconSchema
+version: 1
+params:
+  - name: r
+    value: "0.07"
+    min: "0.001"
+    max: "0.1"
+    round: "0.001"
+  - name: rho
+    value: "0.01"
+    min: "0.001"
+    max: "0.1"
+    round: "0.001"
+  - name: sigma
+    value: "0.2"
+    min: "0.01"
+    max: "2"
+    round: "0.01"
+  - name: beta
+    value: 0.96
+    min: 0.9
+    max: 1
+    round: 0.01
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Consumption in Period t
+        orient: bottom
+        min: 95
+        max: 115
+        ticks: 10
+        intercept: 95
+      yAxis:
+        title: Consumption in Period t + 1
+        orient: left
+        min: 95
+        max: 105
+        intercept: 95
+      objects:
+        - type: Segment
+          def:
+            a:
+              - 95
+              - 95
+            b:
+              - 106
+              - 106
+            lineStyle: dotted
+            color: gray
+        - type: Label
+          def:
+            coordinates:
+              - 104
+              - 104
+            text: c_{t+1} = c_t
+            color: gray
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 0
+            b:
+              - 200
+              - 210
+            lineStyle: dotted
+            color: gray
+        - type: Label
+          def:
+            coordinates:
+              - 99
+              - 104
+            text: c_{t+1} = 1.05c_t
+            color: gray
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 0
+            b:
+              - 200
+              - 190
+            lineStyle: dotted
+            color: gray
+        - type: Label
+          def:
+            coordinates:
+              - 109.5
+              - 104
+            text: c_{t+1} = 0.95c_t
+            color: gray
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CES
+              def:
+                alpha: 1/(1+params.beta)
+                s: params.sigma
+            budgetLine:
+              p1: (1 + params.r)
+              p2: (1 + params.rho)
+              m: (2 + params.r + params.rho)*100
+            label:
+              text: C^*
+            droplines:
+              vertical: c_t^*
+              horizontal: c_{t+1}^*
+    bottomGraph:
+      xAxis:
+        title: Period (t)
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Log Consumption in Period t
+        orient: left
+        min: 0
+        max: 2
+      objects:
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 1
+            b:
+              - 100
+              - (100*params.sigma*(log(params.beta) + params.r-params.rho))+1
+            color: colors.consumption
+            strokeWidth: 5
+    sidebar:
+      controls:
+        - title: Euler Equation
+          sliders:
+            - param: r
+              label: r
+            - param: rho
+              label: \rho
+            - param: sigma
+              label: \sigma
+            - param: beta
+              label: \beta
+          divs:
+            - html: '`$$u(c_t,c_{t+1}) = (c_t^{1 - \\frac{1}{\\sigma}} + \\beta c_{t+1}^{1 - \\frac{1}{\\sigma}})^{\\frac{\\sigma}{\\sigma - 1}}$$`'

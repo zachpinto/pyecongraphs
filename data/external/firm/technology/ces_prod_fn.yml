@@ -1,0 +1,522 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: rho
+    value: "0"
+    min: "-20"
+    max: "20"
+    round: "0.03"
+calcs:
+  cd: (params.s == 0.5)
+  oneOverRho: (1/params.rho)
+  maxQ: (50*2^calcs.oneOverRho)
+layout:
+  type: MathboxPlusSidebar
+  def:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 50
+        ticks: 0
+        label: Labor (L)
+      yAxis:
+        min: 0
+        max: 50
+        ticks: 0
+        label: Capital (K)
+      zAxis:
+        min: 0
+        max: 50
+        ticks: 0
+        label: Output (q)
+      objects:
+        - type: MathboxFunctionSurface
+          def:
+            fn:
+              fn: (((x)*(y))^0.5)
+              samplePoints: 200
+            fill: colors.blue
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 25/(x)
+              fnZ: "5"
+            strokeWidth: 5
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 100/(x)
+              fnZ: "10"
+            strokeWidth: 5
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 225/(x)
+              fnZ: "15"
+            strokeWidth: 5
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 400/(x)
+              fnZ: "20"
+            strokeWidth: 5
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 25^2/(x)
+              fnZ: "25"
+            strokeWidth: 5
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 30^2/(x)
+              fnZ: "30"
+            strokeWidth: 5
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 35^2/(x)
+              fnZ: "35"
+            strokeWidth: 5
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 40^2/(x)
+              fnZ: "40"
+            strokeWidth: 5
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 45^2/(x)
+              fnZ: "45"
+            strokeWidth: 5
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 25/(x)
+              fnZ: "0"
+            strokeWidth: 3
+            show: (params.rho == 0)
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 100/(x)
+              fnZ: "0"
+            strokeWidth: 3
+            show: (params.rho == 0)
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 225/(x)
+              fnZ: "0"
+            strokeWidth: 3
+            show: (params.rho == 0)
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 400/(x)
+              fnZ: "0"
+            strokeWidth: 3
+            show: (params.rho == 0)
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 25^2/(x)
+              fnZ: "0"
+            strokeWidth: 3
+            show: (params.rho == 0)
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 30^2/(x)
+              fnZ: "0"
+            strokeWidth: 3
+            show: (params.rho == 0)
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 35^2/(x)
+              fnZ: "0"
+            strokeWidth: 3
+            show: (params.rho == 0)
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 40^2/(x)
+              fnZ: "0"
+            strokeWidth: 3
+            show: (params.rho == 0)
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: 45^2/(x)
+              fnZ: "0"
+            strokeWidth: 3
+            show: (params.rho == 0)
+            stroke: colors.grey
+        - type: MathboxFunctionSurface
+          def:
+            fn:
+              fn: (0.5*((x)^(params.rho)+(y)^(params.rho)))^(calcs.oneOverRho)
+              samplePoints: 200
+            fill: colors.blue
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(5^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "5"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(5^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "5"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(5^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(5^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(10^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "10"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(10^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "10"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(10^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(10^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(15^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "15"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(15^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "15"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(15^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(15^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(20^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "20"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(20^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "20"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(20^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(20^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(25^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "25"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(25^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "25"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(25^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(25^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(30^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "30"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(30^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "30"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(30^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(30^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(35^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "35"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(35^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "35"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(35^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(35^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(40^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "40"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(40^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "40"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(40^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(40^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(45^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "45"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(45^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "45"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 5
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(45^(params.rho)) - (x)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxCurve
+          def:
+            fn:
+              fn: (2*(45^(params.rho)) - (y)^(params.rho))^(calcs.oneOverRho)
+              fnZ: "0"
+              ind: "y"
+              samplePoints: 100
+            strokeWidth: 3
+            stroke: colors.grey
+        - type: MathboxLabel
+          def:
+            x: 0
+            "y": 0
+            z: 54
+            text: q
+        - type: MathboxLabel
+          def:
+            x: 0
+            "y": 53
+            z: 2
+            text: K
+        - type: MathboxLabel
+          def:
+            x: 53
+            "y": 0
+            z: 2
+            text: L
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 50
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - type: EconIndifferenceMap
+          def:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: 0.5
+            levels:
+              - 5
+              - 10
+              - 15
+              - 20
+              - 25
+              - 30
+              - 35
+              - 40
+              - 45
+    sidebar:
+      controls:
+        - title: 'CES Production Function: 3-D View'
+          sliders:
+            - param: rho
+              label: \rho
+          divs:
+            - html: $$f(L,K) = \left(\tfrac{1}{2}L^\rho + \tfrac{1}{2}K^\rho\right)^\frac{1}{\rho}$$

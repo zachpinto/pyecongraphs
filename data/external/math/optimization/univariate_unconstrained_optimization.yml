@@ -1,0 +1,161 @@
+params:
+  - name: showMin
+    value: true
+  - name: showMax
+    value: true
+  - name: x
+    value: 0.66
+    min: -1.25
+    max: 2.25
+    round: 0.01
+calcs:
+  y: (24*params.x - 6*params.x*params.x - 8*params.x*params.x*params.x + 3*params.x*params.x*params.x*params.x)
+  dydx: (24 - 12*params.x - 24*params.x*params.x + 12*params.x*params.x*params.x)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        min: -3
+        max: 3
+      yAxis:
+        min: -30
+        max: 30
+      objects:
+
+        # Graph labels
+        - Label:
+            coordinates: [ 0,30 ]
+            text: y
+            position: b
+
+        - Label:
+            coordinates: [ 3,0 ]
+            text: x
+            position: r
+
+        # Function
+        - Curve:
+            fn: 24*(x)-6*(x)^2-8*(x)^3+3*(x)^4
+            color: purple
+            label:
+              text: f(x)
+              x: 2.5
+
+        # Critical Points
+        - Point:
+            coordinates: [ -1,-19 ]
+            r: 3
+            color: grey
+            droplines:
+              vertical:
+
+        - Point:
+            coordinates: [ 1,13 ]
+            r: 3
+            color: grey
+            droplines:
+              vertical:
+
+        - Point:
+            coordinates: [ 2,8 ]
+            r: 3
+            color: grey
+            droplines:
+              vertical:
+
+        # Point
+        - Point:
+            coordinates: [ params.x, calcs.y ]
+            color: purple
+            r: 4
+            droplines:
+              vertical: params.x.toFixed(2)
+            drag:
+              - horizontal: x
+
+          # Line
+        - Line:
+            point: [ params.x, calcs.y ]
+            min: params.x - 0.5
+            max: params.x + 0.5
+            label:
+              text: "`f^\\\\prime(x) = ${calcs.dydx.toFixed(2)}`"
+              x: params.x - 0.5
+              position: l
+            slope: calcs.dydx
+            color: blue
+            drag:
+              - horizontal: x
+
+
+
+    bottomGraph:
+      xAxis:
+        min: -3
+        max: 3
+      yAxis:
+        min: -30
+        max: 30
+      objects:
+
+        # Graph labels
+        - Label:
+            coordinates: [ 0,30 ]
+            text: \frac{dy}{dx}
+            position: b
+
+        - Label:
+            coordinates: [ 3,0 ]
+            text: x
+            position: r
+
+        # Function
+        - Curve:
+            fn: 24-12*(x)-24*(x)^2+12*(x)^3
+            color: blue
+            label:
+              text: f^\prime(x)
+              x: 2.4
+
+        - Point:
+            coordinates: [ -1,0 ]
+            r: 3
+            color: grey
+            droplines:
+              vertical:
+
+        - Point:
+            coordinates: [ 1,0 ]
+            r: 3
+            color: grey
+            droplines:
+              vertical:
+
+        - Point:
+            coordinates: [ 2,0 ]
+            r: 3
+            color: grey
+            droplines:
+              vertical:
+
+        # Point
+        - Point:
+            coordinates: [ params.x, calcs.dydx ]
+            r: 4
+            droplines:
+              horizontal: calcs.dydx.toFixed(2)
+              vertical: params.x.toFixed(2)
+            drag:
+              - horizontal: x
+
+
+    sidebar:
+      controls:
+        - title: derivative of a univariate function
+          description: At each of the critical points, the derivative of the function is equal to zero.
+          sliders:
+            - param: x
+              label: x
+          divs:
+            - html: "`$$\\\\color{${colors.purple}}{f(x) = 24x-6x^2-8x^3+3x^4 = ${calcs.y.toFixed(2)}}$$`"
+            - html: "`$$\\\\color{${colors.blue}}{f^\\\\prime(x) = 24 - 12x - 24x^2 + 12x^3 = ${calcs.dydx.toFixed(2)}}$$`"

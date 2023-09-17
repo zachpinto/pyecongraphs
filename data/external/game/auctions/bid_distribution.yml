@@ -1,0 +1,96 @@
+params:
+  - {name: theta, value: 0.8, min: 0, max: 1, round: 0.01}
+  - {name: a, value: 0.5, min: 0.1, max: 1, round: 0.01}
+calcs:
+  maxb: (100*params.a)
+  pdf: (1/(params.a*100))
+  b: (params.theta*calcs.maxb)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 100
+        title: Bid
+      yAxis:
+        max: 0.1
+        title: Frequency (PDF)
+      objects:
+
+      - Point:
+          coordinates: [calcs.b, calcs.pdf]
+          drag:
+          - directions: x
+            param: theta
+            expression: drag.x/calcs.maxb
+          r: 0
+          droplines:
+            vertical: "`b_1 = ${calcs.b.toFixed(0)}`"
+          color: red
+
+      - Point:
+          coordinates: [calcs.maxb, calcs.pdf]
+          drag:
+          - directions: x
+            param: a
+            expression: drag.x/100
+          r: 0
+          label:
+            text: "`\\\\text{Max possible }b_2 = 100a = ${calcs.maxb.toFixed(0)}`"
+            position: bl
+          droplines:
+            vertical: calcs.maxb.toFixed(0)
+          color: red
+
+      - Rectangle:
+          a: [0,0]
+          b: [calcs.maxb,calcs.pdf]
+          color: red
+      - Rectangle:
+          a: [0,0]
+          b: [calcs.b,calcs.pdf]
+          drag:
+          - directions: x
+            param: theta
+            expression: drag.x/calcs.maxb
+          label:
+            text: "`\\\\Pr \\\\{b_2 < b_1\\\\} = ${params.theta.toFixed(2)}`"
+          color: red
+
+    bottomGraph:
+      xAxis:
+        max: 100
+        title: Bid
+      yAxis:
+        max: 1
+        title: Probability of Winning (CDF)
+      objects:
+
+      - Point:
+          coordinates: [calcs.b, params.theta]
+          drag:
+          - directions: x
+            param: theta
+            expression: drag.x/calcs.maxb
+          droplines:
+            vertical: b_1
+            horizontal: params.theta.toFixed(2)
+          color: red
+
+      - Line:
+          point: [calcs.maxb, 1.0]
+          color: red
+
+      - Segment:
+          a: [calcs.maxb, 1.0]
+          b: [100, 1.0]
+          color: red
+
+    sidebar:
+      controls:
+      - title: Distribution of Player 2's Bids
+        sliders:
+        - param: a
+          label: a
+        divs:
+        - html: "`If valuations are uniformly distributed from 0 to 100, and player 2 is bidding fraction $a = ${params.a.toFixed(2)}$ of their valuation, then player 2's bid is uniformly distributed along $[0, ${calcs.maxb.toFixed(0)}]$ -- in other words, since their maximum possible valuation is 100, their maximum possible bid is $100a = ${calcs.maxb.toFixed(0)}$.`"
+        - html: "`Therefore if player 1 bids $b_1 = ${calcs.b.toFixed(0)}$, their probability of winning is $$\\\\Pr \\\\{b_2 < ${calcs.b.toFixed(0)}\\\\} =\\\\frac{${calcs.b.toFixed(0)}}{${calcs.maxb.toFixed(0)}} = ${params.theta.toFixed(2)}$$`"

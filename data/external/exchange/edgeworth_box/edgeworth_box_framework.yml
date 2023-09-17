@@ -1,0 +1,264 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: w1
+    value: "120"
+    min: "0"
+    max: "200"
+  - name: w2
+    value: "20"
+    min: "0"
+    max: "100"
+  - name: x1
+    value: "100"
+    min: "0"
+    max: "200"
+  - name: x2
+    value: "30"
+    min: "0"
+    max: "100"
+  - name: a1
+    value: "0.5"
+    min: 0.01
+    max: 1
+    round: 0.01
+  - name: a2
+    value: 0.5
+    min: 0.01
+    max: 1
+    round: 0.01
+  - name: showPreferred
+    value: false
+  - name: showIndifferenceCurves
+    value: false
+  - name: showPotentialTrade
+    value: false
+  - name: showContractCurve
+    value: false
+layout:
+  type: EdgeworthBoxPlusTwoGraphsPlusSidebar
+  def:
+    totalGood1: 200
+    totalGood2: 100
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+        - type: EconContractCurve
+          def:
+            totalGood1: 200
+            totalGood2: 100
+            a: params.a1
+            b: params.a2
+            show: params.showContractCurve
+            label:
+              text: \text{Contract Curve}
+              x: 180
+        - type: EconBundle
+          def:
+            coordinates:
+              - params.w1
+              - params.w2
+            label: {}
+            droplines:
+              vertical: \omega_1^A
+              horizontal: \omega_2^A
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a1
+            indifferenceCurve:
+              show: params.showIndifferenceCurves
+              showPreferred: params.showPreferred
+              label:
+                text: null
+        - type: EconBundle
+          def:
+            coordinates:
+              - params.x1
+              - params.x2
+            label: {}
+            droplines:
+              vertical: x_1^A
+              horizontal: x_2^A
+            show: params.showPotentialTrade
+        - type: EconBundle
+          def:
+            coordinates:
+              - params.w1
+              - params.w2
+            label:
+              text: \text{Endowment}
+            droplines: {}
+            drag:
+              - directions: x
+                param: w1
+                expression: params.w1 + drag.dx
+              - directions: "y"
+                param: w2
+                expression: params.w2 + drag.dy
+            color: colors.endowment
+        - type: EconBundle
+          def:
+            coordinates:
+              - params.x1
+              - params.x2
+            label:
+              text: X
+            droplines: {}
+            drag:
+              - directions: x
+                param: x1
+                expression: params.x1 + drag.dx
+              - directions: "y"
+                param: x2
+                expression: params.x2 + drag.dy
+            color: colors.endowment
+            show: params.showPotentialTrade
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+        - type: EconBundle
+          def:
+            coordinates:
+              - (200 - params.w1)
+              - (100 - params.w2)
+            label: {}
+            droplines:
+              vertical: \omega_1^B
+              horizontal: \omega_2^B
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a2
+            indifferenceCurve:
+              show: params.showIndifferenceCurves
+              showPreferred: params.showPreferred
+              label:
+                text: null
+              color: colors.orange
+            color: colors.orange
+        - type: EconBundle
+          def:
+            coordinates:
+              - (200-params.x1)
+              - (100-params.x2)
+            label:
+              text: X
+            droplines:
+              vertical: x_1^B
+              horizontal: x_2^B
+            color: colors.orange
+            show: params.showPotentialTrade
+    graph1:
+      xAxis:
+        title: A's Units of Good 1
+        max: 150
+      yAxis:
+        title: A's Units of Good 2
+        max: 150
+      objects:
+        - type: EconBundle
+          def:
+            coordinates:
+              - params.w1
+              - params.w2
+            label:
+              text: \text{Endowment}
+            droplines:
+              vertical: \omega_1^A
+              horizontal: \omega_2^A
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a1
+            indifferenceCurve:
+              show: params.showIndifferenceCurves
+              showPreferred: params.showPreferred
+              label:
+                text: null
+        - type: EconBundle
+          def:
+            coordinates:
+              - params.x1
+              - params.x2
+            label:
+              text: X
+            droplines:
+              vertical: x_1^A
+              horizontal: x_2^A
+            show: params.showPotentialTrade
+    graph2:
+      xAxis:
+        title: B's Units of Good 1
+        max: 150
+      yAxis:
+        title: B's Units of Good 2
+        max: 150
+      objects:
+        - type: EconBundle
+          def:
+            coordinates:
+              - (200 - params.w1)
+              - (100 - params.w2)
+            label:
+              text: \text{Endowment}
+            droplines:
+              vertical: \omega_1^B
+              horizontal: \omega_2^B
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a2
+            indifferenceCurve:
+              show: params.showIndifferenceCurves
+              showPreferred: params.showPreferred
+              label:
+                text: null
+              color: colors.orange
+            color: colors.orange
+        - type: EconBundle
+          def:
+            coordinates:
+              - (200-params.x1)
+              - (100-params.x2)
+            label:
+              text: X
+            droplines:
+              vertical: x_1^B
+              horizontal: x_2^B
+            color: colors.orange
+            show: params.showPotentialTrade
+    sidebar:
+      controls:
+        - title: The Edgeworth Box
+          checkboxes:
+            - param: showPotentialTrade
+              label: \text{show potential trade}
+          divs:
+            - html: '`At the initial endowment, A (origin bottom-left) has ${params.w1.toFixed(0)} units of good 1 and ${params.w2.toFixed(0)} units of good 2, and B (origin top-right) has ${(200-params.w1).toFixed(0)} units of good 1 and ${(100-params.w2).toFixed(0)} units of good 2`'
+            - html: '`At point $X$, A has ${params.x1.toFixed(0)} units of good 1 and ${params.x2.toFixed(0)} units of good 2, and B has ${(200-params.x1).toFixed(0)} units of good 1 and ${(100-params.x2).toFixed(0)} units of good 2.`'
+              show: params.showPotentialTrade
+        - title: Utility Functions
+          sliders:
+            - param: a1
+              label: \alpha^A
+            - param: a2
+              label: \alpha^B
+          checkboxes:
+            - param: showIndifferenceCurves
+              label: \text{show indifference curves}
+            - param: showPreferred
+              label: \text{show preferred bundles}
+            - param: showContractCurve
+              label: \text{show contract curve}

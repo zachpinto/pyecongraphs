@@ -1,0 +1,113 @@
+schema: EconSchema
+colors:
+  marginalCost: colors.orange
+  averageCost: colors.purple
+  totalCost: colors.red
+params:
+  - {name: a, value: 0.5, min: 0.25, max: 1, round: 0.05}
+  - {name: y, value: 8, min: 0, max: 15, round: 0.01}
+  - {name: xMax, value: 20}
+calcs:
+  b: (1/params.a)
+  maxTotalCost: (1.2*(16 + params.xMax^calcs.b))
+  tc: (16 + params.y^calcs.b)
+  maxUnitCost: (3*calcs.b*(16/(1+calcs.b)))
+  mc: (calcs.b*params.y^(calcs.b-1))
+  ac: (16/params.y + params.y^(calcs.b - 1))
+
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      yAxis:
+        title: Total Cost (\$)
+        max: calcs.maxTotalCost
+      xAxis:
+        title: Output ($y$)
+        max: params.xMax
+      objects:
+
+      # Short run total cost
+      - Curve:
+          fn: 16 + (x)^calcs.b
+          color: shortRun
+          label:
+            text: TC
+            x: 18
+
+      - Point:
+          coordinates: [params.y, calcs.tc]
+          color: shortRun
+          drag:
+          - horizontal: y
+          droplines:
+            vertical: params.y.toFixed(2)
+            horizontal: calcs.tc.toFixed(0)
+
+      - Line:
+         point: [params.y, calcs.tc]
+         slope: calcs.mc
+         min: params.y-2
+         max: params.y+2
+         color: marginalCost
+         label:
+           text: "`slope = ${calcs.mc.toFixed(2)}`"
+           x: params.y+2
+           position: r
+
+
+
+
+    bottomGraph:
+      yAxis:
+        title: Unit Cost (\$/unit)
+        max: calcs.maxUnitCost
+      xAxis:
+        title: Output ($y$)
+        max: params.xMax
+      objects:
+
+      # Short run average cost
+      - Curve:
+          fn: 16/(x) + (x)^(calcs.b - 1)
+          color: averageCost
+          label:
+            text: AC
+            x: 18
+
+      - Point:
+          coordinates: [params.y, calcs.ac]
+          color: averageCost
+          drag:
+          - horizontal: y
+          droplines:
+            vertical:
+            horizontal: calcs.ac.toFixed(2)
+
+      # Short run marginal cost
+      - Curve:
+          fn: calcs.b*(x)^(calcs.b - 1)
+          color: marginalCost
+          label:
+            text: MC
+            x: 1
+
+      - Point:
+          coordinates: [params.y, calcs.mc]
+          color: marginalCost
+          drag:
+          - horizontal: y
+          droplines:
+            vertical: params.y.toFixed(2)
+            horizontal: calcs.mc.toFixed(2)
+
+    sidebar:
+      controls:
+        - title: Total and unit costs
+          sliders:
+          - param: a
+            label: a
+          divs:
+          - html: "`$$y = L^aK^a, \\\\overline{K} = 16, w = 16, r=1$$`"
+          - html: "`$$\\\\textcolor{${colors.totalCost}}{c(y) = 16 + y^{${calcs.b.toFixed(2)}}}$$`"
+          - html: "`$$\\\\textcolor{${colors.averageCost}}{AC(y) = \\\\frac{16}{y} + y^{${(calcs.b-1).toFixed(2)}}}$$`"
+          - html: "`$$\\\\textcolor{${colors.marginalCost}}{MC(y) = ${calcs.b.toFixed(2)}\\\\times y^{${(calcs.b-1).toFixed(2)}}}$$`"

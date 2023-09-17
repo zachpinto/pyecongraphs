@@ -1,0 +1,194 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: w1
+  value: 12
+  min: 0
+  max: 20
+  round: 0.01
+- name: w2
+  value: 2
+  min: 0
+  max: 10
+  round: 0.01
+- name: a1
+  value: 0.5
+  min: 0.01
+  max: 1
+  round: 0.01
+- name: a2
+  value: 0.5
+  min: 0.01
+  max: 1
+  round: 0.01
+- name: showPreferred
+  value: false
+- name: showIndifferenceCurves
+  value: false
+- name: showPotentialTrade
+  value: false
+- name: showContractCurve
+  value: false
+- name: p
+  value: 0.75
+  min: 0.25
+  max: 1
+  round: 0.01
+calcs:
+  MRSA: (params.w2/params.w1)
+  MRSB: ((10-params.w2)/(20-params.w1))
+  NSA: (params.w1 - calcs.A.x)
+  NDB: (calcs.B.x - (20 - params.w1))
+layout:
+  EdgeworthBoxAboveOneGraphPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          color: colors.blue
+          coordinates:
+          - params.w1
+          - params.w2
+          label: {}
+          droplines:
+            vertical: 12
+      - EconOptimalBundle:
+          name: A
+          label:
+            text: A^*
+            position: bl
+          droplines:
+            vertical: calcs.A.x.toFixed(2)
+          utilityFunction:
+            CobbDouglas:
+              alpha: params.a1
+          budgetLine:
+            p1: params.p
+            p2: 1
+            x: params.w1
+            y: params.w2
+            color: colors.budget
+          indifferenceCurve:
+            color: blue
+            label:
+              text: ''
+      - EconBundle:
+          coordinates:
+          - params.w1
+          - params.w2
+          label:
+            text: "`E`"
+          droplines: {}
+          color: colors.endowment
+      - Arrow:
+          begin: [ params.w1, 1 ]
+          end: [ calcs.A.x, 1 ]
+          label:
+            text: s_1^A
+          color: blue
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+      - Point:
+          coordinates:
+          - (20 - params.w1)
+          - (10 - params.w2)
+          droplines:
+            vertical: 8
+          color: orange
+      - EconOptimalBundle:
+          name: B
+          label:
+            text: B^*
+            position: tr
+          droplines:
+            vertical: calcs.B.x.toFixed(2)
+          color: colors.orange
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a1
+          budgetLine:
+            p1: params.p
+            p2: 1
+            x: (20-params.w1)
+            y: (10-params.w2)
+            color: colors.budget
+          indifferenceCurve:
+            color: orange
+            label:
+              text:
+      - Arrow:
+          begin: [(20 - params.w1), 1]
+          end: [calcs.B.x, 1]
+          label:
+            text: d_1^B
+          color: orange
+    graph:
+      xAxis:
+        title: Quantity of Good 1
+        max: 20
+        ticks: 10
+      yAxis:
+        title: Price Ratio ($p_1/p_2$)
+        ticks: 6
+        min: 0
+        max: 1.2
+      objects:
+        - Curve:
+            fn: 0.5*(params.w1 - params.w2/(y))
+            ind: y
+            label:
+              text: s_1^A(p)
+              y: 1.1
+            color: blue
+        - Curve:
+            fn: 0.5*((10 - params.w2)/(y) - (20 - params.w1))
+            ind: y
+            color: orange
+            label:
+              text: d_1^B(p)
+              y: 0.2
+        - Line:
+            yIntercept: params.p
+            color: budget
+            drag:
+              - vertical: p
+            label:
+              text: p
+              x: 15
+        - Point:
+            coordinates: [(params.w1 - calcs.A.x), params.p]
+            color: blue
+            droplines:
+              vertical: (params.w1 - calcs.A.x).toFixed(2)
+        - Point:
+            coordinates: [(calcs.B.x - (20 - params.w1)), params.p ]
+            color: orange
+            droplines:
+              vertical: (calcs.B.x - (20 - params.w1)).toFixed(2)
+
+    sidebar:
+      controls:
+      - title: Net Supply and Demand in the Edgeworth Box
+        description: We can bring A's supply for good 1 together with B's demand to solve for the equilibrium price ratio.
+        sliders:
+        - param: p
+          label: p
+        divs:
+          - html: "`At a price ratio of $p = ${params.p.toFixed(2)}$, A's net supply is $$s_1^A = 12.00 - ${calcs.A.x.toFixed(2)} = ${calcs.NSA.toFixed(2)}$$ and B's net demand is $$d_1^B = ${calcs.B.x.toFixed(2)} - 8 = ${calcs.NDB.toFixed(2)}$$.`"
+

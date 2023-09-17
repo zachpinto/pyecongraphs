@@ -1,0 +1,88 @@
+schema: EconSchema
+params:
+  - name: s
+    value: 2
+    min: 0
+    max: 6
+    round: 0.01
+calcs:
+  c1: (5 - params.s)
+  c2: (3 + params.s)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Present Consumption ($c_1$)
+        ticks: 0
+      yAxis:
+        title: Future Consumption ($c_2$)
+        ticks: 0
+      objects:
+
+      # Point object at coordinates (5,4)
+      - Point:
+          coordinates: [5,3]
+          color: endowment
+          droplines:
+            vertical: m_1
+            horizontal: m_2
+          label:
+            text: \text{Income stream, $M$}
+
+      # Red point object at coordinates (3,3)
+      - Segment:
+          a: [5,3]
+          b: [0,8]
+          color: budget
+          label:
+            text: BL\text{ (|slope| = 1)
+            position: bl
+            location: 0.2
+
+      - Point:
+          coordinates: [AXIS,8]
+          r: 0
+          color: budget
+          label:
+            text: m_1 + m_2
+            position: r
+
+      - Point:
+          coordinates: [calcs.c1, calcs.c2]
+          droplines:
+            vertical: c_1
+            horizontal: c_2
+          drag:
+            - directions: xy
+              param: s
+              expression: params.s - drag.dx
+
+      - Arrow:
+          begin: [5,1.5]
+          end: [calcs.c1, 1.5]
+          color: supply
+          label:
+            text: s
+          show: (params.s > 0)
+
+      - Arrow:
+          begin: [calcs.c1*0.5, 3]
+          end: [calcs.c1*0.5, calcs.c2]
+          color: demand
+          label:
+            text: s
+          show: (params.s > 0)
+
+    sidebar:
+      controls:
+      - title: Saving at no interest
+        description: Drag the blue dot or use the slider to change the amount Rita saves.
+        sliders:
+        - param: s
+          label: \text{$s$}
+          showNumber: false
+
+        divs:
+        - html: Rita has an income stream of $m_1$ dollars today and $m_2$ dollars in the future.
+        - html: Rita saves $s$ of her current income $m_1$, consuming $c_1 = m_1 - s$ today.
+        - html: This allows her to consume $c_2 = m_2 + s$ in the future.

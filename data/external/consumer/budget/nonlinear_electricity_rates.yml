@@ -1,0 +1,61 @@
+schema: EconSchema
+params:
+- {name: m, min: 10, max: 150, round: 10, value: 120}
+- {name: p1, min: 0.01, max: 1, round: 0.01, value: 0.1}
+- {name: p2, min: 0.01, max: 1, round: 0.01, value: 0.2}
+- {name: xhat, min: 100, max: 500, round: 1, value: 300}
+calcs:
+  mAtXhat: (params.m - params.p1*params.xhat)
+  maxX: (params.xhat + calcs.mAtXhat/params.p2)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 1000
+        ticks: 10
+        title: Electricity (kWh)
+      yAxis:
+        max: 150
+        ticks: 6
+        title: Dollars Spent on Other Things
+      objects:
+        - Line:
+            yIntercept: params.m
+            slope: -params.p1
+            color: budget
+            max: params.xhat
+            areaBelow: budget
+        - Line:
+            point: [params.xhat, calcs.mAtXhat]
+            slope: -params.p2
+            color: budget
+            min: params.xhat
+            areaBelow: budget
+        - Point:
+            coordinates: [params.xhat, (0.95*params.m)]
+            color: grey
+            r: 0
+            draggable: true
+            label:
+              text: \hat x
+              position: b
+            droplines:
+              vertical: 
+        - Label:
+            coordinates: [params.xhat/2, (0.4*(params.m - 0.5*params.xhat*params.p1))]
+            text: \text{Budget Set}
+            color: budget
+            bgcolor: none
+    sidebar:
+      controls:
+      - title: "Kinked Budget Constraint Example: Electricity Rates"
+        description: Beyond a certain threshold, the price some utilities pay per kWh increases.
+        sliders:
+        - param: p1
+          label: p_{low}
+        - param: p2
+          label: p_{high}
+        - param: m
+          label: m
+        - param: xhat
+          label: \hat x

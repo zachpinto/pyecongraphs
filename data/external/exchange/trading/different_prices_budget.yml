@@ -1,0 +1,106 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: '0.5'
+    min: '0.01'
+    max: '0.99'
+    round: '0.01'
+  - name: sellPrice
+    value: 25
+    min: 10
+    max: 75
+  - name: buyPrice
+    value: 60
+    min: 10
+    max: 75
+  - name: w1
+    value: 40
+    min: 0
+    max: 100
+  - name: w2
+    value: 1200
+    min: 0
+    max: 2000
+  - name: showIndW
+    value: false
+  - name: showPOC
+    value: false
+  - name: showExplanation
+    value: false
+calcs:
+  bottomGraphLeft: "(-1*params.w1)"
+  bottomGraphRight: "(100-params.w1)"
+  cutoffPrice: "(calcs.endowmentBundle.mrs)"
+  wealth: "(params.w1*params.sellPrice + params.w2)"
+  consumeAtEndowment: "((calcs.endowmentBundle.mrs >= params.sellPrice) && (calcs.endowmentBundle.mrs
+    <= params.buyPrice))"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Tickets
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Dollars
+        orient: left
+        min: 0
+        max: 3000
+      objects:
+        - Point:
+            coordinates:
+              - params.w1
+              - params.w2
+            droplines:
+              vertical: "e_1"
+              horizontal: "e_2"
+            color: endowment
+            label:
+              text: \text{$E$}
+              position: tr
+            drag:
+              - directions: x
+                param: w1
+                expression: params.w1 + drag.dx
+              - directions: y
+                param: w2
+                expression: params.w2 + drag.dy
+        - EconBudgetLine:
+            p1: params.sellPrice
+            p2: 1
+            x: params.w1
+            y: params.w2
+            draggable: false
+            handles: false
+            set: false
+            color: colors.budget
+            sellOnly: true
+            label:
+              text: BL_\text{sell}
+        - EconBudgetLine:
+            p1: params.buyPrice
+            p2: 1
+            x: params.w1
+            y: params.w2
+            draggable: false
+            handles: false
+            set: false
+            color: colors.budget
+            buyOnly: true
+            label:
+              text: BL_\text{buy}
+
+    sidebar:
+      controls:
+        - title: A Budget Set with Diffferent Prices for Buying and Selling
+          sliders:
+            - param: sellPrice
+              label: p^\text{sell}
+            - param: buyPrice
+              label: p^\text{buy}

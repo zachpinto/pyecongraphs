@@ -1,0 +1,75 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: rSave
+    value: 0
+    min: 0
+    max: 1
+    round: 0.01
+  - name: rBorrow
+    value: 0.5
+    min: 0
+    max: 1
+    round: 0.01
+  - name: m1
+    value: '30'
+    min: '0'
+    max: '100'
+    round: '1'
+  - name: m2
+    value: '24'
+    min: '0'
+    max: '50'
+    round: '1'
+calcs:
+  presentValue: (params.m1 + params.m2/(1 + params.rBorrow))
+  futureValue: (params.m1*(1 + params.rSave) + params.m2)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Dollars in Period 1
+        orient: bottom
+        min: 0
+        max: 60
+        ticks: 0
+      yAxis:
+        title: Dollars in Period 2
+        orient: left
+        min: 0
+        max: 60
+        ticks: 0
+      objects:
+        - Segment:
+            a: [params.m1, params.m2]
+            b: [calcs.presentValue, 0]
+            color: colors.budget
+            label:
+              position: bl
+              text: "`|\\\\text{slope}| = 1 + r_{\\\\text{borrow}} = ${(1 + params.rBorrow).toFixed(2)}`"
+        - Segment:
+            a: [params.m1, params.m2]
+            b: [0, calcs.futureValue]
+            color: colors.budget
+            label:
+              position: bl
+              text: "`|\\\\text{slope}| = 1 + r_{\\\\text{save}} = ${(1 + params.rSave).toFixed(2)}`"
+        - Point:
+            coordinates: [params.m1, params.m2]
+            draggable: true
+            color: colors.endowment
+            label:
+              text: \text{Income stream, }M
+            droplines:
+              vertical: m_1
+              horizontal: m_2
+    sidebar:
+      controls:
+        - title: Different Interest Rates for Saving and Borrowing
+          sliders:
+            - param: rBorrow
+              label: 'r_\text{borrow}'
+            - param: rSave
+              label: 'r_\text{save}'

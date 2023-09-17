@@ -1,0 +1,264 @@
+schema: EconSchema
+colors:
+  ppf: red
+params:
+- {name: L, min: 20, max: 90, round: 1, value: 25}
+- {name: showSlopes, value: true}
+calcs:
+  x11: (2*params.L)
+  x12: (80 + params.L)
+  x2: (100 - params.L)
+  mrs1: (calcs.x2/calcs.x11)
+  mrs2: (calcs.x2/calcs.x12)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 240
+        title: Fish ($x_1$)
+        ticks: 8
+      yAxis:
+        max: 150
+        title: Coconuts ($x_2$)
+
+      objects:
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          levels: [7,28,49,70,91,112,133,154,175]
+
+      # Kinked PPF
+      - Line:
+          yIntercept: 100
+          slope: -0.5
+          areaBelow: true
+          color: ppf
+          max: 160
+          label:
+            text: PPF
+            x: 25
+            position: tr
+            bgcolor:
+
+      - Line:
+          yIntercept: 180
+          slope: -1
+          areaBelow: true
+          color: ppf
+          min: 160
+
+      # Bundle
+      - EconBundle:
+          name: Y
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          coordinates: [calcs.x11, calcs.x2]
+          color: blue
+          drag:
+          - directions: x
+            param: L
+            expression: params.L + 0.5*drag.dx
+          show: (params.L < 80)
+          droplines:
+            vertical: calcs.x11.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+          indifferenceCurve:
+            show: (params.L < 80)
+            showPreferred: (params.L < 80)
+            label:
+              text:
+
+      - EconBundle:
+          name: Z
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          coordinates: [calcs.x12, calcs.x2]
+          color: blue
+          drag:
+          - horizontal: L
+          show: (params.L >= 80)
+          droplines:
+            vertical: calcs.x12.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+          indifferenceCurve:
+            show: (params.L >= 80)
+            showPreferred: (params.L >= 80)
+            label:
+              text:
+
+      - Line:
+          point: [calcs.x11, calcs.x2]
+          slope: -0.5
+          min: calcs.x11-20
+          max: calcs.x11+20
+          strokeWidth: 4
+          show: params.L < 80
+          label:
+            text: MRT
+            x: calcs.x11+20
+            position: r
+            bgcolor: none
+      - Line:
+          point: [calcs.x11, calcs.x2]
+          slope: -calcs.mrs1
+          color: colors.demand
+          min: calcs.x11 - 20
+          max: calcs.x11 + 20
+          strokeWidth: 4
+          label:
+            text: MRS
+            x: calcs.x11 - 16
+            position: l
+            bgcolor: none
+          show: params.L <= 80
+      - Line:
+          point: [calcs.x12, calcs.x2]
+          slope: -1
+          min: calcs.x12-20
+          max: calcs.x12+20
+          strokeWidth: 4
+          show: params.L > 80
+          label:
+            text: MRT
+            x: calcs.x12-20
+            position: b
+            bgcolor: none
+      - Line:
+          point: [calcs.x12, calcs.x2]
+          slope: -calcs.mrs2
+          color: colors.demand
+          min: calcs.x12 - 20
+          max: calcs.x12 + 20
+          strokeWidth: 4
+          label:
+            text: MRS
+            x: calcs.x12 + 16
+            position: bl
+            bgcolor: none
+          show: params.L > 80
+
+
+
+    bottomGraph:
+      xAxis:
+        max: 100
+        title: Labor Devoted to Fish Production ($L_1$)
+      yAxis:
+        max: 2
+        title: Coconuts per Fish
+      objects:
+
+      # MRS and MRT if L < 40
+      - Point:
+         coordinates: [params.L, 0.5]
+         color: supply
+         droplines:
+           vertical: params.L
+         show: params.L < 80
+         drag:
+           - horizontal: L
+      - Point:
+         coordinates: [params.L, calcs.mrs1]
+         color: demand
+         droplines:
+           vertical: params.L
+           horizontal: calcs.mrs1.toFixed(2)
+         show: params.L <= 80
+         drag:
+           - horizontal: L
+      - Point:
+         coordinates: [80,0.5]
+         fill: white
+         stroke: supply
+         r: 4
+      - Line:
+         yIntercept: 0.5
+         color: supply
+         max: 80
+         label:
+           text: MRT
+           x: 10
+           position: b
+           bgcolor:
+      - Curve:
+         fn: (-0.5+50/(x))
+         max: 80
+
+      # MRT at L = 40
+
+      - Segment:
+         a: [80,0.5]
+         b: [80,1]
+         color: supply
+         lineStyle: dashed
+         strokeWidth: "((params.L == 80) ? 3 : 1)"
+
+      # MRS and MRT if L > 40
+
+      - Point:
+         coordinates: [params.L, 1]
+         color: supply
+         droplines:
+           vertical: params.L
+         show: params.L > 80
+         drag:
+           - horizontal: L
+      - Point:
+         coordinates: [params.L, calcs.mrs2]
+         color: demand
+         droplines:
+           vertical: params.L
+           horizontal: calcs.mrs2.toFixed(2)
+         show: params.L > 80
+         drag:
+           - horizontal: L
+      - Point:
+         coordinates: [80,1]
+         fill: white
+         stroke: supply
+         r: 4
+      - Line:
+         yIntercept: 1
+         color: supply
+         min: 80
+         label:
+           text: MRT
+           x: 90
+           position: b
+           bgcolor:
+      - Curve:
+         fn: ((100-(x))/(80+(x)))
+         color: demand
+         min: 80
+         label:
+           text: MRS
+           x: 90
+           position: b
+           bgcolor:
+
+
+
+    sidebar:
+      controls:
+      - title: "MRS vs MRT: Kinked PPF"
+        sliders:
+        - param: L
+          label: L_1
+        divs:
+        - html: "`<h4>Utility Function:</h4>$$u(x_1,x_2) = x_1x_2$$ $$MRS(${calcs.x11.toFixed(0)},${calcs.x2.toFixed(0)}) = \\\\frac{${calcs.x2.toFixed(0)}}{${calcs.x11.toFixed(0)}} = ${calcs.Y.mrs.toFixed(2)}$$`"
+          show: (params.L <= 80)
+        - html: "`<h4>Utility Function:</h4>$$u(x_1,x_2) = x_1x_2$$ $$MRS(${calcs.x12.toFixed(0)},${calcs.x2.toFixed(0)}) = \\\\frac{${calcs.x2.toFixed(0)}}{${calcs.x12.toFixed(0)}} = ${calcs.Z.mrs.toFixed(2)}$$`"
+          show: (params.L > 80)
+        - html: "`<h4>Production Functions:</h4> $$x_1 = f_1(L_1) = \\\\begin{cases}2L_1 & \\\\text{ if }L_1 \\\\le 80\\\\\\\\80 + L_1 & \\\\text{ if }L_1 \\\\ge 80\\\\end{cases}$$ $$x_2 =f_2(L_2) = L_2$$ $$MRT(${calcs.x12.toFixed(0)},${calcs.x2.toFixed(0)}) = 1$$`"
+          show: (params.L > 80)
+        - html: "`<h4>Production Functions:</h4> $$x_1 = f_1(L_1) = \\\\begin{cases}2L_1 & \\\\text{ if }L_1 \\\\le 80\\\\\\\\80 + L_1 & \\\\text{ if }L_1 \\\\ge 80\\\\end{cases}$$ $$x_2 =f_2(L_2) = L_2$$ $$MRT(${calcs.x11.toFixed(0)},${calcs.x2.toFixed(0)}) = 0.5$$`"
+          show: (params.L < 80)
+        - html: "`<h4>Production Functions:</h4> $$x_1 = f_1(L_1) = \\\\begin{cases}2L_1 & \\\\text{ if }L_1 \\\\le 80\\\\\\\\80 + L_1 & \\\\text{ if }L_1 \\\\ge 80\\\\end{cases}$$ $$x_2 =f_2(L_2) = L_2$$ $$MRT(${calcs.x12.toFixed(0)},${calcs.x2.toFixed(0)}) = \\\\text{undefined}$$`"
+          show: (params.L == 80)
+
+    

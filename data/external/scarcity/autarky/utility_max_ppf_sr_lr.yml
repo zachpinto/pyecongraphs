@@ -1,0 +1,189 @@
+{
+  "schema": "EconSchema",
+  "version": 1,
+  "params": [
+    {
+      "name": "a",
+      "value": 0.64,
+      "min": 0.01,
+      "max": 0.99,
+      "round": 0.01
+    },
+    {
+      "name": "L1",
+      "value": 36,
+      "min": 1,
+      "max": 99,
+      "round": 1
+    },
+    {
+      "name": "K1",
+      "value": 36,
+      "min": 1,
+      "max": 99,
+      "round": 1
+    },
+    {
+      "name": "A1",
+      "value": 2,
+      "min": 1,
+      "max": 5,
+      "round": 0.01
+    },
+    {
+      "name": "A2",
+      "value": 3,
+      "min": 1,
+      "max": 5,
+      "round": 0.01
+    },
+    {
+      "name": "showLR",
+      "value": "false"
+    }
+  ],
+  "calcs": {
+    "y1": "(100/(2^0.5))",
+    "y2": "(100/(2^0.5))",
+    "SRmax1": "((100*params.K1)^0.5)",
+    "SRmax2": "((100*(100-params.K1))^0.5)",
+    "LRmax1": "(100*params.A1)",
+    "LRmax2": "(100*params.A2)"
+  },
+  "layout": {
+    "type": "OneGraphPlusSidebar",
+    "def": {
+      "graph": {
+        "xAxis": {
+          "title": "Quantity of Good 1",
+          "orient": "bottom",
+          "min": 0,
+          "max": 500
+        },
+        "yAxis": {
+          "title": "Quantity of Good 2",
+          "orient": "left",
+          "min": 0,
+          "max": 500
+        },
+        "objects": [
+          {
+            "type": "EconPPF",
+            "def": {
+              "color": "colors.shortRun",
+              "max1": "(params.A1*(100*params.K1)^0.5)",
+              "max2": "(params.A2*(100*(100-params.K1))^0.5)",
+              "curvature": 0.5,
+              "L1": "params.L1",
+              "handles": false,
+              "draggable": false,
+              "label": {
+                "text": "PPF_{SR}",
+                "t": 5
+              }
+            }
+          },
+          {
+            "type": "EconBundle",
+            "def": {
+              "coordinates": ["calcs.ppf.y1","calcs.ppf.y2"],
+              "utilityFunction": {
+                "type": "CobbDouglas",
+                "def": {
+                  "alpha": "params.a"
+                }
+              },
+              "indifferenceCurve": {
+              }
+
+            }
+          },
+          {
+            "type": "Line",
+            "def": {
+              "color": "colors.longRun",
+              "show": "params.showLR",
+              "xIntercept": "calcs.LRmax1",
+              "yIntercept": "calcs.LRmax2",
+              "label": {
+                "text": "PPF_{LR}",
+                "x": 20
+              }
+            }
+          },
+          {
+            "type": "Point",
+            "def": {
+              "color": "colors.longRun",
+              "show": "params.showLR",
+              "coordinates": ["calcs.LRmax1",0],
+              "r": 4,
+              "drag": [
+                {
+                  "directions": "x",
+                  "param": "A1",
+                  "expression": "drag.x/100"
+                }
+              ]
+            }
+          },
+          {
+            "type": "Point",
+            "def": {
+              "color": "colors.longRun",
+              "show": "params.showLR",
+              "coordinates": [0, "calcs.LRmax2"],
+              "r": 4,
+              "drag": [
+                {
+                  "directions": "y",
+                  "param": "A2",
+                  "expression": "drag.y/100"
+                }
+              ]
+            }
+          }
+
+        ]
+      },
+      "sidebar": {
+        "controls": [
+          {
+            "title": "Utility Maximization in Autarky: Short Run vs. Long Run",
+            "sliders": [
+              {
+                "param": "a",
+                "label": "\\alpha"
+              },
+              {
+                "param": "L1",
+                "label": "L_1"
+              },
+              {
+                "param": "K1",
+                "label": "K_1"
+              }
+            ],
+            "checkboxes": [
+              {
+                "param": "showLR",
+                "label": "\\text{Show LR PPF}"
+              }
+            ],
+            "divs": [
+              {
+                "html": "Preferences: $$u(x_1,x_2) = \\alpha x_1 + (1-\\alpha)x_2$$"
+              },
+              {
+                "html": "`Production functions: $$f_1(L_1,K_1) = ${params.A1.toFixed(2)}\\\\sqrt{L_1K_1}$$ $$f_2(L_2,K_2) = ${params.A2.toFixed(2)}\\\\sqrt{L_2K_2}$$`"
+              },
+              {
+                "html": "`Allocation of labor and capital: $$L_1 = ${params.L1.toFixed(0)}, L_2 = ${(100-params.L1).toFixed(0)}$$ $$K_1 = ${params.K1.toFixed(0)}, K_2 = ${(100-params.K1).toFixed(0)}$$`"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

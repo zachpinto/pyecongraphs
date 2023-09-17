@@ -1,0 +1,112 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 10
+    min: 0
+    max: 40
+    round: 1
+  - name: x2
+    value: 10
+    min: 0
+    max: 40
+    round: 1
+calcs:
+  u: (2*params.x1 + params.x2)
+  leftX: "((calcs.u < 40) ? 0 : (0.5*calcs.u - 20))"
+  leftY: "((calcs.u < 40) ? calcs.u : 40)"
+  rightX: "((calcs.u < 80) ? (0.5*calcs.u) : 40)"
+  rightY: "((calcs.u < 80) ? 0 : (calcs.u - 80))"
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 40
+        ticks: 4
+        title: "`2L Bottles`"
+      yAxis:
+        min: 0
+        max: 40
+        ticks: 4
+        title: "`1L Bottles`"
+      zAxis:
+        min: 0
+        max: 120
+        ticks: 6
+        title: Utility
+      objects:
+        - Plane:
+            z: calcs.u
+            fill: blue
+            opacity: 0.5
+        - FunctionSurface:
+            fn:
+              fn: 2*(x) + (y)
+              samplePoints: 10
+            shaded: true
+            fill: purple
+            opacity: 0.4
+        - Line:
+            x1: calcs.leftX
+            x2: calcs.rightX
+            y1: calcs.leftY
+            y2: calcs.rightY
+            z1: calcs.u
+            z2: calcs.u
+            strokeWidth: 10
+            stroke: utility
+        - MathboxPoint:
+            x: params.x1
+            y: params.x2
+            z: calcs.u
+            droplines: true
+
+
+    graph:
+      xAxis:
+        max: 40
+        ticks: 4
+        title: 2L Bottles of Soda
+      yAxis:
+        max: 40
+        ticks: 4
+        title: 1L Bottles of Soda
+      objects:
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectSubstitutes:
+                coefficients: [2, 1]
+            levels: [ 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110]
+        - EconBundle:
+            coordinates: [ params.x1, params.x2 ]
+            color: blue
+            r: 4
+            label:
+              text:
+            droplines:
+              vertical: params.x1
+              horizontal: params.x2
+            utilityFunction:
+              PerfectSubstitutes:
+                coefficients: [2, 1]
+            drag:
+              - horizontal: x1
+              - vertical: x2
+            indifferenceCurve:
+              label:
+                text:
+        - Label:
+            coordinates: [ (calcs.leftX + 5), (calcs.leftY - 10) ]
+            text: "`u(x_1,x_2) = ${calcs.u.toFixed(0)}`"
+            color: utility
+            position: bl
+
+    sidebar:
+      controls:
+        - title: Preferences over 2L and 1L bottles of soda
+          divs:
+            - html: "`$$u(x_1,x_2) = 2x_1 + x_2$$`"
+            - html: "`$$u(${params.x1}, ${params.x2}) = 2 \\\\times ${params.x1} + ${params.x2} = ${calcs.u.toFixed(0)}$$`"

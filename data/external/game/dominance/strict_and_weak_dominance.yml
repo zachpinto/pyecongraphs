@@ -1,0 +1,82 @@
+schema: EconSchema
+version: 1
+params:
+  - name: AA
+    value: 3
+    min: 0
+    max: 5
+  - name: BB
+    value: 2
+    min: 0
+    max:  5
+  - name: BA
+    value: 4
+    min: 0
+    max: 5
+  - name: AB
+    value: 1
+    min: 0
+    max: 5
+layout:
+  GameMatrixPlusGraphPlusSidebar:
+    game:
+      players:
+        - Player 1
+        - Player 2
+      strategies:
+        - [A, B]
+        - [A, B]
+      payoffs:
+        - [[params.AA.toFixed(0),params.AA.toFixed(0)],[params.AB.toFixed(0),params.BA.toFixed(0)]]
+        - [[params.BA.toFixed(0),params.AB.toFixed(0)],[params.BB.toFixed(0),params.BB.toFixed(0)]]
+
+    graph:
+      xAxis:
+        max: 5
+        title: Payoff if Other Player Plays A
+      yAxis:
+        max: 5
+        title: Payoff if Other Player Plays B
+      objects:
+
+      # show points for reference
+      - Point:
+          coordinates: [params.AA, params.AB]
+          label:
+            text: A
+          drag:
+            - horizontal: AA
+            - vertical: AB
+
+      - Point:
+          coordinates: [ params.BA, params.BB ]
+          label:
+            text: B
+          drag:
+            - horizontal: BA
+            - vertical: BB
+
+    sidebar:
+      controls:
+        - title: Strict and Weak Dominance
+          description: Drag the dots around to change the payoffs in the game.
+          divs:
+            - html: $B$ strictly dominates $A$, because $B$ yields a higher payoff than $A$ no matter what the other player chooses.
+              show: ((params.BA > params.AA) & (params.BB > params.AB))
+            - html: $B$ weakly dominates $A$, because $B$ yields a higher payoff than $A$ if the other player is playing $A$, but the same payoff if the other player is playing $B$.
+              show: ((params.BA > params.AA) & (params.BB == params.AB))
+            - html: $B$ weakly dominates $A$, because $B$ yields a higher payoff than $A$ if the other player is playing $B$, but the same payoff if the other player is playing $A$.
+              show: ((params.BA == params.AA) & (params.BB > params.AB))
+            - html: $A$ strictly dominates $B$, because $A$ yields a higher payoff than $B$ no matter what the other player chooses.
+              show: ((params.BA < params.AA) & (params.BB < params.AB))
+            - html: $A$ weakly dominates $B$, because $A$ yields a higher payoff than $B$ if the other player is playing $A$, but the same payoff if the other player is playing $B$.
+              show: ((params.BA < params.AA) & (params.BB == params.AB))
+            - html: $A$ weakly dominates $B$, because $A$ yields a higher payoff than $B$ if the other player is playing $B$, but the same payoff if the other player is playing $A$.
+              show: ((params.BA == params.AA) & (params.BB < params.AB))
+            - html: There is no dominance relationship, because $B$ yields a higher payoff than $A$ if the other player is playing $A$, but $A$ yields a higher payoff than $B$ if the other player is playing $B$.
+              show: ((params.BA > params.AA) & (params.BB < params.AB))
+            - html: There is no dominance relationship, because $A$ yields a higher payoff than $B$ if the other player is playing $A$, but $B$ yields a higher payoff than $A$ if the other player is playing $B$.
+              show: ((params.BA < params.AA) & (params.BB > params.AB))
+            - html: There is no dominance relationship, because $A$ and $B$ yield the same payoff regardless of what the other player is playing.
+              show: ((params.BA == params.AA) & (params.BB == params.AB))
+              

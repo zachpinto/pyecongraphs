@@ -1,0 +1,233 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: beta
+    value: 1
+    min: 0.01
+    max: 1
+    round: "0.01"
+  - name: rSave
+    value: 0.0
+    min: 0
+    max: 1
+    round: 0.01
+  - name: rBorrow
+    value: 0.5
+    min: 0
+    max: 1
+    round: 0.01
+  - name: m1
+    value: "30"
+    min: "0"
+    max: "100"
+    round: "1"
+  - name: m2
+    value: "24"
+    min: "0"
+    max: "50"
+    round: "1"
+  - name: showIndW
+    value: false
+  - name: showBorrowSave
+    value: false
+  - name: showExplanation
+    value: false
+calcs:
+  cutoffInterestRate: (calcs.endowmentBundle.mrs-1)
+  presentValue: (params.m1 + params.m2/(1 + params.rBorrow))
+  futureValue: (params.m1*(1 + params.rSave) + params.m2)
+  consumeAtEndowment: ((calcs.endowmentBundle.mrs-1 <= params.rBorrow) && (calcs.endowmentBundle.mrs-1 >= params.rSave))
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Dollars in Period 1
+        orient: bottom
+        min: 0
+        max: 60
+      yAxis:
+        title: Dollars in Period 2
+        orient: left
+        min: 0
+        max: 60
+      objects:
+        - type: EconBundle
+          def:
+            name: endowmentBundle
+            coordinates:
+              - params.m1
+              - params.m2
+            droplines:
+              vertical: m_1
+              horizontal: m_2
+            color: gray
+            label:
+              text: \text{Endowment}
+              position: tr
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - 1
+                  - params.beta
+            drag:
+              - directions: x
+                param: m1
+                expression: params.m1 + drag.dx
+              - directions: "y"
+                param: m2
+                expression: params.m2 + drag.dy
+            indifferenceCurve:
+              label:
+                text: ""
+              color: '(calcs.consumeAtEndowment ? colors.utility : colors.endowment)'
+              show: (params.showIndW || calcs.consumeAtEndowment)
+        - type: EconOptimalBundle
+          def:
+            name: savingsOptimum
+            label:
+              text: X
+            droplines:
+              vertical: c_1^*
+              horizontal: c_2^*
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - 1
+                  - params.beta
+            color: colors.utility
+            budgetLine:
+              p1: 1 + params.rSave
+              p2: 1
+              x: params.m1
+              "y": params.m2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+              sellOnly: true
+            indifferenceCurve: {}
+        - type: EconOptimalBundle
+          def:
+            name: borrowingOptimum
+            label:
+              text: X
+            droplines:
+              vertical: c_1^*
+              horizontal: c_2^*
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - 1
+                  - params.beta
+            color: colors.utility
+            budgetLine:
+              p1: 1 + params.rBorrow
+              p2: 1
+              x: params.m1
+              "y": params.m2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+              buyOnly: true
+            indifferenceCurve: {}
+        - type: Segment
+          def:
+            a:
+              - params.m1
+              - 10
+            b:
+              - calcs.savingsOptimum.x
+              - 10
+            endArrow: true
+            color: colors.supply
+            label:
+              text: '`\\text{Save ${(params.m1-calcs.savingsOptimum.x).toFixed(2)}}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.savingsOptimum.x < params.m1))
+        - type: Segment
+          def:
+            a:
+              - 10
+              - params.m2
+            b:
+              - 10
+              - calcs.savingsOptimum.y
+            endArrow: true
+            color: colors.demand
+            label:
+              text: '`\\text{Grows to ${(calcs.savingsOptimum.y-params.m2).toFixed(2)}}`'
+              location: 0.5
+              xPixelOffset: -15
+              align: right
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.savingsOptimum.x < params.m1))
+        - type: Segment
+          def:
+            a:
+              - params.m1
+              - 10
+            b:
+              - calcs.borrowingOptimum.x
+              - 10
+            endArrow: true
+            color: colors.demand
+            label:
+              text: '`\\text{Borrow ${(calcs.borrowingOptimum.x-params.m1).toFixed(2)}}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.borrowingOptimum.x > params.m1))
+        - type: Segment
+          def:
+            a:
+              - 10
+              - params.m2
+            b:
+              - 10
+              - calcs.borrowingOptimum.y
+            endArrow: true
+            color: colors.supply
+            label:
+              text: '`\\text{Repay ${(params.m2-calcs.borrowingOptimum.y).toFixed(2)}}`'
+              location: 0.5
+              xPixelOffset: -15
+              align: right
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.borrowingOptimum.x > params.m1))
+    sidebar:
+      controls:
+        - title: Preference Parameters
+          sliders:
+            - param: beta
+              label: \beta
+          divs:
+            - html: '`$$u(c_1,c_2) = \\ln c_1 + \\beta \\ln c_2 = \\ln c_1 + {${params.beta.toFixed(2)}}\\ln c_2$$`'
+        - title: Budget Parameters
+          sliders:
+            - param: rBorrow
+              label: r_\text{borrow}
+            - param: rSave
+              label: r_\text{save}
+        - title: Options
+          checkboxes:
+            - param: showIndW
+              label: \text{Show indifference curve through endowment}
+            - param: showBorrowSave
+              label: \text{Show borrow/save amounts}
+            - param: showExplanation
+              label: \text{Show explanation}
+          divs:
+            - html: '`<hr/>You start with an endowment of $\\color{${colors.endowment}}{m_1 = ${params.m1.toFixed(0)}}$ dollars in period 1 and $\\color{${colors.endowment}}{m_2 = ${params.m2.toFixed(0)}}$ dollars in period 2. The MRS at that point is $$\\color{${colors.endowment}}{MRS(m_1,m_2) = \\frac{m_2}{\\beta m_1} = \\frac{${params.m2.toFixed(0)}}{${params.beta.toFixed(2)} \\times ${params.m1.toFixed(0)}} =${(calcs.cutoffInterestRate + 1).toFixed(2)}}$$`'
+              show: params.showExplanation
+            - html: '`Since you can borrow at an interest rate of ${(100*params.rBorrow).toFixed(0)}\%, the price ratio to the <em>right</em> of the endowment point is $1 + r_\\text{borrow} = ${(1 + params.rBorrow).toFixed(2)}$. Since the MRS at your endowment is <b>greater</b> than this price ratio, you can increase your utility by <b>borrowing</b> (i.e., moving to the <b>right</b> along your budget constraint). `'
+              show: (params.showExplanation && (params.rBorrow < calcs.cutoffInterestRate))
+            - html: '`Since you can save at an interest rate of ${(100*params.rSave).toFixed(0)}\%, the price ratio to the <em>left</em> of the endowment point is $1 + r_\\text{save} = ${(1 + params.rSave).toFixed(2)}$. Since the MRS at your endowment is <b>less</b> than this price ratio, you can increase your utility by <b>saving</b> (i.e., move to the <b>left</b> along your budget constraint).`'
+              show: (params.showExplanation && (params.rSave > calcs.cutoffInterestRate))
+            - html: '`Since you can borrow at an interest rate of ${(100*params.rBorrow).toFixed(0)}\% and save at an interest rate of ${(100*params.rSave).toFixed(0)}\%, the price ratio to the <em>left</em> of the endowment point is $1 + r_\\text{save} = ${(1 + params.rSave).toFixed(2)}$ and the price ratio to the <em>right</em> of the endowment point is $1 + r_\\text{borrow} = ${(1 + params.rBorrow).toFixed(2)}$. Since the MRS at your endowment is <b>between</b> these two price ratios, you maximize your utility consuming your endowment (i.e., neither borrowing nor lending). `'
+              show: (params.showExplanation && !(params.rBorrow < calcs.cutoffInterestRate) && !(params.rSave > calcs.cutoffInterestRate))
+            - html: '`Since there are two candidate optimal points, you have to choose the one with the higher utility.`'
+              show: (params.showExplanation && (params.rBorrow < calcs.cutoffInterestRate) && (params.rSave > calcs.cutoffInterestRate))

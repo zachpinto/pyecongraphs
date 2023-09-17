@@ -1,0 +1,73 @@
+schema: EconSchema
+params:
+- {name: x, value: 2, min: 1, max: 7, round: 0.2}
+calcs:
+  mrsGreater: (params.x < 4)
+  mrsEqual: (params.x == 4)
+  mrsLess: (params.x > 4)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        ticks: 0
+        title: "Units of Good 1"
+      yAxis:
+        ticks: 0
+        title: "Units of Good 2"
+      objects:
+
+      # Point object at coordinates (6,4)
+      - EconBundle:
+          name: X
+          coordinates: [params.x, (8 - params.x)]
+          drag:
+          - horizontal: x
+          color: blue
+          budgetLine:
+            p1: 1
+            p2: 1
+            color: budget
+            label:
+              text: "`|\\\\text{slope}| = p_1/p_2`"
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          indifferenceCurve:
+            color: utility
+          droplines: {}
+          
+      - Arrow:
+          begin: [params.x, (8 - params.x)]
+          end: [(2 + 0.5*params.x), (6 - 0.5*params.x)]
+          color: red
+          strokeWidth: 4
+          label:
+            text: \text{Gravitational Pull}
+            position: bl
+          show: (!calcs.mrsEqual)
+            
+      - Line:
+          point: [params.x, (8 - params.x)]
+          lineStyle: dotted
+          slope: -calcs.X.mrs
+          color: blue
+          min: (params.x - 2/(1 + calcs.X.mrs*calcs.X.mrs)^0.5)
+          max: (params.x + 2/(1 + calcs.X.mrs*calcs.X.mrs)^0.5)
+          label:
+            x: (params.x + 2/(1 + calcs.X.mrs*calcs.X.mrs)^0.5)
+            text: "`|\\\\text{slope}| = MRS`"
+            position: tr
+
+
+
+    sidebar:
+      controls:
+      - title: âGravitational Pullâ Toward Optimality
+        description: Drag point X to see how the MRS and the price ratio compare at different points along the budget line.
+        divs:
+        - html: Because $MRS > p_1/p_2$ at $X$, the agent can do better by moving to the right along the budget line.
+          show: calcs.mrsGreater
+        - html: Because $MRS < p_1/p_2$ at $X$, the agent can do better by moving to the left along the budget line.
+          show: calcs.mrsLess
+        - html: Because $MRS = p_1/p_2$ at $X$, the agent is optimizing at this point.
+          show: calcs.mrsEqual

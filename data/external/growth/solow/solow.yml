@@ -1,0 +1,125 @@
+schema: EconSchema
+version: 1
+params:
+  - name: delta
+    value: "0.06"
+    min: "0"
+    max: "0.1"
+    round: "0.001"
+  - name: s
+    value: "0.5"
+    min: "0"
+    max: "1"
+    round: "0.01"
+  - name: alpha
+    value: "0.5"
+    min: "0"
+    max: "1"
+    round: "0.01"
+  - name: k
+    value: "50"
+    min: "0"
+    max: "100"
+    round: "1"
+calcs:
+  a: (params.alpha.toFixed(2))
+  oneMinusA: (params.alpha.toFixed(2))
+  dk: ((params.delta)*(params.k)).toFixed(2)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Capital in Period $t$ ($k_t$)
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Output ($y$)
+        orient: left
+        min: 0
+        max: 10
+      objects:
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: (x)^(params.alpha)
+              samplePoints: 200
+            color: colors.production
+            label:
+              text: f(k)
+              x: 75
+        - type: Line
+          def:
+            slope: (params.delta)
+            color: colors.depreciation
+            label:
+              text: \delta k
+              x: 85
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: (params.s)*(x)^(params.alpha)
+              samplePoints: 200
+            color: colors.savings
+            label:
+              text: sf(k)
+              x: 95
+        - type: Segment
+          def:
+            a:
+              - params.k
+              - 0
+            b:
+              - params.k
+              - 20
+            stroke: gray
+            drag:
+              - directions: x
+                param: k
+                expression: params.k + drag.dx
+        - type: Point
+          def:
+            coordinates:
+              - params.k
+              - (params.s)*(params.k)^(params.alpha)
+            color: colors.savings
+            drag:
+              - directions: x
+                param: k
+                expression: params.k + drag.dx
+        - type: Point
+          def:
+            coordinates:
+              - params.k
+              - (params.delta)*(params.k)
+            color: colors.depreciation
+            drag:
+              - directions: x
+                param: k
+                expression: params.k + drag.dx
+        - type: Point
+          def:
+            coordinates:
+              - params.k
+              - (params.k)^(params.alpha)
+            color: colors.production
+            drag:
+              - directions: x
+                param: k
+                expression: params.k + drag.dx
+    sidebar:
+      controls:
+        - title: Solow Model
+          sliders:
+            - param: alpha
+              label: \alpha
+            - param: delta
+              label: \delta
+            - param: s
+              label: s
+          divs:
+            - html: '`If the economy has $k_t = ${params.k}$ units of capital in period $t$, it produces an output of $$\\color{${colors.production}}{y_t = f(k_t) = ${params.k}^{${params.alpha.toFixed(2)}} = ${Math.pow(params.k,params.alpha).toFixed(2)}}$$`'
+            - html: '`Of that it saves $$\\color{${colors.savings}}{sf(k_t) = ${(params.s).toFixed(2)} \\times ${params.k}^{${params.alpha.toFixed(2)}} = ${(params.s*Math.pow(params.k,params.alpha)).toFixed(2)}}$$`'
+            - html: '`Meanwhile, depreciation reduces the capital stock by $$\\color{${colors.depreciation}}{\\delta k_t = ${params.delta.toFixed(2)} \\times ${params.k} = ${calcs.dk}}$$`'
+            - html: '`Therefore, in period $t + 1$ the economy will have a capital stock of $$\\begin{aligned}k_{t+1} &= k_t + \\color{${colors.savings}}{sf(k_t)} - \\color{${colors.depreciation}}{\\delta k_t} \\\\&= ${params.k} + \\color{${colors.savings}}{${(params.s*Math.pow(params.k,params.alpha)).toFixed(2)}} - \\color{${colors.depreciation}}{${calcs.dk}}\\\\&= ${(params.k + params.s*Math.pow(params.k,params.alpha) - (params.delta)*(params.k)).toFixed(2)}\\end{aligned}$$`'

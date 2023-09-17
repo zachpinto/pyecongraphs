@@ -1,0 +1,149 @@
+schema: EconSchema
+params:
+- {name: L, min: 20, max: 100, round: 1, value: 50}
+calcs:
+  L2: (100-params.L)
+  x1: (params.L)
+  x2: (0.5*calcs.L2)
+  mrt: (0.5)
+  mrs: (100/calcs.x1)
+layout:
+  SquarePlusTwoVerticalGraphs:
+    bigGraph:
+      xAxis:
+        max: 150
+        ticks: 3
+        title: Good 1
+      yAxis:
+        max: 150
+        ticks: 3
+        title: Good 2
+
+      objects:
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            Quasilinear:
+              coefficients: [100]
+          levels: [280, 360, 420, 460, 500, 540, 575]
+          yMin: -10
+          yMax: 130
+          xMin: 0
+          xMax: 130
+
+      # PPF
+      - Line:
+          yIntercept: 50
+          xIntercept: 100
+          areaBelow: true
+          color: budget
+          label:
+            text: BL
+            x: 5
+            position: bl
+            
+      # Bundle
+      - EconBundle:
+          name: Y
+          utilityFunction:
+            Quasilinear:
+              coefficients: [100]
+          coordinates: [calcs.x1, calcs.x2]
+          color: blue
+          drag:
+          - horizontal: L
+          droplines:
+            vertical: calcs.x1.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: -calcs.mrs
+          color: colors.demand
+          min: calcs.x1 - 10
+          max: calcs.x1 + 10
+          strokeWidth: 5
+          label:
+            text: MRS
+            x: calcs.x1 - 8
+            position: bl
+            bgcolor: 
+
+    topGraph:
+      xAxis:
+        max: 100
+        title: Money Spent on Good 1
+      yAxis:
+        max: 500
+        ticks: 0
+      objects:
+        - Curve:
+            fn: 100*log(x) + 50 - 0.5*(x)
+            color: utility
+            min: 1
+            label:
+              text: u(X)
+              x: 90
+              position: t
+              bgcolor: none
+        - Point:
+            coordinates: [params.L, calcs.Y.level]
+            draggable: true
+            droplines:
+              vertical: params.L
+              horizontal: calcs.Y.level.toFixed(2)
+
+
+
+    bottomGraph:
+      xAxis:
+        max: 100
+        title: Money Spent on Good 1
+      yAxis:
+        max: 5
+      objects:
+      - Point:
+         coordinates: [params.L, calcs.mrs]
+         droplines:
+           vertical: params.L
+           horizontal: calcs.mrs.toFixed(2)
+         drag:
+           - horizontal: L
+      - Point:
+         coordinates: [params.L, calcs.mrt]
+         color: budget
+         droplines:
+           vertical: params.L
+         drag:
+           - horizontal: L
+      - Curve:
+         fn: (100/(x))
+         color: demand
+         samplePoints: 200
+         label:
+           text: MRS
+           x: 25
+      - Line:
+         yIntercept: 0.5
+         color: budget
+         label:
+           text: \frac{p_1}{p_2}
+           x: 25
+
+
+    sidebar:
+      controls:
+      - title: "MRS vs MRT: Quasilinear Utility"
+        sliders:
+        - param: L
+          label: L_1
+        divs:
+        - html: "`<h4>Utility Function:</h4>$$u(x_1,x_2) = 100 \\\\ln x_1 + x_2$$ $$MRS(${calcs.x1.toFixed(0)},${calcs.x2.toFixed(0)}) = \\\\frac{100}{${calcs.x1.toFixed(0)}} = ${calcs.mrs.toFixed(2)}$$`"
+        - html: <h4>Budget Constraint:</h4> $$x_1 + 2x_2 = 100$$
+
+    

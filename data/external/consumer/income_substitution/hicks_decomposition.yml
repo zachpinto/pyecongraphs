@@ -1,0 +1,357 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: a
+  value: 0.5
+  min: '0.05'
+  max: '0.95'
+  round: '0.01'
+- name: r
+  value: -1
+  min: -4
+  max: 0.8
+  round: '0.05'
+- name: p11
+  value: 2
+  min: '0.1'
+  max: '10'
+  round: 0.1
+  precision: 2
+- name: p12
+  value: 8
+  min: '0.1'
+  max: '10'
+  round: 0.1
+  precision: 2
+- name: p2
+  value: 2
+  min: '0.1'
+  max: '10'
+  round: 0.1
+  precision: 2
+- name: m
+  value: 144
+  min: '0'
+  max: 200
+  round: '1'
+- name: showX
+  value: true
+- name: showY
+  value: true
+- name: showZ
+  value: true
+- name: showIOC
+  value: false
+- name: showPOC
+  value: false
+- name: showIncEffect1
+  value: false
+- name: showIncEffect2
+  value: false
+- name: showSubEffect1
+  value: false
+- name: showSubEffect2
+  value: false
+calcs:
+  CD: "(params.r == 0)"
+  showIncEffect: "(params.showY && params.showZ)"
+  showSubEffect: "(params.showX && params.showY)"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 80
+        ticks: 0
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 80
+        ticks: 0
+      objects:
+      - type: EconPriceOfferCurve
+        def:
+          utilityFunction:
+            type: CES
+            def:
+              alpha: params.a
+              r: params.r
+          budgetLine:
+            p1: 1
+            p2: params.p2
+            m: params.m
+          label:
+            text: POC
+            t: 1.1
+          good: 1
+          min: 0.5
+          max: 30
+          show: params.showPOC
+      - type: Line
+        def:
+          point:
+          - calcs.X.x
+          - calcs.X.y
+          stroke: colors.incomeOffer
+          lineStyle: dotted
+          show: params.showIOC
+          ind: y
+          label:
+            text: IOC_1
+            y: 76
+      - type: Line
+        def:
+          point:
+          - calcs.Y.x
+          - calcs.Y.y
+          stroke: colors.incomeOffer
+          show: params.showIOC
+          ind: y
+          label:
+            text: IOC_2
+            y: 76
+      - type: EconBundle
+        def:
+          coordinates:
+          - calcs.X.x
+          - calcs.X.y
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a
+          label: {}
+          droplines: {}
+          indifferenceCurve:
+            show: "(calcs.CD && params.showX)"
+            label: U_1
+          show: params.showX
+      - type: EconBundle
+        def:
+          coordinates:
+          - calcs.Y.x
+          - calcs.Y.y
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a
+          label: {}
+          droplines: {}
+          indifferenceCurve:
+            show: "(calcs.CD && params.showY)"
+            inMap: true
+          show: params.showY
+      - type: EconBundle
+        def:
+          coordinates:
+          - calcs.Z.x
+          - calcs.Z.y
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a
+          label: {}
+          droplines: {}
+          indifferenceCurve:
+            show: "(calcs.CD && params.showZ)"
+            label: U_2
+          show: params.showZ
+      - type: EconHicksBundle
+        def:
+          name: Y
+          utilityFunction:
+            type: CES
+            def:
+              alpha: params.a
+              r: params.r
+          budgetLine:
+            p1: params.p11
+            p2: params.p2
+            m: params.m
+            color: grey
+            strokeWidth: 0.5
+            label:
+              text:
+            min: 25
+            max: 35
+          level: calcs.X.level
+          p1: params.p12
+          label:
+            text: B
+          droplines: {}
+          indifferenceCurve:
+            inMap: true
+          show: params.showY
+      - type: EconOptimalBundle
+        def:
+          name: Z
+          utilityFunction:
+            type: CES
+            def:
+              alpha: params.a
+              r: params.r
+          budgetLine:
+            p1: params.p12
+            p2: params.p2
+            m: params.m
+            handles: true
+            draggable: true
+            label:
+              text: BL_2
+          label:
+            text: C
+          droplines: {}
+          indifferenceCurve:
+            label:
+              text: U_2
+          show: params.showZ
+      - type: EconOptimalBundle
+        def:
+          name: X
+          utilityFunction:
+            type: CES
+            def:
+              alpha: params.a
+              r: params.r
+          budgetLine:
+            p1: params.p11
+            p2: params.p2
+            m: params.m
+            handles: true
+            draggable: true
+            label:
+              text: BL_1
+          label:
+            text: A
+          droplines: {}
+          indifferenceCurve:
+            label:
+              text: U_1
+          show: params.showX
+      - type: VerticalDropline
+        def:
+          x: calcs.X.x
+          y: calcs.X.y
+          color: colors.subEffect
+          show: "(calcs.showSubEffect && params.showSubEffect1)"
+      - type: VerticalDropline
+        def:
+          x: calcs.Y.x
+          y: calcs.Y.y
+          color: colors.subEffect
+          show: "(calcs.showSubEffect && params.showSubEffect1)"
+      - type: Segment
+        def:
+          a:
+          - calcs.X.x
+          - 2
+          b:
+          - calcs.Y.x
+          - 2
+          endArrow: true
+          color: colors.subEffect
+          label:
+            text: "`\\\\text{Sub}`"
+            location: 0.6
+          show: "(calcs.showSubEffect && params.showSubEffect1)"
+      - type: VerticalDropline
+        def:
+          x: calcs.Y.x
+          y: calcs.Y.y
+          color: colors.incEffect
+          show: "(calcs.showIncEffect && params.showIncEffect1)"
+      - type: VerticalDropline
+        def:
+          x: calcs.Z.x
+          y: calcs.Z.y
+          color: colors.incEffect
+          show: "(calcs.showIncEffect && params.showIncEffect1)"
+      - type: Segment
+        def:
+          a:
+          - calcs.Y.x
+          - 2
+          b:
+          - calcs.Z.x
+          - 2
+          endArrow: true
+          color: colors.incEffect
+          label:
+            text: "`\\\\text{Inc}`"
+            location: 0.6
+          show: "(calcs.showIncEffect && params.showIncEffect1)"
+      - type: HorizontalDropline
+        def:
+          x: calcs.X.x
+          y: calcs.X.y
+          color: colors.subEffect
+          show: "(calcs.showSubEffect && params.showSubEffect2)"
+      - type: HorizontalDropline
+        def:
+          x: calcs.Y.x
+          y: calcs.Y.y
+          color: colors.subEffect
+          show: "(calcs.showSubEffect && params.showSubEffect2)"
+      - type: Segment
+        def:
+          a:
+          - 2
+          - calcs.X.y
+          b:
+          - 2
+          - calcs.Y.y
+          endArrow: true
+          color: colors.subEffect
+          label:
+            text: "`\\\\text{Sub}`"
+            location: 0.6
+          show: "(calcs.showSubEffect && params.showSubEffect2)"
+      - type: HorizontalDropline
+        def:
+          x: calcs.Y.x
+          y: calcs.Y.y
+          color: colors.incEffect
+          show: "(calcs.showIncEffect && params.showIncEffect2)"
+      - type: HorizontalDropline
+        def:
+          x: calcs.Z.x
+          y: calcs.Z.y
+          color: colors.incEffect
+          show: "(calcs.showIncEffect && params.showIncEffect2)"
+      - type: Segment
+        def:
+          a:
+          - 8
+          - calcs.Y.y
+          b:
+          - 8
+          - calcs.Z.y
+          endArrow: true
+          color: colors.incEffect
+          label:
+            text: "`\\\\text{Inc}`"
+            location: 0.6
+          show: "(calcs.showIncEffect && params.showIncEffect2)"
+    sidebar:
+      controls:
+      - title: Hicks decomposition
+        sliders:
+        - param: p11
+          label: p_1
+        - param: p12
+          label: p'_1
+        - param: p2
+          label: p_2
+        - param: m
+          label: m
+        checkboxes:
+        - param: showIOC
+          label: "\\text{Show income offer curves}"
+        - param: showPOC
+          label: "\\text{Show price offer curve for good 1}"
+

@@ -1,0 +1,134 @@
+schema: EconSchema
+colors:
+  marginalCost: colors.orange
+  averageCost: colors.purple
+  totalCost: colors.red
+params:
+  - { name: q, value: 8, min: 0, max: 15, round: 0.1 }
+calcs:
+  tc: (64 + 0.25*params.q^2)
+  mc: (0.25*2*params.q^(2-1))
+  ac: (64/params.q + 0.25*params.q^(2 - 1))
+  p: (20 - params.q)
+  tr: (params.q * calcs.p)
+  mr: (20 - 2*params.q)
+  profit: (calcs.tr - calcs.tc)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      yAxis:
+        title: Dollars per Unit
+        max: 20
+        min: -10
+        ticks: 1
+      xAxis:
+        title: Output ($q$)
+        max: 20
+        ticks: 2
+      objects:
+
+        # Average cost
+        - Curve:
+            fn: 64/(x) + 0.25*(x)
+            color: averageCost
+            label:
+              text: AC
+              x: 18
+              position: t
+
+        - Point:
+            coordinates: [ params.q, calcs.ac ]
+            color: averageCost
+            drag:
+              - horizontal: q
+            droplines:
+              vertical:
+              horizontal: calcs.ac.toFixed(2)
+
+        # Marginal cost
+        - Curve:
+            fn: 0.25*2*(x)
+            color: marginalCost
+            label:
+              text: MC
+              x: 19
+
+        - Point:
+            coordinates: [ params.q, calcs.mc ]
+            color: marginalCost
+            drag:
+              - horizontal: q
+            droplines:
+              vertical:
+              horizontal: calcs.mc.toFixed(2)
+
+        # Average revenue
+        - Line:
+            yIntercept: 20
+            slope: -1
+            color: demand
+            label:
+              text: D = AR
+              x: 18
+
+        - Point:
+            coordinates: [ params.q, calcs.p ]
+            color: demand
+            drag:
+              - horizontal: q
+            droplines:
+              vertical: params.q.toFixed(2)
+              horizontal: calcs.p.toFixed(2)
+
+        ## Marginal revenue
+
+        - Line:
+            yIntercept: 20
+            slope: -2
+            color: olive
+            label:
+              text: MR
+              x: 9
+
+        - Point:
+            coordinates: [ params.q, calcs.mr ]
+            color: olive
+            drag:
+              - horizontal: q
+            droplines:
+              vertical:
+              horizontal: calcs.mr.toFixed(2)
+
+        ## Profit
+
+        - Rectangle:
+            x1: 0
+            y1: calcs.ac
+            x2: params.q
+            y2: calcs.p
+            color: profit
+            show: (calcs.profit > 0)
+            label:
+              text: "`\\\\text{Profit = ${calcs.profit.toFixed(2)}}`"
+
+        - Rectangle:
+            x1: 0
+            y1: calcs.ac
+            x2: params.q
+            y2: calcs.p
+            color: loss
+            show: (calcs.profit < 0)
+            label:
+              text: "`\\\\text{Loss = ${-calcs.profit.toFixed(2)}}`"
+
+    sidebar:
+      controls:
+        - title: Unit Revenues and Costs
+          sliders:
+            - param: q
+              label: q
+          divs:
+            - html: "`$$\\\\textcolor{${colors.blue}}{AR(q) = 20-q\\\\\\\\ AR(${params.q.toFixed(2)}) = ${calcs.p.toFixed(2)}}$$`"
+            - html: "`$$\\\\textcolor{${colors.purple}}{AC(q) = \\\\tfrac{64}{q} + \\\\tfrac{q}{4}\\\\\\\\ AC(${params.q.toFixed(2)}) = ${calcs.ac.toFixed(2)}}$$`"
+            - html: "`$$\\\\textcolor{${colors.olive}}{MR(q) = 20 - 2q\\\\\\\\ MR(${params.q.toFixed(2)}) = ${calcs.mr.toFixed(2)}}$$`"
+            - html: "`$$\\\\textcolor{${colors.orange}}{MC(q) = \\\\tfrac{q}{2}\\\\\\\\ MC(${params.q.toFixed(2)}) = ${calcs.mc.toFixed(2)}}$$`"

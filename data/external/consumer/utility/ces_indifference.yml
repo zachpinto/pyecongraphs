@@ -1,0 +1,98 @@
+params:
+  - { name: s, min: 0.01, max: 2, value: 0.5, round: 0.01 }
+  - { name: theta, min: 0.4, max: 2.5, value: 2, round: 0.01 }
+calcs:
+  r: "(params.s < 1) ? (1 - 1/(params.s)) : (params.s - 1)"
+  L: "(calcs.r == 0) ? 20*(params.theta)^(-0.5) : 20*(0.5 + 0.5*(params.theta)^(calcs.r))^(-1/calcs.r)"
+  K: (params.theta*calcs.L)
+  MRS: (-(params.theta)^(1 - calcs.r))
+  invMRS: (-(params.theta)^(calcs.r - 1))
+  dx: (10/(1+params.theta^(2-2*calcs.r))^(0.5))
+
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        min: 1
+        max: 50
+        title: Good 1 ($x_1$)
+        intercept: 1
+        ticks: 0
+      yAxis:
+        min: 1
+        max: 50
+        title: Good 2 ($x_2$)
+        intercept: 1
+        ticks: 0
+      objects:
+        - Contour:
+            level: 20
+            yMax: 51
+            xMax: 51
+            fn: "(0.5*(x)^(calcs.r)+0.5*(y)^(calcs.r))^(1/calcs.r)"
+            strokeWidth: 5
+            color: purple
+            show: "(calcs.r != 0)"
+        - Contour:
+            level: 20
+            yMax: 51
+            xMax: 51
+            fn: "((x)*(y))^0.5"
+            show: "(calcs.r == 0)"
+            strokeWidth: 5
+            color: purple
+        - ContourMap:
+            levels: [ 5, 10, 15, 25, 30, 35, 40 ]
+            yMax: 51
+            xMax: 51
+            fn: "(0.5*(x)^(calcs.r)+0.5*(y)^(calcs.r))^(1/calcs.r)"
+            show: "(calcs.r != 0)"
+        - ContourMap:
+            levels: [ 5, 10, 15, 25, 30, 35, 40 ]
+            yMax: 51
+            xMax: 51
+            fn: "((x)*(y))^0.5"
+            show: "(calcs.r == 0)"
+        - Line:
+            point: [ calcs.L, calcs.K ]
+            slope: calcs.MRS
+            min: (calcs.L - calcs.dx)
+            max: (calcs.L + calcs.dx)
+            color: blue
+            label:
+              x: calcs.L - calcs.dx
+              text: MRS
+              position: tr
+            show: params.theta <= 1
+        - Line:
+            point: [ calcs.L, calcs.K ]
+            invSlope: calcs.invMRS
+            min: (calcs.L - calcs.dx)
+            max: (calcs.L + calcs.dx)
+            ind: y
+            color: blue
+            label:
+              x: calcs.L + calcs.dx
+              text: MRS
+              position: tr
+            show: params.theta > 1
+        - Point:
+            coordinates: [ calcs.L, calcs.K ]
+            drag:
+              - directions: xy
+                param: theta
+                expression: drag.y/drag.x
+
+    sidebar:
+      controls:
+        - title: "CES utility function: indifference map"
+          sliders:
+            - param: s
+              label: r
+              showNumber: false
+
+          divs:
+            - html: "`$$r = ${calcs.r.toFixed(2)}$$`"
+            - html: $$u(x_1,x_2) = (x_1^r + x_2^r)^\frac{1}{r}$$
+            - html: $$MRS = \left(\frac{x_2}{x_1}\right)^{1-r}$$
+

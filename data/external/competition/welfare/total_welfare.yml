@@ -1,0 +1,195 @@
+schema: EconSchema
+params:
+  - {name: x, value: 4, min: 2, max: 10, round: 0.1}
+calcs:
+  p: (10 - params.x)
+  mb: (10 - params.x)
+  mc: (1 + 0.5*params.x)
+  v: (10*(params.x) - 0.5*(params.x)^2)
+  c: (params.x + 0.25*(params.x)^2)
+  exp: (calcs.p*params.x)
+  cs: calcs.v - calcs.exp
+  ps: calcs.exp - calcs.c
+  pf: (1 + 0.5*params.x)
+  pc: (10 - params.x)
+
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 11
+      yAxis:
+        max: 55
+        title: Dollars
+      objects:
+
+        - Curve:
+            fn: 10*(x) - 0.5*(x)^2
+            min: 0
+            samplePoints: 500
+            color: blue
+            label:
+              text: TB(Q)
+              x: 10.5
+              position: bl
+              bgcolor: none
+
+        - Curve:
+            fn: (x) + ((x)^2)/4
+            min: 0
+            samplePoints: 500
+            color: red
+            label:
+              text: TC(Q)
+              x: 10.5
+              position: tl
+              bgcolor: none
+
+        - Point:
+            r: 4
+            coordinates: [params.x, calcs.v]
+            color: blue
+
+        - Point:
+            r: 4
+            coordinates: [params.x, calcs.c]
+            color: red
+
+        - Segment:
+            a: [params.x, calcs.c + 1]
+            b: [params.x, calcs.v - 1]
+            drag:
+              - horizontal: x
+            startArrow: true
+            endArrow: true
+            color: green
+            label:
+              text: "`W = ${(calcs.cs+calcs.ps).toFixed(2)}`"
+              align: left
+              xPixelOffset: 5
+              fontSize: 9
+
+        - Segment:
+            a: [params.x - 0.2, 0.5]
+            b: [params.x - 0.2, calcs.v - 1]
+            startArrow: true
+            endArrow: true
+            color: blue
+            label:
+              text: "`TB = ${calcs.v.toFixed(2)}`"
+              align: right
+              xPixelOffset: -5
+              fontSize: 9
+
+        - Segment:
+            a: [params.x, calcs.c - 1]
+            b: [params.x, 0.5]
+            startArrow: true
+            endArrow: true
+            color: red
+            label:
+              text: "`TC = ${calcs.c.toFixed(2)}`"
+              align: left
+              xPixelOffset: 5
+              fontSize: 9
+
+    bottomGraph:
+      xAxis:
+        max: 11
+        title: Quantity Produced and Consumed ($Q$)
+      yAxis:
+        max: 11
+        title: Dollars Per Unit
+      objects:
+
+        - Area:
+            fn1: 10 - (x)
+            fn2: 1 + 0.5*(x)
+            max: params.x
+            color: green
+
+        - Area:
+            fn: 1 + 0.5*(x)
+            max: params.x
+            color: red
+
+        - Line:
+            yIntercept: 1
+            slope: 0.5
+            color: orange
+            label:
+              text: MC(Q)
+              x: 10.5
+              position: br
+              bgcolor: none
+
+
+        - Line:
+            yIntercept: 10
+            slope: -1
+            color: blue
+            label:
+              text: MB(Q)
+              x: 3
+              position: bl
+              bgcolor: none
+
+        - Label:
+            coordinates: [(0.5*params.x), (5.5-0.125*params.x)]
+            text: (calcs.cs+calcs.ps).toFixed(2)
+            color: green
+            bgcolor: none
+            show: params.x <= 6
+            fontSize: 9
+
+        - Label:
+            coordinates: [3, 4.75]
+            text: (27).toFixed(2)
+            color: green
+            bgcolor: none
+            show: params.x > 6
+            fontSize: 9
+
+        - Label:
+            coordinates: [(2+0.66*params.x), (0.5*(calcs.mb+calcs.mc))]
+            text: (calcs.cs+calcs.ps-27).toFixed(2)
+            color: brown
+            bgcolor: none
+            show: params.x > 6
+            fontSize: 9
+
+
+
+        - Point:
+            r: 4
+            coordinates: [params.x, calcs.p]
+            drag:
+              - horizontal: x
+            color: demand
+            droplines:
+              vertical: "`Q = ${params.x.toFixed(1)}`"
+
+        - Point:
+            r: 4
+            coordinates: [params.x, calcs.mc]
+            drag:
+              - horizontal: x
+            color: supply
+
+    sidebar:
+      controls:
+        - title: Total Welfare
+          sliders:
+            - param: x
+              label: Q
+          divs:
+            - html: "`When $Q = ${params.x.toFixed(1)}$, the total benefit to consumers is $TB = ${calcs.v.toFixed(2)}$ and the total cost to firms is $TC = ${calcs.c.toFixed(2)}$; therefore total welfare is $$W(${params.x.toFixed(1)}) = ${calcs.v.toFixed(2)} - ${calcs.c.toFixed(2)} = ${(calcs.v - calcs.c).toFixed(2)}$$`"
+
+    explanation:
+      divs:
+        - html: 'Because $MB > MC$ at this quantity, welfare could be increased by increasing $Q$. The area of "deadweight loss" is seen as the empty triangle to the right of $Q$, below the $MB$ curve and above the $MC$ curve. This represents the additional benefit to consumers possible by reallocating resources from other goods to making sandwiches.'
+          show: params.x < 6
+        - html: 'Because $MB < MC$ at this quantity, welfare could be increased by decreasing $Q$. The area of "deadweight loss" is seen as the brown triangle to the right of $Q$, below the $MB$ curve and above the $MC$ curve. This represents the additional benefit to consumers possible by reallocating resources from making sandwiches to other goods.'
+          show: params.x > 6
+        - html: 'Because $MB = MC$ at this quantity, welfare is maximized at $Q$.'
+          show: params.x == 6

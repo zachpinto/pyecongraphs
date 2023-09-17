@@ -1,0 +1,102 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: theta
+    value: 0.5
+    min: 0
+    max: 1
+    round: 0.01
+  - name: p1
+    value: 4
+    min: 1
+    max: 6
+  - name: p2
+    value: 2
+    min: 1
+    max: 6
+  - name: m
+    value: 48
+    min: 12
+    max: 60
+    round: 6
+  - name: a
+    value: 0.75
+    min: 0.01
+    max: 0.99
+    round: 0.01
+calcs:
+  max: (10*round(max((params.m/params.p1),(params.m/params.p2)),0)*0.1)
+  maxU: (1.2*((params.a*params.m/params.p1)^params.a)*((1-params.a)*params.m/params.p2)^(1-params.a))
+  x1: (params.theta*params.m/params.p1)
+  x2: ((1-params.theta)*params.m/params.p2)
+  u: ((calcs.x1^(params.a))*(calcs.x2^(1-params.a)))
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: calcs.max
+        ticks: 4
+        title: Good 1
+      yAxis:
+        min: 0
+        max: calcs.max
+        ticks: 4
+        title: Good 2
+      zAxis:
+        min: 0
+        max: calcs.max
+        ticks: 4
+        title: Utility
+      objects:
+        - FunctionSurface:
+            fn:
+              fn: ((x)^params.a)*((y)^(1-params.a))
+              samplePoints: 36
+            shaded: true
+            fill: purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: ((params.m - params.p1*(x))/params.p2)
+              fnZ: ((x)^params.a)*(((params.m - params.p1*(x))/params.p2)^(1-params.a))
+            strokeWidth: 10
+            stroke: green
+            opacity: 0.4
+            samplePoints: 100
+        - MathboxPoint:
+            x: calcs.x1
+            y: calcs.x2
+            z: calcs.u
+            droplines: true
+    graph:
+      xAxis:
+        max: (params.m/params.p1)
+        ticks: 0
+        title: Money Spent on Good 1 $\rightarrow$
+      yAxis:
+        max: calcs.maxU
+        title: Utility
+      objects:
+        - Point:
+            coordinates: [calcs.x1, calcs.u]
+            droplines:
+              vertical: "`(${calcs.x1.toFixed(2)},${calcs.x2.toFixed(2)})`"
+              horizontal: calcs.u.toFixed(3)
+            drag:
+              - directions: x
+                param: theta
+                expression: (drag.x*params.p1/params.m)
+        - Curve:
+            fn: ((x)^(params.a))*(((params.m - params.p1*(x))/params.p2)^(1-params.a))
+            color: budget
+
+
+    sidebar:
+      controls:
+        - title: Highest Utility along a Budget Line
+          description: Drag the point in the right-hand graph to find the bundle with the highest utility.
+          divs:
+            - html: "`$$\\\\begin{aligned}x_1 &= ${calcs.x1.toFixed(2)}\\\\\\\\x_2 &= ${calcs.x2.toFixed(2)}\\\\\\\\u(x_1,x_2) &= ${calcs.u.toFixed(2)}\\\\end{aligned}$$`"

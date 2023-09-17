@@ -1,0 +1,101 @@
+schema: EconSchema
+params:
+- {name: L, min: 5, max: 95, round: 1, value: 36}
+- {name: showSlopes, value: true}
+calcs:
+  x1: (10*sqrt(params.L))
+  x2: (6*sqrt(100-params.L))
+  L2: (100-params.L)
+  mrt: (0.6*sqrt(params.L/calcs.L2))
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 120
+        ticks: 0
+        title: Fish ($x_1$)
+      yAxis:
+        max: 120
+        title: Coconuts ($x_2$)
+        ticks: 0
+
+      objects:
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            PerfectComplements:
+              coefficients: [1/20,1/9]
+          levels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+      # PPF
+      - Ellipse:
+          c: [0,0]
+          rx: 100
+          ry: 60
+          color: red
+          strokeWidth: 2
+          label:
+            text: PPF
+            coordinates: [101,5]
+            position: l
+
+
+      # Bundle
+      - EconBundle:
+          name: X
+          coordinates: [calcs.x1, calcs.x2]
+          drag:
+          - directions: x
+            param: L
+            expression: (drag.x/10)^2
+          utilityFunction:
+            PerfectComplements:
+              coefficients: [1/20,1/9]
+          indifferenceCurve:
+            label:
+              text: "`\\\\text{Ind. curve for }u = ${calcs.X.level.toFixed(2)}`"
+              x: 110
+            showPreferred: true
+          droplines:
+            vertical: calcs.x1.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: (-calcs.mrt)
+          min: calcs.x1-16
+          max: calcs.x1+16
+          label:
+            text: MRT
+            x: calcs.x1-16
+            position: b
+            bgcolor: none
+          show: params.showSlopes
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: 0
+          color: colors.demand
+          min: calcs.x1 - 16
+          max: calcs.x1 + 16
+          strokeWidth: 4
+          label:
+            text: MRS
+            x: calcs.x1 + 16
+            position: t
+            bgcolor: none
+          show: params.showSlopes && 9*calcs.x1 > 20*calcs.x2
+      - Segment:
+          a: [calcs.x1, calcs.x2 - 20]
+          b: [calcs.x1, calcs.x2 + 20]
+          color: colors.demand
+          strokeWidth: 4
+          label:
+            text: MRS
+            location: 0.01
+            bgcolor: none
+            position: l
+          show: params.showSlopes && 9*calcs.x1 < 20*calcs.x2
+    sidebar:
+      controls:
+      - title: "Utility Maximization Subject to a PPF: Perfect Complements"
+        description: Which point along the PPF maximimizes utility? Drag X left and right to find out. What is the relationship between MRS and MRT at the optimum? To the left or right of the optimum?

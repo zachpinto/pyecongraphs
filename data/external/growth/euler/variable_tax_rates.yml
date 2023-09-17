@@ -1,0 +1,162 @@
+schema: EconSchema
+version: 1
+params:
+  - name: r
+    value: "0.02"
+    min: "0.001"
+    max: "0.1"
+    round: "0.001"
+  - name: rho
+    value: "0.02"
+    min: "0.001"
+    max: "0.1"
+    round: "0.001"
+  - name: sigma
+    value: "0.5"
+    min: "0"
+    max: "2"
+    round: "0.01"
+  - name: t1
+    value: "0"
+    min: "0"
+    max: "1"
+    round: "0.001"
+  - name: t2
+    value: "0.02"
+    min: "0"
+    max: "1"
+    round: "0.001"
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Period (t)
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Log Consumption in Period t
+        orient: left
+        min: 0
+        max: 2
+      objects:
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 1
+            b:
+              - 49
+              - (49*params.sigma*(params.r-params.rho))+1
+            color: colors.consumption
+            strokeWidth: 5
+        - type: Segment
+          def:
+            a:
+              - 49
+              - (49*params.sigma*(params.r-params.rho))+1
+            b:
+              - 50
+              - (49*params.sigma*(params.r-params.rho))+1+params.sigma*(params.r-params.rho+params.t1-params.t2)
+            color: colors.consumption
+            strokeWidth: 5
+        - type: Segment
+          def:
+            a:
+              - 50
+              - (49*params.sigma*(params.r-params.rho))+1+(params.sigma*(params.r-params.rho+params.t1-params.t2))
+            b:
+              - 100
+              - (99*params.sigma*(params.r-params.rho))+1+(params.sigma*(params.r-params.rho+params.t1-params.t2))
+            color: colors.consumption
+            strokeWidth: 5
+    bottomGraph:
+      xAxis:
+        title: Period (t)
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Tax Rate
+        orient: left
+        min: 0
+        max: 1
+      objects:
+        - type: Segment
+          def:
+            a:
+              - 0
+              - params.t1
+            b:
+              - 50
+              - params.t1
+            color: colors.tax
+            strokeWidth: 5
+            drag:
+              - directions: "y"
+                param: t1
+                expression: params.t1 + drag.dy
+        - type: Segment
+          def:
+            a:
+              - 50
+              - params.t2
+            b:
+              - 100
+              - params.t2
+            color: colors.tax
+            strokeWidth: 5
+            drag:
+              - directions: "y"
+                param: t2
+                expression: params.t2 + drag.dy
+        - type: Segment
+          def:
+            a:
+              - 50
+              - params.t1
+            b:
+              - 50
+              - params.t2
+            color: colors.tax
+            strokeWidth: 2
+            lineStyle: dotted
+        - type: Point
+          def:
+            coordinates:
+              - 50
+              - params.t1
+            color: colors.tax
+            open: true
+            strokeWidth: 2
+            drag:
+              - directions: "y"
+                param: t1
+                expression: params.t1 + drag.dy
+            show: (params.t1 != params.t2)
+        - type: Point
+          def:
+            coordinates:
+              - 50
+              - params.t2
+            color: colors.tax
+            drag:
+              - directions: "y"
+                param: t2
+                expression: params.t2 + drag.dy
+            show: (params.t1 != params.t2)
+    sidebar:
+      controls:
+        - title: Euler Equation
+          sliders:
+            - param: r
+              label: r
+            - param: rho
+              label: \rho
+            - param: sigma
+              label: \sigma
+            - param: t1
+              label: \tau_{0-4}
+            - param: t2
+              label: \tau_{5-10}

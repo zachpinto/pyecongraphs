@@ -1,0 +1,139 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: m
+  value: '72'
+  min: '72'
+  max: '288'
+  round: '1'
+- name: p
+  value: '2'
+  min: '1'
+  max: '8'
+  round: '0.25'
+- name: lambda
+  value: '0'
+  min: '0'
+  max: '8'
+  round: '0.1'
+- name: uScale
+  value: '144'
+  min: 1
+  max: 200
+calcs:
+  maxX: "(params.m/params.p)"
+  muX: "(0.5*params.uScale*((params.p/params.m)^0.5))"
+  uMaxX: params.uScale*((params.m/params.p)^0.5)
+  mlX: "(0.5*params.uScale*((params.p/params.m)^0.5) - params.lambda*params.p)"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good ($x$)
+        orient: bottom
+        min: 0
+        max: 150
+        ticks: 0
+      yAxis:
+        title: Utils
+        orient: left
+        min: -500
+        max: 1500
+        ticks: 0
+      objects:
+      - type: Curve
+        def:
+          univariateFunction:
+            fn: 144*(x)^0.5
+            samplePoints: 200
+          color: colors.demand
+          label:
+            text: u(x)
+            x: 95
+      - type: Segment
+        def:
+          a:
+          - calcs.maxX
+          - 1500
+          b:
+          - calcs.maxX
+          - 0
+          stroke: colors.budget
+          drag:
+          - directions: x
+            param: p
+            expression: params.m/drag.x
+      - type: Segment
+        def:
+          a:
+          - calcs.maxX - 20
+          - calcs.uMaxX-20*calcs.muX
+          b:
+          - calcs.maxX + 20
+          - calcs.uMaxX+20*calcs.muX
+          stroke: colors.demand
+          label:
+            text: "`\\\\frac{du}{dx}(${calcs.maxX.toFixed(0)}) = ${calcs.muX.toFixed(1)}`"
+            location: 1
+      - type: Segment
+        def:
+          a:
+          - calcs.maxX - 20
+          - calcs.uMaxX-20*calcs.mlX
+          b:
+          - calcs.maxX + 20
+          - calcs.uMaxX+20*calcs.mlX
+          stroke: colors.utility
+          label:
+            text: "`\\\\frac{d\\\\mathcal{L}}{dx}(${calcs.maxX.toFixed(0)}) = \\\\frac{du}{dx}(${calcs.maxX.toFixed(0)})
+              - \\\\lambda p = ${calcs.mlX.toFixed(1)}`"
+            location: 0.01
+            align: left
+          show: "(params.lambda > 0)"
+      - type: Curve
+        def:
+          univariateFunction:
+            fn: 144*(x)^0.5+params.lambda*(params.m-params.p*(x))
+            samplePoints: 200
+          color: colors.utility
+          label:
+            text: "\\mathcal{L}(x,\\lambda)"
+            x: 120
+          show: "(params.lambda > 0)"
+      - type: Line
+        def:
+          point:
+          - calcs.maxX
+          - 0
+          slope: "(-params.lambda*params.p)"
+          show: "(params.lambda > 0)"
+          color: colors.red
+          label:
+            text: "\\lambda(m-px)"
+            x: 64
+      - type: Label
+        def:
+          coordinates:
+          - calcs.maxX
+          - AXIS
+          text: calcs.maxX.toFixed(0)
+          color: colors.budget
+    sidebar:
+      controls:
+      - title: Lagrange Method with a Single Good
+        description: Increase Î» until the Langrangian (purple curve) is flat at the constraint (green vertical line).
+        sliders:
+        - param: lambda
+          label: "\\lambda"
+        - param: p
+          label: p
+        - param: m
+          label: m
+        divs:
+        - html: "`This graph shows the utility function $$\\\\textcolor{${colors.demand}}{u(x)=
+            144\\\\sqrt{x}}$$To maximize subject to the constraint $$\\\\textcolor{${colors.budget}}{px
+            \\\\le m}$$ we set up the Lagrangian $$\\\\textcolor{${colors.utility}}{\\\\mathcal
+            L(x,\\\\lambda)} = \\\\textcolor{${colors.demand}}{u(x)} + \\\\textcolor{${colors.red}}{\\\\lambda(m
+            - px)}$$`"

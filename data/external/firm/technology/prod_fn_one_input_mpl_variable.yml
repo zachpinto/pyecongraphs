@@ -1,0 +1,100 @@
+schema: EconSchema
+version: 1
+params:
+- name: A
+  value: 10
+  min: 1
+  max: 20
+  round: 0.01
+- name: a
+  value: 0.5
+  min: 0.25
+  max: 2
+  round: 0.01
+- name: L
+  value: 4
+  min: 0
+  max: 8
+  round: 0.01
+calcs:
+  y: "((params.A)*(params.L)^(params.a))"
+  MPL: "((params.a)*(params.A)*(params.L)^(params.a - 1))"
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        title: Hours of Labor ($L$)
+        orient: bottom
+        min: 0
+        max: 10
+      yAxis:
+        title: Output ($q$)
+        orient: left
+        min: 0
+        max: "(20*7^(0.7*params.a))"
+      objects:
+      - Curve:
+          fn: "(params.A)*(x)^(params.a)"
+          samplePoints: 300
+          stroke: colors.production
+          strokeWidth: 2
+          label:
+            text: f(L)
+            x: 9
+      - Line:
+          point: [params.L, calcs.y]
+          color: colors.brown
+          slope: calcs.MPL
+          min: params.L - 1
+          max: params.L + 1
+          strokeWidth: 5
+          label:
+            text: "`slope=MP_L=${calcs.MPL.toFixed(2)}`"
+            x: params.L
+            position: br
+      - Point:
+          coordinates: [params.L, calcs.y]
+          fill: colors.production
+          drag:
+          - horizontal: L
+          droplines:
+            vertical: params.L.toFixed(2)
+    bottomGraph:
+      xAxis:
+        title: Hours of Labor ($L$)
+        orient: bottom
+        min: 0
+        max: 10
+      yAxis:
+        title: Output per hour
+        orient: left
+        min: 0
+        max: ((10*params.a)*(4^(params.a)))
+      objects:
+      - Curve:
+          fn: "(params.a)*(params.A)*(x)^(params.a - 1)"
+          samplePoints: 300
+          stroke: colors.brown
+          strokeWidth: 2
+          label:
+            text: MP_L
+            x: 9
+      - Point:
+          coordinates: [params.L, calcs.MPL]
+          color: colors.brown
+          drag:
+          - horizontal: L
+          droplines:
+            vertical: params.L.toFixed(2)
+            horizontal: (calcs.MPL).toFixed(2)
+    sidebar:
+      controls:
+      - title: Changes in the MPL
+        description: Drag the sliders below to see how changing the parameters "A" and "a" changes the shape of the production function and the MPL.
+        sliders:
+        - param: A
+          label: A
+        - param: a
+          label: a
+        divs:
+        - html: "`The production function is$$q = f(L) = AL^a$$ Therefore the marginal product of labor is: $$MP_L = f^\\\\prime(L) = aAL^{a-1} = ${(params.a*params.A).toFixed(2)}L^{${(params.a - 1).toFixed(2)}}$$`"

@@ -1,0 +1,109 @@
+schema: EconSchema
+params:
+- name: p
+  value: 2
+  min: 1
+  max: 8
+  round: 0.25
+calcs:
+  qS: (params.p/4)
+  qT: (params.p/2)
+  Q: (calcs.qS + calcs.qT)
+layout:
+  ThreeHorizontalGraphs:
+    leftGraph:
+      xAxis:
+        title: Subway's Quantity Supplied ($S$)
+        max: 12
+        ticks: 0
+      yAxis:
+        title: Price
+        ticks: 0
+      objects:
+      
+      - Line:
+          point: [calcs.qS, params.p]
+          
+      - Label:
+          coordinates: [AXIS, params.p]
+          color: budget
+          text: params.p.toFixed(2)
+          
+      - Line:
+          yIntercept: params.p
+          color: budget
+          label:
+            text: p
+            x: 9
+          drag:
+            - vertical: p
+
+      - Point:
+          coordinates: [calcs.qS, params.p]
+          color: supply
+          label:
+            text: s^S(p)
+          droplines:
+            vertical: calcs.qS.toFixed(2)
+
+    middleGraph:
+      xAxis:
+        title: Togo's Quantity Supplied ($T$)
+        max: 12
+        ticks: 0
+      yAxis:
+        title: +
+        ticks: 0
+      objects:
+
+      - Line:
+          point: [calcs.qT, params.p]
+          
+      - Line:
+          yIntercept: params.p
+          color: budget
+          label:
+            text: p
+            x: 9
+          drag:
+            - vertical: p
+
+
+      - Point:
+          coordinates: [calcs.qT, params.p]
+          color: supply
+          label:
+            text: s^T(p)
+          droplines:
+            vertical: calcs.qT.toFixed(2)
+            
+    rightGraph:
+      xAxis:
+        title: Market Quantity Supplied
+        max: 12
+        ticks: 0
+      yAxis:
+        title: "||"
+        ticks: 0
+      objects:
+
+      - Line:
+          point: [calcs.Q, params.p]
+
+      - Line:
+          yIntercept: params.p
+          color: budget
+          label:
+            text: p
+            x: 9
+          drag:
+            - vertical: p
+
+      - Point:
+          coordinates: [calcs.Q, params.p]
+          color: supply
+          label:
+            text: S(p)
+            position: br
+          droplines:
+            vertical: calcs.Q.toFixed(2)

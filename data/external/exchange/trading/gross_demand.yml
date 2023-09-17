@@ -1,0 +1,174 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: '0.5'
+    min: '0.01'
+    max: '0.99'
+    round: '0.01'
+  - name: p1
+    value: 10
+    min: 1
+    max: 20
+  - name: p2
+    value: 5
+    min: 1
+    max: 20
+  - name: w1
+    value: 8
+    min: 0
+    max: 15
+    round: '1'
+  - name: w2
+    value: 8
+    min: 0
+    max: 15
+    round: '1'
+  - name: showBuySell
+    value: 0
+  - name: showIndW
+    value: 0
+calcs:
+  bottomGraphLeft: "(-1*params.w1)"
+  bottomGraphRight: "(40-params.w1)"
+  cutoffPrice: "(calcs.endowmentBundle.mrs*params.p2)"
+  wealth: "(params.w1*params.p1 + params.w2*params.p2)"
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 40
+        ticks: 0
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 20
+        ticks: 0
+      objects:
+        - EconBundle:
+            name: endowmentBundle
+            coordinates:
+              - params.w1
+              - params.w2
+            droplines:
+              vertical: params.w1
+              horizontal: params.w2
+            color: endowment
+            label:
+              text: \text{$E$}
+              position: tr
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            drag:
+              - directions: x
+                param: w1
+                expression: params.w1 + drag.dx
+              - directions: y
+                param: w2
+                expression: params.w2 + drag.dy
+            indifferenceCurve:
+              label:
+                text: ''
+              color: colors.endowment
+              show: params.showIndW
+        - EconOptimalBundle:
+            name: optimum
+            label:
+              text: X
+            droplines:
+              vertical: calcs.optimum.x.toFixed(2)
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            color: colors.demand
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              x: params.w1
+              y: params.w2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+            indifferenceCurve: {}
+        - Segment:
+            a: [0, params.w2 - 1]
+            b: [params.w1, params.w2 - 1]
+            endArrow: true
+            color: colors.endowment
+            label:
+              text: "`\\\\text{You have ${params.w1.toFixed(0)} units of good 1...}`"
+              location: 0.5
+              yPixelOffset: -15
+              fontSize: 9
+            show: params.showBuySell
+        - type: Segment
+          def:
+            a: [0,3]
+            b: [calcs.optimum.x, 3]
+            endArrow: true
+            color: colors.utility
+            label:
+              text: "`\\\\text{...and want to consume ${calcs.optimum.x.toFixed(0)}...}`"
+              location: 0.5
+              yPixelOffset: -15
+              fontSize: 9
+            show: params.showBuySell
+    bottomGraph:
+      xAxis:
+        title: Gross Demand for Good 1
+        orient: bottom
+        max: 40
+      yAxis:
+        title: Price of Good 1
+        orient: left
+        max: 20
+      objects:
+        - Curve:
+            fn: 0.5*(params.w1+params.p2*params.w2/(y))
+            ind: y
+        - Segment:
+            a: [0, params.p1]
+            b: [40, params.p1]
+            color: colors.budget
+            drag:
+              - vertical: p1
+            label:
+              text: p_1
+              location: 0.05
+        - Point:
+            coordinates:
+              - calcs.optimum.x
+              - params.p1
+            label:
+              text: x_1^*(p_1|p_2)
+            color: colors.demand
+            droplines:
+              vertical: calcs.optimum.x.toFixed(2)
+            drag:
+              - directions: y
+                param: p1
+                expression: params.p1 + drag.dy
+
+    sidebar:
+      controls:
+        - title: Gross Demand for Good 1
+          sliders:
+            - param: p1
+              label: p_1
+            - param: p2
+              label: p_2
+          divs:
+            - html: "`An agent with the utility function $u(x_1,x_2)=x_1x_2$ starts with an endowment of $\\\\color{${colors.endowment}}{e_1
+            = ${params.w1.toFixed(0)}}$ units of good 1 and $\\\\color{${colors.endowment}}{e_2
+            = ${params.w2.toFixed(0)}}$ of good 2. With $\\\\color{${colors.budget}}{p_1 = ${params.p1.toFixed(0)}}$
+            and $\\\\color{${colors.budget}}{p_2 = ${params.p2.toFixed(0)}}$, their <b>gross demand</b> for good 1 is $$\\\\color{${colors.demand}}x_1^* = \\\\frac{1}{2} \\\\color{${colors.demand}}\\\\left(\\\\color{${colors.endowment}}{${params.w1.toFixed(0)}}\\\\color{${colors.demand}} + \\\\color{${colors.budget}}{\\\\frac{${params.p2.toFixed(0)}}{${params.p1.toFixed(0)}}}\\\\color{${colors.demand}} \\\\times \\\\color{${colors.endowment}}{${params.w2.toFixed(0)}}\\\\color{${colors.demand}}\\\\right) = ${calcs.optimum.x.toFixed(2)}$$`"

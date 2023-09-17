@@ -1,0 +1,186 @@
+schema: EconSchema
+colors:
+  ppf: red
+params:
+- {name: x1, value: 200, round: 10, min: 20, max: 600}
+- {name: xhat, value: 300, round: 30, min: 120, max: 600}
+- {name: showSlopes, value: true}
+calcs:
+  mAtXhat: (120-0.1*params.xhat)
+  x2: (min((120 - 0.1*params.x1),(calcs.mAtXhat - 0.2*(params.x1-params.xhat))))
+layout:
+  SquarePlusTwoVerticalGraphs:
+    bigGraph:
+      xAxis:
+        max: 800
+        ticks: 10
+        title: Electricity (kWh)
+      yAxis:
+        max: 150
+        title: Dollars Spent on Other Things
+      objects:
+
+        # Indifference Map
+        - EconIndifferenceMap:
+            utilityFunction:
+              CobbDouglas:
+                alpha: (1/3)
+            levels: [45,90,135,180,224]
+
+        
+        # Constraint
+        - Line:
+            yIntercept: 120
+            slope: -0.1
+            color: budget
+            max: params.xhat
+            areaBelow: budget
+        - Line:
+            point: [params.xhat, calcs.mAtXhat]
+            slope: -0.2
+            color: budget
+            min: params.xhat
+            areaBelow: budget
+        - Point:
+            coordinates: [params.xhat, 140]
+            color: grey
+            r: 0
+            draggable: true
+            label:
+              text: \hat x
+              position: b
+            droplines:
+              vertical:
+
+        # Bundle
+
+        - EconBundle:
+            name: X
+            utilityFunction:
+              CobbDouglas:
+                alpha: (1/3)
+            coordinates: [params.x1, calcs.x2]
+            color: blue
+            draggable: true
+            droplines:
+              vertical: params.x1.toFixed(0)
+              horizontal: calcs.x2.toFixed(0)
+            indifferenceCurve:
+              label:
+                text:
+
+    topGraph:
+      xAxis:
+        max: 800
+      yAxis:
+        max: 150
+        ticks: 0
+      objects:
+      - Point:
+            coordinates: [params.xhat, 140]
+            color: grey
+            r: 0
+            draggable: true
+            label:
+              text: \hat x
+              position: b
+            droplines:
+              vertical:
+      - Curve:
+          fn: ((x)*(min((120 - 0.1*(x)),(calcs.mAtXhat - 0.2*((x)-params.xhat))))^2)^(1/3)
+          max: params.xhat + 5*calcs.mAtXhat
+          color: utility
+          label:
+            x: 600
+            text: u(X)
+      - Point:
+          coordinates: [params.x1, calcs.X.level]
+          draggable: true
+          droplines:
+            vertical:
+
+    bottomGraph:
+      xAxis:
+        max: 800
+        title: Electricity (kWh)
+      yAxis:
+        max: 0.5
+      objects:
+      
+      - Point:
+          coordinates: [params.xhat, 0.25]
+          color: grey
+          r: 0
+          draggable: true
+          droplines:
+              vertical:
+      
+      # MRS
+      - Curve:
+         fn: (min((120 - 0.1*(x)),(calcs.mAtXhat - 0.2*((x)-params.xhat))))/(2*(x))
+         label:
+           text: MRS
+           x: 650
+           position: b
+           bgcolor: none
+         color: demand
+      - Point:
+         coordinates: [params.x1, calcs.X.mrs]
+         color: demand
+         droplines:
+           vertical: params.x1
+           horizontal: calcs.X.mrs.toFixed(2)
+         draggable: true
+
+      # Price ratio if x < xhat
+      - Point:
+         coordinates: [params.x1, 0.1]
+         color: budget
+         droplines:
+           vertical:
+         show: params.x1 < params.xhat
+         draggable: true
+      
+      - Point:
+         coordinates: [params.xhat,0.1]
+         fill: white
+         stroke: budget
+         r: 4
+         
+      - Line:
+         yIntercept: 0.1
+         color: budget
+         max: params.xhat
+
+
+      # Price ratio at x = xhat
+
+      - Segment:
+         a: [params.xhat,0.1]
+         b: [params.xhat,0.2]
+         color: budget
+         lineStyle: dashed
+         strokeWidth: "((params.x1 == params.xhat) ? 3 : 1)"
+
+      # Price ratio at x > xhat
+
+      - Point:
+         coordinates: [params.x1, 0.2]
+         color: budget
+         droplines:
+           vertical:
+         show: (params.x1 > params.xhat)
+         draggable: true
+      - Point:
+         coordinates: [params.xhat, 0.2]
+         fill: white
+         stroke: budget
+         r: 4
+      - Line:
+         yIntercept: 0.2
+         color: budget
+         min: params.xhat
+         label:
+           text: \frac{p_1}{p_2}
+           x: 750
+

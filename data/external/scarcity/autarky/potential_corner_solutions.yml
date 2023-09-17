@@ -1,0 +1,127 @@
+schema: EconSchema
+colors:
+  ppf: colors.red
+params:
+- {name: L, min: 0, max: 100, round: 1, value: 75}
+- {name: R, min: 0, max: 100, round: 1, value: 50}
+
+calcs:
+  L2: (100-params.L)
+  x2: (10*(sqrt(calcs.L2)))
+  x1: params.L
+  x1R: params.R
+  x2R: (50 - 0.5*calcs.x1R)
+  mrt: (5*calcs.x1^(-0.5))
+  mrs: 0.25
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+        title: Fish ($x_1$)
+      yAxis:
+        max: 120
+        title: Coconuts ($x_2$)
+        ticks: 0
+
+      objects:
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            PerfectSubstitutes:
+              coefficients: [1,4]
+          levels: [100,200,300,400,500]
+          yMin: -10
+          yMax: 130
+          xMin: 0
+          xMax: 130
+
+      # PPF
+      - Curve:
+          fn: 10*sqrt(100-(x))
+          max: 100
+          samplePoints: 500
+          color: red
+          strokeWidth: 2
+          areaBelow: true
+          label:
+            text: PPF
+            x: 98
+            position: r
+
+
+      # Bundle
+      - EconBundle:
+          name: X
+          utilityFunction:
+            PerfectSubstitutes:
+              coefficients: [1,4]
+          coordinates: [calcs.x1, calcs.x2]
+          color: blue
+          drag:
+          - horizontal: L
+          droplines:
+            vertical: calcs.x1.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+
+    rightGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+        title: Fish ($x_1$)
+      yAxis:
+        max: 120
+        title: Coconuts ($x_2$)
+        ticks: 0
+      objects:
+      
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            Quasilinear:
+              coefficients: [100]
+          levels: [280, 360, 420, 460, 500, 540, 575]
+          yMin: -10
+          yMax: 130
+          xMin: 0
+          xMax: 130
+
+      # PPF
+      - Line:
+          yIntercept: 50
+          xIntercept: 100
+          areaBelow: true
+          color: ppf
+          label:
+            text: PPF
+            x: 5
+            position: bl
+            
+      # Bundle
+      - EconBundle:
+          name: Y
+          utilityFunction:
+            Quasilinear:
+              coefficients: [100]
+          coordinates: [calcs.x1R, calcs.x2R]
+          color: blue
+          drag:
+          - horizontal: R
+          droplines:
+            vertical: calcs.x1R.toFixed(0)
+            horizontal: calcs.x2R.toFixed(0)
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+      
+    sidebar:
+      controls:
+      - title: Potential Corner Solutions
+        description: Indifference curves that cross the axes, like perfect substitutes (left) and quasilinear (right), can result in optimum bundles occuring at the corners of the feasible sets.

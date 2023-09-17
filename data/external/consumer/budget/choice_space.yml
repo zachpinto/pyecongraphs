@@ -1,0 +1,81 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: '10'
+  min: '0'
+  max: '100'
+- name: x2
+  value: '40'
+  min: '0'
+  max: '100'
+- name: y1
+  value: '50'
+  min: '0'
+  max: '100'
+- name: y2
+  value: '20'
+  min: '0'
+  max: '100'
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      position:
+        x: 0.25
+        y: 0
+        width: 0.5
+        height: 1
+      xAxis:
+        title: Units of Good 1
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        max: 100
+        ticks: 10
+      objects:
+      - type: Point
+        def:
+          coordinates:
+          - params.x1
+          - params.x2
+          droplines:
+            horizontal:
+            vertical:
+          label:
+            text: "`A = (${params.x1.toFixed(0)}, ${params.x2.toFixed(0)})`"
+          drag:
+          - directions: x
+            param: x1
+            expression: params.x1 + drag.dx
+          - directions: y
+            param: x2
+            expression: params.x2 + drag.dy
+      - type: Point
+        def:
+          coordinates:
+          - params.y1
+          - params.y2
+          droplines:
+            horizontal:
+            vertical:
+          label:
+            text: "`B = (${params.y1.toFixed(0)}, ${params.y2.toFixed(0)})`"
+          drag:
+          - directions: x
+            param: y1
+            expression: params.y1 + drag.dx
+          - directions: y
+            param: y2
+            expression: params.y2 + drag.dy
+    sidebar:
+      controls:
+      - title: Bundles in Good 1 - Good 2 Space
+        divs:
+        - html: "`Bundle A has ${params.x1.toFixed(0)} units of good 1 and ${params.x2.toFixed(0)}
+            units of good 2.`"
+        - html: "`Bundle B has ${params.y1.toFixed(0)} units of good 1 and ${params.y2.toFixed(0)}
+            units of good 2.`"

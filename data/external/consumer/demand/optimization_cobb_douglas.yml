@@ -1,0 +1,87 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: 2
+    min: 1
+    max: 5
+  - name: b
+    value: 4
+    min: 1
+    max: 5
+  - name: p
+    value: 4
+    min: 1
+    max: 10
+  - name: q
+    value: 2
+    min: 1
+    max: 10
+  - name: m
+    value: 24
+    min: 0
+    max: 60
+calcs:
+  alpha: (params.a/(params.a+params.b))
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 20
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 20
+        ticks: 10
+      objects:
+        - EconIndifferenceMap:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: calcs.alpha
+            levels: [2, 4, 6, 8, 10, 12, 14, 16, 18]
+        - EconOptimalBundle:
+            name: optimum
+            color: demand
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: calcs.alpha
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+              handles: true
+              draggable: true
+              color: budget
+            indifferenceCurve:
+              label:
+                text: \text{Ind. curve through }X^*
+                x: 80
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: a
+            - param: b
+              label: b
+        - title: Budget Parameters
+          sliders:
+            - param: p
+              label: p_1
+            - param: q
+              label: p_2
+            - param: m
+              label: m
+          divs:
+            - html: "`With the utility function $$u(x_1,x_2) = x_1^a x_2^b = x_1^{${params.a}}x_2^{${params.b}}$$the consumer will spend $ {${math.fraction(calcs.alpha).n} \\\\over ${math.fraction(calcs.alpha).d}}$ of their income on good 1 and the remaining $ {${math.fraction(1-calcs.alpha).n} \\\\over ${math.fraction(1-calcs.alpha).d}}$ of their income on good 2:$$x_1^* = {a \\\\over a + b} \\\\times {m \\\\over p_1} = {${params.a} \\\\over ${params.a} + ${params.b}} \\\\times {${params.m} \\\\over ${params.p}} = ${calcs.optimum.x.toFixed(2)}$$ $$x_2^* = {b \\\\over a + b} \\\\times {m \\\\over p_2} = {${params.b} \\\\over ${params.a} + ${params.b}} \\\\times {${params.m} \\\\over ${params.q}} = ${calcs.optimum.y.toFixed(2)}$$`"
+

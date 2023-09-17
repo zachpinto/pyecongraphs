@@ -1,0 +1,123 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: 12
+  min: 0
+  max: 20
+  round: 0.01
+- name: a1
+  value: 0.5
+  min: 0.25
+  max: 0.75
+  round: 0.01
+- name: a2
+  value: 0.5
+  min: 0.25
+  max: 0.75
+  round: 0.01
+- name: showPreferred
+  value: true
+- name: showIndifferenceCurves
+  value: true
+calcs:
+  x2: ((10*params.a2*(1-params.a1)*params.x1)/(20*params.a1*(1 - params.a2)+(params.a2 - params.a1)*params.x1))
+layout:
+  EdgeworthBoxPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          color: colors.blue
+          coordinates:
+          - params.x1
+          - calcs.x2
+          label: {}
+          droplines:
+            vertical: x_1^A
+            horizontal: x_2^A
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a1
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            color: colors.blue
+            label:
+              text:
+
+      - EconBundle:
+          coordinates:
+          - params.x1
+          - calcs.x2
+          label:
+            text: X
+          droplines: {}
+          drag:
+          - horizontal: x1
+          - vertical: x2
+          color: colors.endowment
+
+      - EconContractCurve:
+          a: params.a1
+          b: params.a2
+          totalGood1: 20
+          totalGood2: 10
+
+
+
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          coordinates:
+          - (20 - params.x1)
+          - (10 - calcs.x2)
+          label: {}
+          droplines:
+            vertical: x_1^B
+            horizontal: x_2^B
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a2
+          r: 0
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: 
+            color: colors.orange
+          color: colors.orange
+
+    sidebar:
+      controls:
+      - title: The âContract Curveâ
+        description: 'The "contract curve" is the set of pareto efficient points: that is, the set of points X for which there is no overlap between the allocations A prefers to X and the allocations B prefers to X.'
+        sliders:
+        - param: a1
+          label: a
+        - param: a2
+          label: b
+        divs:
+          - html: When $a > b$, Alison likes good 1 more than Bob does, and along the contract curve Alison will have proportionally more good 1 than Bob.
+            show: (params.a1 > params.a2)
+          - html: When $a < b$, Alison likes good 1 less than Bob does, and along the contract curve Alison will have proportionally less good 1 than Bob.
+            show: (params.a1 < params.a2)
+          - html: When $a = b$, Alison and Bob have the same preferences over goods 1 and good 2, and along the contract curve they will each have the same proportion of good 1 and good 2.
+            show: (params.a1 == params.a2)

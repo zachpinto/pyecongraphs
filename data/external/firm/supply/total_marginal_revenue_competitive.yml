@@ -1,0 +1,107 @@
+---
+schema: EconSchema
+version: 1
+params:
+  - name: p
+    value: 10
+    min: 1
+    max: 20
+    round: 0.05
+  - name: q
+    value: 10
+    min: 0
+    max: 18
+    round: 0.05
+calcs:
+  r: (params.p*params.q)
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Output ($q$)
+        orient: bottom
+        min: 0
+        max: 20
+      yAxis:
+        title: Dollars
+        orient: left
+        min: 0
+        max: 200
+        ticks: 4
+      objects:
+        - Line:
+            slope: params.p
+            ind: y
+            color: colors.profit
+        - Line:
+            point:
+              - params.q
+              - calcs.r
+            slope: params.p
+            min: "(params.q - 2)"
+            max: "(params.q + 2)"
+            color: colors.marginalRevenue
+            label:
+              text: "`MR = ${params.p.toFixed(2)}`"
+              x: (params.q - 2)
+              yPixelOffset: 10
+              align: right
+        - Point:
+            coordinates:
+              - params.q
+              - calcs.r
+            drag:
+              - horizontal: q
+            color: colors.demand
+            droplines:
+              vertical: params.q.toFixed(2)
+              horizontal: calcs.r.toFixed(2)
+        - Label:
+            coordinates: [(180/params.p), 180]
+            text: TR
+            show: (params.p >= 10)
+            color: profit
+        - Label:
+            coordinates: [18, (18*params.p)]
+            text: TR
+            show: (params.p < 10)
+            color: profit
+    bottomGraph:
+      xAxis:
+        orient: bottom
+        min: 0
+        max: 20
+      yAxis:
+        title: Dollars per Unit
+        orient: left
+        min: 0
+        max: 20
+      objects:
+        - Line:
+            yIntercept: params.p
+            color: demand
+            label:
+              text: D = AR = MR
+              x: 18
+              position: b
+              bgcolor: none
+            drag:
+              - vertical: p
+        - Point:
+            coordinates:
+              - params.q
+              - params.p
+            drag:
+              - horizontal: q
+            color: colors.demand
+            droplines:
+              vertical: params.q.toFixed(2)
+              horizontal: params.p.toFixed(2)
+    sidebar:
+      controls:
+        - title: Total, Marginal, and Average Revenue for a Competitive Firm
+          description: The total revenue curve for a competitive firm is just a line with slope p; the average and marginal revenues are both constant at p.
+          sliders:
+            - param: p
+              label: p

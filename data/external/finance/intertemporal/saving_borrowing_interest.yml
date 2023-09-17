@@ -1,0 +1,122 @@
+schema: EconSchema
+params:
+  - name: s
+    value: 2
+    min: -1.5
+    max: 3.5
+    round: 0.01
+  - name: r
+    value: 0.2
+    min: 0
+    max: 1
+    round: 0.01
+calcs:
+  max1: (5 + 3/(1 + params.r))
+  max2: (3 + 5*(1 + params.r))
+  c1: (5 - params.s)
+  c2: (3 + params.s*(1 + params.r))
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Present Consumption ($c_1$)
+        ticks: 0
+      yAxis:
+        title: Future Consumption ($c_2$)
+        ticks: 0
+      objects:
+
+      # Point object at coordinates (5,4)
+      - Point:
+          coordinates: [5,3]
+          color: endowment
+          droplines:
+            vertical: m_1
+            horizontal: m_2
+          label:
+            text: \text{Income stream, $M$}
+
+      # Red point object at coordinates (3,3)
+      - Line:
+          point: [5,3]
+          slope: -(1 + params.r)
+          color: budget
+          label:
+            text: BL\text{ (|slope| = $1 + r$)}
+            position: bl
+            location: 0.2
+
+      - Point:
+          coordinates: [AXIS,calcs.max2]
+          r: 0
+          color: budget
+          label:
+            text: (1+r)m_1 + m_2
+            position: r
+
+      - Point:
+          coordinates: [calcs.max1, AXIS]
+          r: 0
+          color: budget
+          label:
+            text: m_1 + {m_2 \over 1 + r}
+            position: t
+
+      - Point:
+          coordinates: [calcs.c1, calcs.c2]
+          droplines:
+            vertical: c_1
+            horizontal: c_2
+          drag:
+            - directions: xy
+              param: s
+              expression: params.s - drag.dx
+
+      - Arrow:
+          begin: [5,1.5]
+          end: [calcs.c1, 1.5]
+          color: supply
+          label:
+            text: s
+          show: (params.s > 0)
+
+      - Arrow:
+          begin: [calcs.c1*0.5, 3]
+          end: [calcs.c1*0.5, calcs.c2]
+          color: demand
+          label:
+            text: (1+r)s
+          show: (params.s > 0)
+
+      - Arrow:
+          begin: [2.5, 3]
+          end: [2.5, calcs.c2]
+          color: supply
+          label:
+            text: (1+r)b
+          show: (params.s < 0)
+
+      - Arrow:
+          begin: [5, calcs.c2*0.5]
+          end: [calcs.c1, calcs.c2*0.5]
+          color: demand
+          label:
+            text: b
+          show: (params.s < 0)
+
+    sidebar:
+      controls:
+      - title: Saving and Borrowing with Interest
+        description: Drag the blue dot to change the amount Rita saves or borrows. Use the slider to change the interest rate.
+        sliders:
+        - param: r
+          label: \text{$r$}
+          showNumber: false
+
+        divs:
+        - html: Rita neither borrows nor saves.
+          show: (params.s == 0)
+        - html: Rita saves $s$ of her current income $m_1$ at interest rate $r$, consuming $c_1 = m_1 - s$ today and $c_2 = m_2 + (1+r)s$ in the future.
+          show: (params.s > 0)
+        - html: Rita borrows $b$ at interest rate $r$, consuming $c_1 = m_1 + b$ today and $c_2 = m_2 - (1+r)b$ in the future after she repays the loan with interest.
+          show: (params.s < 0)

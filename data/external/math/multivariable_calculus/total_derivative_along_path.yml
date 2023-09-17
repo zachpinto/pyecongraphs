@@ -1,0 +1,234 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x
+    value: 3
+    min: 1
+    max: 8
+    round: 0.1
+  - name: dx
+    value: 2
+    max: 2
+    min: 0
+    round: 0.01
+  - name: f
+    value: 0
+  - name: showPlanes
+    value: 0
+calcs:
+  y: (4 - params.x*0.4)
+  dy: (-0.4*params.dx)
+  xFinal: (params.x + params.dx)
+  yFinal: (calcs.y + calcs.dy)
+  zMid1: (4*sqrt(calcs.xFinal)*calcs.y)
+  zFinal1: (4*sqrt(calcs.xFinal)*calcs.yFinal)
+  z1: (4*sqrt(params.x)*calcs.y)
+  dfdx1: (2*calcs.y/sqrt(params.x))
+  dfdy1: (4*sqrt(params.x))
+  zMid2: (2*calcs.xFinal + 4*calcs.y)
+  zFinal2: (2*calcs.xFinal + 4*calcs.yFinal)
+  z2: (2*params.x + 4*calcs.y)
+  dfdx2: (2)
+  zMid3: (calcs.xFinal*calcs.xFinal + calcs.y*calcs.y)
+  zFinal3: (calcs.xFinal*calcs.xFinal + calcs.yFinal*calcs.yFinal)
+  z3: (params.x*params.x + calcs.y*calcs.y)
+  dfdx3: (2*params.x)
+  z: "((params.f == 0) ? calcs.z1 : (params.f == 1) ? calcs.z2 : calcs.z3)"
+  zMid: "((params.f == 0) ? calcs.zMid1 : (params.f == 1) ? calcs.zMid2 : calcs.zMid3)"
+  zFinal: "((params.f == 0) ? calcs.zFinal1 : (params.f == 1) ? calcs.zFinal2 : calcs.zFinal3)"
+  dfdx: "((params.f == 0) ? calcs.dfdx1 : (params.f == 1) ? calcs.dfdx2 : calcs.dfdx3)"
+  dfdy: "((params.f == 0) ? calcs.dfdy1 : (params.f == 1) ? calcs.dfdy2 : calcs.dfdy3)"
+  dz: "(calcs.zFinal - calcs.z)"
+  dzMid: "(calcs.zMid - calcs.z)"
+  dzFinal: "(calcs.zFinal - calcs.zMid)"
+layout:
+  MathboxPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 10
+        step: 2
+        title: x
+      yAxis:
+        min: 0
+        max: 10
+        step: 2
+        title: y
+      zAxis:
+        min: 0
+        max: 100
+        step: 20
+        title: z
+      objects:
+        - MathboxLine:
+            y1: 4
+            x2: 10
+            strokeWidth: 3
+            stroke: green
+        - MathboxPlane:
+            y: calcs.y
+            fill: colors.orange
+            opacity: 0.3
+            show: params.showPlanes
+            shaded: false
+        - MathboxPlane:
+            x: calcs.xFinal
+            fill: colors.red
+            opacity: 0.3
+            show: params.showPlanes
+            shaded: false
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.y
+            z1: calcs.z
+            x2: calcs.xFinal
+            y2: calcs.y
+            z2: calcs.zMid
+            strokeWidth: 10
+            stroke: orange
+        - MathboxLine:
+            x1: calcs.xFinal
+            y1: calcs.y
+            z1: calcs.zMid
+            x2: calcs.xFinal
+            y2: calcs.yFinal
+            z2: calcs.zFinal
+            strokeWidth: 10
+            stroke: red
+        - MathboxFunctionSurface:
+            fn:
+              fn: "(4*((x)^0.5)*(y))"
+              samplePoints: 20
+            shaded: false
+            show: (params.f == 0)
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "(4-0.4*(x))"
+              fnZ: "(4*((x)^0.5)*(4-0.4*(x)))"
+            strokeWidth: 10
+            stroke: green
+            show: (params.f == 0)
+        - MathboxFunctionSurface:
+            fn:
+              fn: "(2*(x) + 4*(y))"
+              samplePoints: 20
+            shaded: false
+            show: (params.f == 1)
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "(4-0.4*(x))"
+              fnZ: "(2*(x) + 4*(4-0.4*(x)))"
+            strokeWidth: 5
+            stroke: green
+            show: (params.f == 1)
+        - MathboxFunctionSurface:
+            fn:
+              fn: "((x)^2)+((y)^2)"
+              samplePoints: 20
+            shaded: false
+            show: (params.f == 2)
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "(4-0.4*(x))"
+              fnZ: "((x)^2)+((4-0.4*(x))^2)"
+            strokeWidth: 5
+            stroke: green
+            show: (params.f == 2)
+        
+        # Intermediate Point
+        - MathboxPoint:
+            x: calcs.xFinal
+            y: calcs.y
+            z: calcs.zMid
+            stroke: orange
+        # Dropline showing x movement
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.y
+            x2: calcs.xFinal
+            y2: calcs.y
+            stroke: orange
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - MathboxLine:
+            x1: calcs.xFinal
+            y1: calcs.y
+            x2: calcs.xFinal
+            y2: calcs.y
+            z2: calcs.zMid
+            stroke: orange
+            strokeWidth: 10
+            lineStyle: dotted
+        # Final Point
+        - MathboxPoint:
+            x: calcs.xFinal
+            y: calcs.yFinal
+            z: calcs.zFinal
+            stroke: red
+        # Dropline showing y movement
+        - MathboxLine:
+            x1: calcs.xFinal
+            y1: calcs.y
+            x2: calcs.xFinal
+            y2: calcs.yFinal
+            stroke: red
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - MathboxLine:
+            x1: calcs.xFinal
+            y1: calcs.yFinal
+            x2: calcs.xFinal
+            y2: calcs.yFinal
+            z2: calcs.zFinal
+            stroke: red
+            strokeWidth: 10
+            lineStyle: dotted
+        # Original point
+        - MathboxPoint:
+            x: params.x
+            y: calcs.y
+            z: calcs.z
+            stroke: blue
+        # Vertical dropline
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.y
+            x2: params.x
+            y2: calcs.y
+            z2: calcs.z
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+
+    sidebar:
+      controls:
+        - title: Total Derivative Along a Path
+          sliders:
+            - param: x
+              label: x
+            - param: dx
+              label: \Delta x
+          checkboxes:
+            - param: showPlanes
+              label: \text{Show $x/y$ planes}
+          radioGroup:
+            param: f
+            options:
+              - $f(x, y) = 4x^{1 \over 2}y$
+              - $f(x, y) = 2x + 4y$
+              - $f(x, y) = x^2 + y^2$
+
+    explanation:
+      divs:
+        - html: "`<p>The diagram above shows a decomposition of a movement along the green line from the point $\\\\textcolor{${colors.blue}}{(${params.x.toFixed(2)},${calcs.y.toFixed(2)})}$ to $\\\\textcolor{${colors.red}}{(${calcs.xFinal.toFixed(2)},${calcs.yFinal.toFixed(2)})}$, decomposed into:<ul><li>The $\\\\textcolor{${colors.orange}}{\\\\Delta x = ${params.dx.toFixed(1)}}$ change in $x$, moving from $\\\\textcolor{${colors.blue}}{(${params.x.toFixed(2)},${calcs.y.toFixed(2)})}$ to $\\\\textcolor{${colors.orange}}{(${calcs.xFinal.toFixed(2)},${calcs.y.toFixed(2)})}$. This results in an increase of ${calcs.dzMid.toFixed(2)} in $f(x,y)$, from ${calcs.z.toFixed(2)} to ${calcs.zMid.toFixed(2)}.</li><li>The $\\\\textcolor{${colors.red}}{\\\\Delta y = ${calcs.dy.toFixed(2)}}$ change in $y$, moving from $\\\\textcolor{${colors.orange}}{(${calcs.xFinal.toFixed(2)},${calcs.y.toFixed(2)})}$ to $\\\\textcolor{${colors.red}}{(${calcs.xFinal.toFixed(2)},${calcs.yFinal.toFixed(2)})}$. This results in a decrease of ${-calcs.dzFinal.toFixed(2)} in $f(x,y)$, from ${calcs.zMid.toFixed(2)} to ${calcs.zFinal.toFixed(2)}.</li></ul></p>`"
+        - html: "`<p>The net effect is $$\\\\Delta f(x,y) = ${calcs.dzMid.toFixed(2)} - ${-calcs.dzFinal.toFixed(2)} = ${calcs.dz.toFixed(2)}$$</p>`"

@@ -1,0 +1,69 @@
+params:
+  - {name: alpha, min: 0.01, max: 0.99, value: 0.5, round: 0.01}
+  - {name: s, min: 0.01, max: 2, value: 0.5, round: 0.01}
+  - {name: theta, min: 0.4, max: 2.5, value: 2, round: 0.01}
+calcs:
+  rho: "(params.s < 1) ? (1 - 1/(params.s)) : (params.s - 1)"
+  L: "(calcs.rho == 0) ? 20*(params.theta)^(-0.5) : 20*(0.5 + 0.5*(params.theta)^(calcs.rho))^(-1/calcs.rho)"
+  K: (params.theta*calcs.L)
+  MRTS: (-(params.theta)^(1 - calcs.rho))
+  invMRTS: (-(params.theta)^(calcs.rho - 1))
+  dx: (10/(1+params.theta^(2-2*calcs.rho))^(0.5))
+
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        min: 1
+        max: 50
+        title: Good 1
+        intercept: 1
+        ticks: 0
+      yAxis:
+        min: 1
+        max: 50
+        title: Good 2
+        intercept: 1
+        ticks: 0
+      objects:
+      - ContourMap:
+          levels: [5, 10, 15, 20, 25, 30, 35, 40]
+          yMax: 51
+          xMax: 51
+          fn: "(params.alpha*(x)^(calcs.rho)+(1-params.alpha)*(y)^(calcs.rho))^(1/calcs.rho)"
+          show: "(calcs.rho != 0)"
+      - ContourMap:
+          levels: [5, 10, 15, 20, 25, 30, 35, 40]
+          yMax: 51
+          xMax: 51
+          fn: "(((x)^(params.alpha))*((y)^(1-params.alpha)))"
+          show: "(calcs.rho == 0)"
+
+    sidebar:
+       controls:
+       - title: CES utility function
+         sliders:
+         - param: alpha
+           label: \alpha
+           showNumber: false
+         - param: s
+           label: r
+           showNumber: false
+
+         divs:
+         - html: $$u(x_1,x_2) = (\alpha x_1^r + (1-\alpha)x_2^r)^\frac{1}{r}$$
+         - html: "`$$\\\\alpha = ${params.alpha.toFixed(2)}$$`"
+         - html: "`$$r = ${calcs.rho.toFixed(2)}$$`"
+         - html: When $r < 0$, this utility function represents goods that are <em>complements</em>.
+           show: (calcs.rho < 0)
+         - html: As $r \rightarrow -\infty$, those goods get closer and closer to being <em>perfect complements</em>, as the indifference curves approach an L shape.
+           show: (calcs.rho < -90)
+         - html: When $r = 0$, this utility function represents goods that are <em>independent</em> (neither complements nor substitutes).
+           show: (calcs.rho == 0)
+         - html: It has the same indifference curves as a Cobb-Douglas utility function.
+           show: (calcs.rho == 0)
+         - html: When $r > 0$, this utility function represents goods that are <em>substitutes</em>.
+           show: (calcs.rho > 0)
+         - html: In the specific case when $r = 1$, those are in fact <em>perfect substitutes</em>, and the indifference curves are linear.
+           show: (calcs.rho == 1)
+

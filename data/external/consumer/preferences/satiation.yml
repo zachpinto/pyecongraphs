@@ -1,0 +1,107 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 5
+    min: 0
+    max: 6
+    round: 0.1
+  - name: x2
+    value: 1
+    min: 0
+    max: 6
+    round: 0.1
+calcs:
+  u: (24 - (params.x1 - 4)^2 - 2*(params.x2 - 2)^2)
+  mu1: (8 - 2*params.x1)
+  mu2: (8 - 4*params.x2)
+  u1: (calcs.u + calcs.mu1)
+  u2: (calcs.u + calcs.mu2)
+  rx: ((24-calcs.u)^0.5)
+  ry: (((24-calcs.u)/2)^0.5)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 6
+        ticks: 6
+        title: Pizza
+      yAxis:
+        max: 6
+        ticks: 6
+        title: Soda
+      objects:
+        - Point:
+            coordinates: [ params.x1, params.x2 ]
+            color: blue
+            r: 4
+            label:
+              text: X
+              position: tr
+            droplines:
+              vertical:
+              horizontal:
+            drag:
+              - horizontal: x1
+              - vertical: x2
+        - Rectangle:
+            a: [0,0]
+            b: [(4.01 - calcs.rx), 6]
+            fill: red
+            label:
+              text: \prec X
+        - Rectangle:
+            a: [ (3.99 + calcs.rx), 0 ]
+            b: [ 6, 6 ]
+            fill: red
+        - Area:
+            fn: 2 + sqrt(0.5*(24-calcs.u-((x)-4)^2))
+            min: (4.01 - calcs.rx)
+            max: (3.99 + calcs.rx)
+            above: true
+            fill: dispreferred
+        - Area:
+            fn: 2 - sqrt(0.5*(24-calcs.u-((x)-4)^2))
+            min: (4.01 - calcs.rx)
+            max: (3.99 + calcs.rx)
+            fill: dispreferred
+        - Ellipse:
+            center: [ 4,2 ]
+            rx: calcs.rx
+            ry: calcs.ry
+            stroke: purple
+            strokeWidth: 2
+            fill: green
+            label:
+              text: \succ X
+              color: green
+              show: (calcs.u < 23)
+        - Arrow:
+            begin: [ params.x1, params.x2 ]
+            end: [params.x1, params.x2 + 0.5]
+            color: green
+            show: (params.x2 < 1.75)
+        - Arrow:
+            begin: [ params.x1, params.x2 ]
+            end: [ params.x1, params.x2 + 0.5 ]
+            color: red
+            show: (params.x2 > 2.15)
+        - Arrow:
+            begin: [params.x1, params.x2 ]
+            end: [params.x1 + 0.5, params.x2 ]
+            color: green
+            show: (params.x1 < 3.75)
+        - Arrow:
+            begin: [params.x1, params.x2 ]
+            end: [params.x1 + 0.5, params.x2 ]
+            color: red
+            show: (params.x1 > 4.15)
+
+
+
+    sidebar:
+      controls:
+        - title: "Nonmonotonic Preferences: Pizza and soda in a single meal"
+          description: With these preferences, you <em>disprefer</em> having more slices of pizza once you've hace four slices, and <em>disprefer</em> having more sodas once you've had two sodas.

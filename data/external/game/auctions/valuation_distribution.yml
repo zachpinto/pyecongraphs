@@ -1,0 +1,39 @@
+params:
+  - {name: v, value: 80, min: 0, max: 100}
+layout:
+  OneWideGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 100
+        title: Valuation
+      yAxis:
+        max: 0.1
+        title: Frequency (PDF)
+      objects:
+
+      - Point:
+          coordinates: [params.v, 0.01]
+          drag:
+          - horizontal: v
+          r: 0
+          droplines:
+            vertical: "`\\\\hat v = ${params.v}`"
+
+      - Rectangle: {a: [0,0], b: [100,0.01]}
+      - Rectangle:
+          a: [0,0]
+          b: [params.v,0.01]
+          drag:
+          - horizontal: v
+          label:
+            text: "`\\\\Pr \\\\{v_2 < ${params.v}\\\\} = ${(params.v*0.01).toFixed(2)}`"
+
+    sidebar:
+      controls:
+      - title: Distribution of Values
+        sliders:
+          - param: v
+            label: \hat v
+        divs:
+        - html: If valuations are uniformly distributed from 0 to 100, the probability that $v_2 < \hat v$ is $\hat v/100$.
+        - html: "`For example, the probability that $v_2 < ${params.v}$ is $${(params.v*0.01).toFixed(2)}$.`"

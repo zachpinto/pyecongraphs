@@ -1,0 +1,79 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: 2
+  min: 0
+  max: 10
+- name: x2
+  value: 4
+  min: 0
+  max: 10
+- name: p1
+  value: 4
+  min: 2
+  max: 12
+  round: 0.01
+- name: p2
+  value: 2
+  min: 2
+  max: 12
+  round: 0.01
+- name: m
+  value: 24
+  min: 0
+  max: 40
+  round: 1
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Apples (Good 1)
+        max: 12
+      yAxis:
+        title: Bananas (Good 2)
+        max: 12
+      objects:
+      - EconBudgetLine:
+          p1: params.p1
+          p2: params.p2
+          m: params.m
+          label: BL
+          draggable: true
+          handles: false
+          set: true
+      - Point:
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+          color: 'params.x1*params.p1 + params.x2*params.p2 > params.m ? ''red'' :
+            ''green'''
+          drag:
+          - horizontal: x1
+          - vertical: x2
+          droplines:
+            horizontal: params.x2.toFixed(0)
+            vertical: params.x1.toFixed(0)
+    sidebar:
+      controls:
+      - title: The Budget Set
+        description: "`The bundle (${params.x1.toFixed(0)},${params.x2.toFixed(0)})
+          costs \\$${(params.x1*params.p1 + params.x2*params.p2).toFixed(2)}, so it
+          is ${(params.x1*params.p1 + params.x2*params.p2 > params.m) ? 'not affordable'
+          : 'affordable'} with \\$${params.m.toFixed(0)}; that is, it lies
+          ${(params.x1*params.p1 + params.x2*params.p2 > params.m) ? 'outside' : 'within'}
+          the budget set (shaded).`"
+        sliders:
+        - param: p1
+          label: p_1
+        - param: p2
+          label: p_2
+        - param: m
+          label: m
+        divs:
+          - html: "`$$p_1x_1 + p_2x_2 = ${params.p1.toFixed(2)} \\\\times ${params.x1.toFixed(0)} + ${params.p2.toFixed(2)} \\\\times ${params.x2.toFixed(0)} = ${(params.x1*params.p1 + params.x2*params.p2).toFixed(2)}$$`"

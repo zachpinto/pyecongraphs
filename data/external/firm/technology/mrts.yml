@@ -1,0 +1,80 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: L
+    value: 1
+    min: 1
+    max: 8
+    round: 0.01
+  - name: q
+    value: 20
+    min: 0
+    max: 100
+calcs:
+  K: (params.q/(4*sqrt(params.L)))
+  z: (4*sqrt(params.L)*calcs.K)
+  x: ((calcs.z/4)^(2/3))
+  m: (calcs.K/(2*params.L))
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      objects:
+        - Contour:
+            fn: "(4*sqrt((x))*(y))"
+            level: params.q
+            color: purple
+            xMax: 11
+            yMax: 11
+            strokeWidth: 4
+        - ContourMap:
+            levels: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+            fn: "(4*sqrt((x))*(y))"
+            xMax: 11
+            yMax: 11
+        - Label:
+            coordinates: [10, 0]
+            text: L
+            yPixelOffset: -30
+        - Label:
+            coordinates: [0, 10]
+            text: K
+            xPixelOffset: -30
+        - Point:
+            coordinates: [params.L, calcs.K]
+            drag:
+            - directions: xy
+              param: L
+              expression: params.L + drag.dx
+        - Line:
+            point: [params.L, calcs.K]
+            slope: -calcs.m
+            color: blue
+            min: params.L - 2/sqrt(1 + calcs.m*calcs.m)
+            max: params.L + 2/sqrt(1 + calcs.m*calcs.m)
+            label:
+              x: params.L + 2/sqrt(1 + calcs.m*calcs.m)
+              text: "`MRTS = ${calcs.m.toFixed(2)}`"
+              position: tr
+            drag:
+              - directions: xy
+                param: L
+                expression: params.L + drag.dx
+        - Label:
+            coordinates: [6.1, (0.1*params.q)]
+            text: "`\\\\text{Isoquant for } q=${params.q}`"
+            color: purple
+            position: bl
+            bgcolor: none
+
+
+
+    sidebar:
+      controls:
+        - title: Marginal Rate of Technical Substitution
+          description: The MRTS is the magnitude of the slope of a line tangent to an isoquant. Drag the blue dot left and right to see how the MRTS changes as you move along the isoquant.
+          sliders:
+            - param: q
+              label: q
+

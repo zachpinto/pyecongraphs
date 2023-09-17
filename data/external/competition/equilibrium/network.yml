@@ -1,0 +1,78 @@
+schema: EconSchema
+params:
+- name: n
+  value: 40
+  max: 75
+
+layout:
+  OneWideGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Quantity
+        max: 100
+        ticks: 10
+      yAxis:
+        ticks: none
+        title: Price
+        max: 200
+
+      objects:
+      - EconLinearEquilibrium:
+          demand:
+            name: d
+            xIntercept: 80
+            invSlope: (-(80-params.n)/(8*params.n - 0.1*params.n*params.n))
+          supply:
+            name: s
+            yIntercept: 60
+            slope: 1
+            label:
+              text: \text{Supply}
+              x: 90
+          equilibrium:
+            droplines:
+              vertical: Q^*
+            show: (calcs.equilibrium.Q >= 0)
+      - Point:
+          coordinates: [params.n, 200]
+          r: 0
+          drag:
+          - horizontal: n
+          color: grey
+          droplines:
+            vertical: \hat Q
+      - Label:
+          coordinates: [params.n, 180]
+          color: grey
+          text: \text{Expected}
+      - Label:
+          coordinates: ["Math.max(0, calcs.equilibrium.Q)", 30]
+          color: green
+          text: \text{Actual}
+      - Point:
+          coordinates: [0, 60]
+          color: green
+          droplines:
+            vertial: Q^*
+          show: (params.n < 8)
+
+
+
+
+
+    sidebar:
+      controls:
+        - title: Multiple Equilibria with Network Externalities
+          description: In this market, demand depends on the quantity consumers expect to be sold. There are three values of Q at which expectations are aligned with the actual quantity sold. Can you find them?
+          sliders:
+          - param: n
+            label: \hat Q
+          divs:
+          - html: "`If consumers expect $\\\\hat Q = ${params.n}$ units to be sold, the actual number sold will be $Q^* = ${calcs.equilibrium.Q.toFixed(0)}$.`"
+            show: (params.n >= 8)
+          - html: "`If consumers expect $\\\\hat Q = ${params.n}$ units to be sold, there will be so little demand that the market will collapse, and no units will be sold.`"
+            show: (params.n < 8)
+          - html: Because expectations are not aligned with the actual quantity sold, the market is not in equilibrium.
+            show: ((params.n != 0) && (params.n != 10) && (params.n != 60))
+          - html: Because expectations are aligned with the actual quantity sold, the market is in equilibrium.
+            show: ((params.n == 0) || (params.n == 10) || (params.n == 60))

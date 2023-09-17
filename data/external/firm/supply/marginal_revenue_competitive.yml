@@ -1,0 +1,76 @@
+---
+schema: EconSchema
+version: 1
+params:
+  - name: p
+    value: 16
+    min: 1
+    max: 20
+    round: 0.05
+  - name: q
+    value: 10
+    min: 0
+    max: 18
+    round: 0.05
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Quantity ($q$)
+        min: 0
+        max: 20
+        ticks: 0
+      yAxis:
+        title: Price ($p$)
+        orient: left
+        max: 20
+        ticks: 0
+      objects:
+        - type: Line
+          def:
+            yIntercept: params.p
+            color: demand
+            label:
+              text: D = AR = MR
+              x: 18
+              position: b
+              bgcolor: none
+            drag:
+              - vertical: p
+        - type: Point
+          def:
+            coordinates:
+              - params.q
+              - params.p
+            drag:
+              - horizontal: q
+            color: colors.demand
+            droplines:
+              vertical: q
+              horizontal: p
+        - type: Point
+          def:
+            coordinates: [ params.q + 2, params.p ]
+            drag:
+              - horizontal: q
+            color: colors.demand
+            droplines:
+              vertical: q + dq
+        - type: Rectangle
+          def:
+            a:
+              - params.q
+              - 0
+            b:
+              - params.q + 2
+              - params.p
+            color: colors.profit
+            label:
+              text: "\\text{new revenue}"
+              rotate: 90
+    sidebar:
+      controls:
+        - title: Marginal Revenue for a Competitive Firm
+          divs:
+            - html: Because a price can sell as many units as it likes at the market price, and doesn't need to drop its price to sell more units, increasing the quantity sold by $dq$ increases its revenue by $p \times dq$.

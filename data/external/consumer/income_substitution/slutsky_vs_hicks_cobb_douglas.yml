@@ -1,0 +1,264 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: "0.5"
+    min: "0.05"
+    max: "0.95"
+    round: "0.01"
+  - name: r
+    value: 0.25
+    min: -4
+    max: 0.8
+    round: "0.05"
+  - name: p11
+    value: "4"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: p12
+    value: "2"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: p2
+    value: "4"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: m
+    value: "160"
+    min: "0"
+    max: "400"
+    round: "1"
+  - name: showIOC
+    value: false
+  - name: showExplanation
+    value: false
+restrictions:
+  - expression: params.m/params.p11
+    min: "1"
+    max: "100"
+  - expression: params.m/params.p12
+    min: "1"
+    max: "100"
+  - expression: params.m/params.p2
+    min: "1"
+    max: "50"
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      position:
+        x: 0.25
+        "y": 0
+        width: 0.5
+        height: 1
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - type: Line
+          def:
+            point:
+              - calcs.slutskyBundle.x
+              - calcs.slutskyBundle.y
+            stroke: colors.incomeOffer
+            show: params.showIOC
+        - type: EconSlutskyBundle
+          def:
+            name: slutskyBundle
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              strokeWidth: 4
+              color: colors.red
+            p1: params.p12
+            label:
+              text: "Y"
+            indifferenceCurve:
+              strokeWidth: 1
+              label:
+                text: null
+            droplines: {}
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p12
+              p2: params.p2
+              m: params.m
+              handles: true
+              draggable: true
+              label:
+                text: BL_2
+            label:
+              text: Z
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_2
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              color: gray
+              handles: true
+              draggable: true
+              label:
+                text: BL_1
+            label:
+              text: X
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_1
+        - type: Label
+          def:
+            x: 100
+            "y": 50
+            fontSize: 20
+            position: tr
+            text: \text{Slutsky Decomposition}
+    bottomGraph:
+      position:
+        x: 0.25
+        "y": 0
+        width: 0.5
+        height: 1
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - type: Line
+          def:
+            point:
+              - calcs.hicksBundle.x
+              - calcs.hicksBundle.y
+            stroke: colors.incomeOffer
+            show: params.showIOC
+        - type: EconHicksBundle
+          def:
+            name: hicksBundle
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              lineStyle: dotted
+              color: colors.budget
+            p1: params.p12
+            label:
+              text: C
+            showIndifferenceCurve: false
+            showBudgetLine: true
+            droplines: {}
+            color: colors.red
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p12
+              p2: params.p2
+              m: params.m
+              handles: true
+              draggable: true
+              label:
+                text: BL_2
+            label:
+              text: Z
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_2
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              color: gray
+              handles: true
+              draggable: true
+              label:
+                text: BL_1
+            label:
+              text: X
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_1
+              strokeWidth: 4
+              color: colors.red
+        - type: Label
+          def:
+            x: 100
+            "y": 50
+            fontSize: 20
+            position: tr
+            text: \text{Hicks Decomposition}
+    sidebar:
+      controls:
+        - title: Budget Parameters
+          sliders:
+            - param: p11
+              label: p_1
+            - param: p12
+              label: p'_1
+            - param: p2
+              label: p_2
+            - param: m
+              label: m
+          checkboxes:
+            - param: showIOC
+              label: \text{Show new IOC}
+            - param: showExplanation
+              label: \text{Show Explanation}
+          divs:
+            - html: '`These two graphs show <b>different approaches to analyzing the same price change</b>: when the price of good 1 changes from $p_1 = ${params.p11.toFixed(2)}$ to $p_1'' = ${params.p12.toFixed(2)}$, holding $p_2 = ${params.p2.toFixed(2)}$ and $m = ${params.m.toFixed(0)}$ constant.`'
+              show: params.showExplanation
+            - html: The initial point $X$ and final point $Z$ are the same in both graphs; what's different is the <em>decomposition point</em> used to analyze income and substitution effects.
+              show: params.showExplanation
+            - html: In the Slutsky approach, the decomposition point $Y$ occurs at the intersection of the new IOC and a budget line passing through $X$ at the new price ratio. It holds <em>initial purchasing power</em> constant.
+              show: params.showExplanation
+            - html: In the Hicks approach, the decomposition point $C$ occurs at the intersection of the new IOC and the indifference curve passing through $X$. It holds <em>initial utility</em> constant.
+              show: params.showExplanation

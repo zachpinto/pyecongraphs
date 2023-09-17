@@ -1,0 +1,89 @@
+schema: EconSchema
+params:
+  - { name: a, min: 1, max: 25, value: 16 }
+  - { name: b, min: 1, max: 25, value: 9 }
+calcs:
+  x1: (100*sqrt(params.a/(params.a+params.b)))
+  x2: (60*sqrt(params.b/(params.a+params.b)))
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 150
+        ticks: 0
+        title: Fish ($x_1$)
+      yAxis:
+        max: 150
+        title: Coconuts ($x_2$)
+        ticks: 0
+
+      objects:
+
+
+        # Indifference Map
+        - EconIndifferenceMap:
+            utilityFunction:
+              CobbDouglas:
+                alpha: params.a/(params.a + params.b)
+            levels: [ 10, 20, 30, 40, 50, 60.3, 70, 80, 90, 100, 110 ]
+
+        # PPF
+        - Ellipse:
+            c: [ 0,0 ]
+            rx: 100
+            ry: 60
+            stroke: red
+            fill: none
+            strokeWidth: 2
+
+        - Label:
+            text: PPF
+            coordinates: [ 101,5 ]
+            position: l
+            color: red
+
+        # Tangency condition
+        - Line:
+            slope: (0.6*sqrt(params.b/params.a))
+            lineStyle: dotted
+
+        - Label:
+            coordinates: [ (1.5*calcs.x1), (1.5*calcs.x2) ]
+            text: \text{Tangency condition}
+            color: supply
+
+        # Bundle
+        - EconBundle:
+            name: X
+            color: demand
+            coordinates: [ calcs.x1, calcs.x2 ]
+            utilityFunction:
+              CobbDouglas:
+                alpha: params.a/(params.a + params.b)
+            label:
+              text: X^*
+              position: b
+            indifferenceCurve:
+              color: utility
+              label:
+                text: \text{Ind. curve}
+                x: 135
+            droplines:
+              vertical: calcs.x1.toFixed(0)
+              horizontal: calcs.x2.toFixed(0)
+
+
+
+
+
+    sidebar:
+      controls:
+        - title: How the tangency condition reflects preferences
+          description: Change the utility parameter to see how the indifference map, tangency condition, and optimal choice change
+          sliders:
+            - param: a
+              label: a
+            - param: b
+              label: b
+          divs:
+            - html: "`$$\\\\begin{aligned} u(x_1,x_2) &= a \\\\ln x_1 + b \\\\ln x_2\\\\\\\\ &= ${params.a}\\\\ln x_1 + ${params.b}\\\\ln x_2\\\\\\\\ \\\\\\\\MRS(x_1,x_2) &= {a \\\\over b}{x_2 \\\\over x_1} \\\\\\\\ &= {${params.a} \\\\over ${params.b}}{x_2 \\\\over x_1}\\\\end{aligned}$$`"

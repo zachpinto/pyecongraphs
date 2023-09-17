@@ -1,0 +1,139 @@
+schema: EconSchema
+params:
+- {name: L, min: 0, max: 100, round: 1, value: 50}
+calcs:
+  L2: (100-params.L)
+  x1: (params.L)
+  x2: (0.5*calcs.L2)
+  mrt: (0.5)
+  mrs: (0.25)
+layout:
+  SquarePlusTwoVerticalGraphs:
+    bigGraph:
+      xAxis:
+        max: 150
+        ticks: 3
+        title: Good 1
+      yAxis:
+        max: 150
+        ticks: 3
+        title: Good 2
+
+      objects:
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            PerfectSubstitutes:
+              coefficients: [1,4]
+          levels: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700]
+          yMin: -10
+          yMax: 130
+          xMin: 0
+          xMax: 130
+
+      # PPF
+      - Line:
+          yIntercept: 50
+          xIntercept: 100
+          areaBelow: true
+          color: budget
+          label:
+            text: BL
+            x: 80
+            position: tr
+            bgcolor: none
+            
+      # Bundle
+      - EconBundle:
+          name: Y
+          utilityFunction:
+            PerfectSubstitutes:
+              coefficients: [1,4]
+          coordinates: [calcs.x1, calcs.x2]
+          color: blue
+          drag:
+          - horizontal: L
+          droplines:
+            vertical: calcs.x1.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: -calcs.mrs
+          color: colors.demand
+          min: calcs.x1 - 10
+          max: calcs.x1 + 10
+          strokeWidth: 5
+          label:
+            text: MRS
+            x: calcs.x1 + 8
+            position: bl
+            bgcolor: 
+
+    topGraph:
+      xAxis:
+        max: 100
+        title: Money Spent on Good 1
+      yAxis:
+        max: 300
+        ticks: 0
+      objects:
+        - Line:
+            yIntercept: 200
+            slope: -1
+            color: utility
+            label:
+              text: u(X)
+              x: 90
+              position: t
+              bgcolor: none
+        - Point:
+            coordinates: [params.L, calcs.Y.level]
+            draggable: true
+            droplines:
+              vertical: params.L
+              horizontal: calcs.Y.level.toFixed(0)
+
+
+
+    bottomGraph:
+      xAxis:
+        max: 100
+        title: Money Spent on Good 1
+      yAxis:
+        max: 1
+        ticks: 3
+      objects:
+      - Point:
+         coordinates: [params.L, calcs.mrs]
+         droplines:
+           vertical: params.L
+           horizontal: calcs.mrs.toFixed(2)
+         drag:
+           - horizontal: L
+      - Point:
+         coordinates: [params.L, calcs.mrt]
+         color: budget
+         droplines:
+           vertical: params.L
+         drag:
+           - horizontal: L
+      - Line:
+         yIntercept: 0.25
+         color: demand
+         label:
+           text: MRS
+           x: 90
+      - Line:
+         yIntercept: 0.5
+         color: budget
+         label:
+           text: \frac{p_1}{p_2}
+           x: 90
+
+    

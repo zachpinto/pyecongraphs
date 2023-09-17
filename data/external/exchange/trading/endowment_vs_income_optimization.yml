@@ -1,0 +1,116 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 1.6
+params:
+  - name: p1
+    value: 10
+    min: 5
+    max: 30
+  - name: p2
+    value: 5
+    min: 5
+    max: 30
+  - name: end1
+    value: 8
+    min: 0
+    max: 15
+  - name: end2
+    value: 8
+    min: 0
+    max: 24
+calcs:
+  m: (params.p1*params.end1 + params.p2*params.end2)
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        title: Optimization with Exogenous Income
+        max: 25
+        ticks: 0
+      yAxis:
+        max: 25
+        ticks: 0
+      objects:
+        - Label:
+            coordinates: [24.5, 0]
+            text: x_1
+            color: grey
+            fontSize: 8
+            position: r
+        - Label:
+            coordinates: [0, 25]
+            text: x_2
+            color: grey
+            fontSize: 8
+            position: b
+        - EconOptimalBundle:
+            color: demand
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            budgetLine:
+              color: budget
+              p1: params.p1
+              p2: params.p2
+              m: 120
+              draggable: false
+              handles: false
+              set: false
+              label: none
+    rightGraph:
+      xAxis:
+        title: Optimization from an Endowment
+        max: 25
+        ticks: 0
+      yAxis:
+        max: 25
+        ticks: 0
+      objects:
+        - Label:
+            coordinates: [24.5, 0]
+            text: x_1
+            color: grey
+            fontSize: 8
+            position: r
+        - Label:
+            coordinates: [0, 25]
+            text: x_2
+            color: grey
+            fontSize: 8
+            position: b
+        - EconOptimalBundle:
+            color: demand
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            budgetLine:
+              color: budget
+              p1: params.p1
+              p2: params.p2
+              m: calcs.m
+              draggable: false
+              handles: false
+              set: false
+              label: none
+        - Point:
+            coordinates: [params.end1, params.end2]
+            color: endowment
+            droplines:
+              vertical: e_1
+              horizontal: e_2
+            label:
+              text: \text{$E$}
+            drag:
+              - horizontal: end1
+              - vertical: end2
+
+    sidebar:
+      controls:
+        - title: Income vs. Endowment Optimization
+          description: See how price changes affect the two budget sets.
+          sliders:
+            - param: p1
+              label: p_1
+            - param: p2
+              label: p_2

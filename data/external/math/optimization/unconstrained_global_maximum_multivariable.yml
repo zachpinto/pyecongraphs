@@ -1,0 +1,184 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 1
+    min: 0
+    max: 6
+    round: 0.01
+  - name: x2
+    value: 1
+    min: 0
+    max: 6
+    round: 0.01
+  - name: dim
+    value: 0
+calcs:
+  y: (8*params.x1 - 2*params.x1*params.x1 + 8*params.x2 - params.x2*params.x2)
+  dydx1: (8 - 4*params.x1)
+  dydx2: (8 - 2*params.x2)
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 8
+        ticks: 4
+        title: x1
+      yAxis:
+        min: 0
+        max: 8
+        ticks: 4
+        title: x2
+      zAxis:
+        min: 0
+        max: 30
+        ticks: 5
+        title: y
+      objects:
+
+        - Point:
+            x: 2
+            y: 4
+            z: 24
+            stroke: grey
+            droplines: true
+
+        - Point:
+            x: params.x1
+            y: params.x2
+            z: calcs.y
+            stroke: purple
+            droplines: true
+
+        # Function surface
+        - FunctionSurface:
+            fn:
+              fn: 24 - 2*((x) - 2)^2 - ((y) - 4)^2
+              samplePoints: 100
+            shaded: false
+            fill: colors.purple
+            opacity: 0.5
+
+        # Slice in X direction
+        - Curve:
+            fn:
+              fn: params.x2
+              fnZ: 24 - 2*((x) - 2)^2 - ((params.x2) - 4)^2
+            stroke: purple
+            show: (params.dim == 0)
+
+        # Slice in Y direction
+        - Curve:
+            fn:
+              fn: params.x1
+              fnZ: 24 - 2*((params.x1) - 2)^2 - ((y) - 4)^2
+              ind: y
+            stroke: purple
+            show: (params.dim == 1)
+
+
+
+        # Gradient Plane
+        - FunctionSurface:
+            fn:
+              fn: 2*(params.x1)^2 + (params.x2)^2 + (8 - 4*params.x1)*(x) + (8 - 2*params.x2)*(y)
+              samplePoints: 6
+            fill: blue
+            opacity: 0.5
+    graph:
+      xAxis:
+        min: 0
+        max: 6
+      yAxis:
+        min: -10
+        max: 30
+      objects:
+
+        # Graph labels
+        - Label:
+            coordinates: [ 0,30 ]
+            text: "(params.dim ? '{\\\\partial y \\\\over \\\\partial x_2}' : '{\\\\partial y \\\\over \\\\partial x_1}')"
+            position: b
+
+        - Label:
+            coordinates: [ 6,0 ]
+            text: "(params.dim ? 'x_2' : 'x_1')"
+            position: r
+
+        # Function of x1
+        - Curve:
+            fn: 24 - 2*((x) - 2)^2 - ((params.x2) - 4)^2
+            show: (params.dim == 0)
+            color: purple
+            label:
+              text: f(x_1 | x_2)
+              x: 5.5
+
+        - Point:
+            show: (params.dim == 0)
+            coordinates: [ params.x1, calcs.y ]
+            color: purple
+            r: 4
+            droplines:
+              vertical: params.x1.toFixed(2)
+            drag:
+              - horizontal: x1
+
+        - Line:
+            show: (params.dim == 0)
+            point: [ params.x1, calcs.y ]
+            min: params.x1 - 0.5
+            max: params.x1 + 0.5
+            slope: calcs.dydx1
+            color: blue
+            drag:
+              - horizontal: x1
+
+        # Function of x2
+        - Curve:
+            fn: 24 - 2*((params.x1) - 2)^2 - ((x) - 4)^2
+            show: (params.dim == 1)
+            color: purple
+            label:
+              text: f(x_2 | x_1)
+              x: 5.5
+
+        - Point:
+            show: (params.dim == 1)
+            coordinates: [ params.x2, calcs.y ]
+            color: purple
+            r: 4
+            droplines:
+              vertical: params.x2.toFixed(2)
+            drag:
+              - horizontal: x2
+
+        - Line:
+            show: (params.dim == 1)
+            point: [ params.x2, calcs.y ]
+            min: params.x2 - 0.5
+            max: params.x2 + 0.5
+            slope: calcs.dydx2
+            color: blue
+            drag:
+              - horizontal: x2
+
+    sidebar:
+      controls:
+        - title: gradient of a multivariable function
+          sliders:
+            - param: x1
+              label: x_1
+            - param: x2
+              label: x_2
+          radioGroup:
+            param: dim
+            options:
+              - Show $f(x_1 | x_2)$
+              - Show $f(x_2 | x_1)$
+          divs:
+            - html: "`$$\\\\begin{aligned}{\\\\partial f(x_1,x_2) \\\\over \\\\partial x_1} &= ${calcs.dydx1.toFixed(2)}\\\\\\\\ {\\\\partial f(x_1,x_2) \\\\over \\\\partial x_2} &= ${calcs.dydx2.toFixed(2)}\\\\end{aligned}$$`"
+

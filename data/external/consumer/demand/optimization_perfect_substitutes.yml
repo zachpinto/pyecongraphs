@@ -1,0 +1,103 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: 4
+    min: 1
+    max: 5
+  - name: b
+    value: 2
+    min: 1
+    max: 5
+  - name: p
+    value: 2
+    min: 1
+    max: 10
+  - name: q
+    value: 2
+    min: 1
+    max: 10
+  - name: m
+    value: 24
+    min: 0
+    max: 60
+calcs:
+  alpha: (params.a/(params.a+params.b))
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 20
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 20
+        ticks: 10
+      objects:
+        - EconIndifferenceMap:
+            utilityFunction:
+              type: PerfectSubstitutes
+              def:
+                alpha: calcs.alpha
+            levels: [2,4,6,8,10,12,14,16,18]
+        - Segment:
+            a: [0,(params.m/params.q)]
+            b: [(params.m/params.p),0]
+            color: blue
+            label:
+              text: \text{(all points along BL are optimal)}
+              position: bl
+            show: (params.a*params.q == params.b*params.p)
+
+        - EconOptimalBundle:
+            name: optimum
+            color: demand
+            show: (params.a*params.q != params.b*params.p)
+            utilityFunction:
+              type: PerfectSubstitutes
+              def:
+                alpha: calcs.alpha
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+              handles: true
+              draggable: true
+              color: budget
+            indifferenceCurve:
+              label:
+                text: \text{Ind. curve through }X^*
+                x: (0.5*params.m/params.p)
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: a
+            - param: b
+              label: b
+        - title: Budget Parameters
+          sliders:
+            - param: p
+              label: p_1
+            - param: q
+              label: p_2
+            - param: m
+              label: m
+          divs:
+            - html: "`With the utility function $$u(x_1,x_2) = ax_1 + bx_2 = ${params.a}x_1 + ${params.b}x_2$$ the marginal rate of substitution is $$MRS = {a \\\\over b} = {${params.a} \\\\over ${params.b}}$$`"
+            - html: "`When $p_1 = ${params.p}$ and $p_2 = ${params.q}$, this MRS is greater than the price ratio; so the optimal bundle is to buy only good 1.`"
+              show: (params.a*params.q > params.b*params.p)
+            - html: "`When $p_1 = ${params.p}$ and $p_2 = ${params.q}$, this MRS is less than the price ratio; so the optimal bundle is to buy only good 2.`"
+              show: (params.a*params.q < params.b*params.p)
+            - html: "`When $p_1 = ${params.p}$ and $p_2 = ${params.q}$, this MRS is equal to the price ratio; so all points along the budget line yield the same utility.`"
+              show: (params.a*params.q == params.b*params.p)
+

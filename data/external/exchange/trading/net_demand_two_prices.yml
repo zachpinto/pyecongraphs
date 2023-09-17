@@ -1,0 +1,280 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: "0.5"
+    min: "0.01"
+    max: "0.99"
+    round: "0.01"
+  - name: sellPrice
+    value: "0.5"
+    min: "0.1"
+    max: "2"
+    round: "0.01"
+  - name: buyPrice
+    value: "1.5"
+    min: "0.1"
+    max: "2"
+    round: "0.01"
+  - name: w1
+    value: "40"
+    min: "0"
+    max: "100"
+    round: "1"
+  - name: w2
+    value: "30"
+    min: "0"
+    max: "50"
+    round: "1"
+  - name: showIndW
+    value: false
+  - name: showPOC
+    value: false
+  - name: showExplanation
+    value: false
+calcs:
+  bottomGraphLeft: (-1*params.w1)
+  bottomGraphRight: (100-params.w1)
+  cutoffPrice: (calcs.endowmentBundle.mrs)
+  wealth: (params.w1*params.sellPrice + params.w2)
+  consumeAtEndowment: ((calcs.endowmentBundle.mrs >= params.sellPrice) && (calcs.endowmentBundle.mrs <= params.buyPrice))
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - type: EconBundle
+          def:
+            name: endowmentBundle
+            coordinates:
+              - params.w1
+              - params.w2
+            droplines:
+              vertical: \omega_1
+            color: gray
+            label:
+              text: W
+              position: tr
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            drag:
+              - directions: x
+                param: w1
+                expression: params.w1 + drag.dx
+              - directions: "y"
+                param: w2
+                expression: params.w2 + drag.dy
+            indifferenceCurve:
+              label:
+                text: ""
+              color: '(calcs.consumeAtEndowment ? colors.utility : colors.endowment)'
+              show: (params.showIndW || calcs.consumeAtEndowment)
+        - type: EconOptimalBundle
+          def:
+            name: sellOptimum
+            label:
+              text: X
+            droplines:
+              vertical: x_1^*
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            color: colors.utility
+            budgetLine:
+              p1: params.sellPrice
+              p2: 1
+              x: params.w1
+              "y": params.w2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+              sellOnly: true
+            indifferenceCurve: {}
+        - type: EconOptimalBundle
+          def:
+            name: buyOptimum
+            label:
+              text: X
+            droplines:
+              vertical: x_1^*
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            color: colors.utility
+            budgetLine:
+              p1: params.buyPrice
+              p2: 1
+              x: params.w1
+              "y": params.w2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+              buyOnly: true
+            indifferenceCurve: {}
+    bottomGraph:
+      xAxis:
+        title: Net Demand for Good 1
+        orient: bottom
+        min: (calcs.bottomGraphLeft)
+        max: (calcs.bottomGraphRight)
+        ticks: 10
+      yAxis:
+        title: Price Ratio ($p = p_1/p_2$)
+        orient: left
+        min: 0
+        max: 2
+      objects:
+        - type: EconNetDemandCurve
+          def:
+            name: demandCurve
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p2: 1
+              x: params.w1
+              "y": params.w2
+            max: calcs.cutoffPrice
+        - type: EconNetDemandCurve
+          def:
+            name: demandCurve
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p2: 1
+              x: params.w1
+              "y": params.w2
+            color: colors.supply
+            min: calcs.cutoffPrice
+        - type: Segment
+          def:
+            a:
+              - calcs.bottomGraphLeft
+              - params.sellPrice
+            b:
+              - 0
+              - params.sellPrice
+            color: colors.budget
+            drag:
+              - directions: "y"
+                param: sellPrice
+                expression: params.sellPrice + drag.dy
+            label:
+              text: p^\text{sell}
+              location: 0.95
+        - type: Segment
+          def:
+            a:
+              - 0
+              - params.buyPrice
+            b:
+              - calcs.bottomGraphRight
+              - params.buyPrice
+            color: colors.budget
+            drag:
+              - directions: "y"
+                param: buyPrice
+                expression: params.buyPrice + drag.dy
+            label:
+              text: p^\text{buy}
+              location: 0.05
+        - type: Point
+          def:
+            coordinates:
+              - calcs.buyOptimum.x - params.w1
+              - params.buyPrice
+            label:
+              text: d_1(p)
+            color: colors.demand
+            droplines:
+              vertical: (calcs.buyOptimum.x - params.w1).toFixed(0)
+            drag:
+              - directions: "y"
+                param: sellPrice
+                expression: params.sellPrice + drag.dy
+            show: (params.buyPrice < calcs.cutoffPrice)
+        - type: Point
+          def:
+            coordinates:
+              - calcs.sellOptimum.x - params.w1
+              - params.sellPrice
+            label:
+              text: s_1(p)
+              position: tr
+            color: colors.supply
+            droplines:
+              vertical: (calcs.sellOptimum.x - params.w1).toFixed(0)
+            drag:
+              - directions: "y"
+                param: sellPrice
+                expression: params.sellPrice + drag.dy
+            show: (params.sellPrice > calcs.cutoffPrice)
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 0.15
+            b:
+              - calcs.sellOptimum.x-params.w1
+              - 0.15
+            endArrow: true
+            color: colors.supply
+            label:
+              text: '`\\text{sell ${(params.w1-calcs.sellOptimum.x).toFixed(0)}}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: (params.showExplanation && (calcs.sellOptimum.x < params.w1))
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 0.15
+            b:
+              - calcs.buyOptimum.x-params.w1
+              - 0.15
+            endArrow: true
+            color: colors.demand
+            label:
+              text: '`\\text{buy ${(calcs.buyOptimum.x - params.w1).toFixed(0)}}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: (params.showExplanation && (calcs.buyOptimum.x > params.w1))
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: \alpha
+          divs:
+            - html: '`$$u(x_1,x_2) = x_1^\\alpha x_2^{1 - \\alpha} = x_1^{${params.a.toFixed(2)}}x_2^{${(1-params.a).toFixed(2)}}$$`'
+        - title: Budget Parameters
+          sliders:
+            - param: sellPrice
+              label: p^\text{sell}
+            - param: buyPrice
+              label: p^\text{buy}
+        - title: Options
+          checkboxes:
+            - param: showIndW
+              label: \text{Show indifference curve through $W$}

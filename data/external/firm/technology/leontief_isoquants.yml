@@ -1,0 +1,70 @@
+schema: EconSchema
+params:
+  - {name: q, min: 1, max: 9, value: 6, round: 1}
+  - {name: showRidge, value: 0}
+  - {name: showHighK, value: 0}
+  - {name: showLowK, value: 0}
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Labor ($L$)
+      yAxis:
+        title: Capital ($K$)
+      objects:
+        - Area:
+            fn: 2*(x)
+            color: orange
+            show: params.showLowK
+        - Label:
+            text: K < 2L
+            coordinates: [4, 3.5]
+            color: orange
+            show: params.showLowK
+        - Area:
+            fn: 0.5*(y)
+            ind: y
+            color: red
+            show: params.showHighK
+        - Label:
+            text: K > 2L
+            coordinates: [1,6]
+            color: red
+            show: params.showHighK
+        - Line:
+            slope: 2
+            label:
+              text: "`K = 2L`"
+              x: 4.75
+            lineStyle: dotted
+            color: purple
+            show: params.showRidge
+
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectComplements:
+                coefficients: [2,1]
+            levels: [1,2,3,4,5, 6, 7, 8, 9, 10]
+        - EconIndifferenceCurve:
+            utilityFunction:
+              PerfectComplements:
+                coefficients: [2,1]
+            level: params.q
+            label:
+              text: "`\\\\text{Isoquant for }q = ${params.q.toFixed(0)}`"
+              position: tr
+
+
+    sidebar:
+      controls:
+        - title: "Leontief (Fixed Proportions) Isoquant Map"
+          sliders:
+            - param: q
+              label: q
+          checkboxes:
+            - param: showRidge
+              label: \text{Show "ridge line" }K = 2L
+            - param: showLowK
+              label: \text{Show region where }K < 2L
+            - param: showHighK
+              label: \text{Show region where }K > 2L

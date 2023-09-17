@@ -1,0 +1,144 @@
+schema: EconSchema
+version: 1
+params:
+  - name: A
+    value: "5"
+    min: "1"
+    max: "10"
+    round: "0.01"
+  - name: a
+    value: "0.5"
+    min: "0.25"
+    max: "2"
+    round: "0.01"
+  - name: L
+    value: "50"
+    min: "0"
+    max: "100"
+    round: "1"
+  - name: w
+    value: "10"
+    min: "0"
+    max: "20"
+    round: 0.1
+  - name: p
+    value: 20
+    min: 0
+    max: 40
+    round: 0.1
+calcs:
+  "y": ((params.A)*(params.L)^(params.a))
+  MPL: ((params.a)*(params.A)*(params.L)^(params.a - 1))
+  MRPL: ((params.p)*(params.a)*(params.A)*(params.L)^(params.a - 1))
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Hours of Labor ($L$)
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Output ($y$)
+        orient: left
+        min: 0
+        max: 100
+      objects:
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: (params.A)*(x)^(params.a)
+              samplePoints: 200
+              ind: x
+            stroke: colors.production
+            strokeWidth: 2
+            label:
+              text: f(L)
+              x: 90
+        - type: Point
+          def:
+            coordinates:
+              - params.L
+              - calcs.y
+            fill: colors.production
+            drag:
+              - directions: x
+                param: L
+                expression: params.L + drag.dx
+            droplines:
+              vertical: params.L
+              horizontal: calcs.y.toFixed(0)
+        - type: Line
+          def:
+            point:
+              - params.L
+              - calcs.y
+            slope: params.w/params.p
+            color: colors.budget
+            label:
+              text: \text{isoprofit line}
+              location: 0.8
+    bottomGraph:
+      xAxis:
+        title: Hours of Labor ($L$)
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Output ($y$)
+        orient: left
+        min: 0
+        max: 20
+      objects:
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: (params.p)*(params.A)*(params.a)*((x)^(params.a - 1))
+              samplePoints: 200
+            stroke: colors.demand
+            strokeWidth: 2
+            label:
+              text: p \times MP_L(L)
+              x: 90
+        - type: Point
+          def:
+            coordinates:
+              - params.L
+              - calcs.MRPL
+            color: colors.shortRun
+            drag:
+              - directions: x
+                param: L
+                expression: params.L + drag.dx
+            droplines:
+              vertical: params.L
+              horizontal: calcs.MRPL.toFixed(2)
+        - type: Segment
+          def:
+            a:
+              - 0
+              - params.w
+            b:
+              - 100
+              - params.w
+            color: colors.budget
+            drag:
+              - directions: "y"
+                param: w
+                expression: params.w + drag.dy
+            label:
+              text: w
+              location: 0.05
+    sidebar:
+      controls:
+        - title: Production and Cost with One Input
+          sliders:
+            - param: A
+              label: A
+            - param: a
+              label: a
+            - param: w
+              label: w
+            - param: p
+              label: p

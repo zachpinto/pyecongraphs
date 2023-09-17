@@ -1,0 +1,216 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: a
+  value: '0.5'
+  min: '0.01'
+  max: '0.99'
+  round: '0.01'
+- name: p1
+  value: 2
+  min: 0.5
+  max: 2
+  round: 0.01
+- name: p2
+  value: 1
+  min: 1
+  max: 20
+- name: w1
+  value: 8
+  min: 0
+  max: 15
+- name: w2
+  value: 8
+  min: 0
+  max: 15
+- name: showIndW
+  value: true
+- name: showPOC
+  value: false
+- name: showBuySell
+  value: false
+- name: showExplanation
+  value: true
+calcs:
+  bottomGraphLeft: "(-1*params.w1)"
+  bottomGraphRight: "(100-params.w1)"
+  cutoffPrice: "(calcs.endowmentBundle.mrs*params.p2)"
+  wealth: "(params.w1*params.p1 + params.w2*params.p2)"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        ticks: 0
+        max: 24
+      yAxis:
+        title: Units of Good 2
+        max: 24
+        ticks: 0
+      objects:
+      - type: EconPriceOfferCurve
+        def:
+          lineStyle: dashed
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a
+          budgetLine:
+            p1: params.p1
+            p2: params.p2
+            x: params.w1
+            y: params.w2
+          good: 1
+          show: params.showPOC
+      - Label:
+          coordinates: [18, (18*params.w1/(36-params.w2))]
+          text: \text{Offer curve}
+          position: bl
+          bgcolor: none
+          color: demand
+          show: params.showPOC
+      - type: EconBundle
+        def:
+          name: endowmentBundle
+          coordinates:
+          - params.w1
+          - params.w2
+          droplines:
+            vertical: e_1
+            horizontal: e_2
+          color: gray
+          label:
+            text: \text{$E$}
+            position: tr
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a
+          drag:
+          - directions: x
+            param: w1
+            expression: params.w1 + drag.dx
+          - directions: y
+            param: w2
+            expression: params.w2 + drag.dy
+          indifferenceCurve:
+            label:
+              text: \text{Ind. curve through $E$}
+            color: colors.endowment
+            show: params.showIndW
+            position: tl
+      - type: EconOptimalBundle
+        def:
+          name: optimum
+          label:
+            text: X
+          droplines:
+            vertical: x_1^*
+            horizontal: x_2^*
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a
+          color: demand
+          budgetLine:
+            p1: params.p1
+            p2: params.p2
+            x: params.w1
+            y: params.w2
+            draggable: false
+            handles: false
+            set: false
+            color: colors.budget
+            label:
+              text: "`BL_{p_1/p_2=${(params.p1/params.p2).toFixed(2)}}`"
+          indifferenceCurve:
+            label:
+              text: \text{Ind. curve through $X$}
+      - type: Segment
+        def:
+          a:
+          - params.w1
+          - 2
+          b:
+          - calcs.optimum.x
+          - 2
+          endArrow: true
+          color: colors.supply
+          label:
+            text: \text{SELL}
+            fontSize: 8
+            location: 0.5
+            yPixelOffset: -15
+          show: "((params.showExplanation || params.showBuySell) && (calcs.optimum.x
+            < params.w1))"
+      - type: Segment
+        def:
+          a:
+          - params.w1
+          - 2
+          b:
+          - calcs.optimum.x
+          - 2
+          endArrow: true
+          color: colors.demand
+          label:
+            text: \text{BUY}
+            fontSize: 8
+            location: 0.5
+            yPixelOffset: -15
+          show: "((params.showExplanation || params.showBuySell) && (calcs.optimum.x
+            > params.w1))"
+      - type: Segment
+        def:
+          a:
+          - 2
+          - params.w2
+          b:
+          - 2
+          - calcs.optimum.y
+          endArrow: true
+          color: colors.supply
+          label:
+            text: \text{SELL}
+            fontSize: 8
+            location: 0.5
+            xPixelOffset: -15
+            align: right
+          show: "((params.showExplanation || params.showBuySell) && (calcs.optimum.x
+            > params.w1))"
+      - type: Segment
+        def:
+          a:
+          - 2
+          - params.w2
+          b:
+          - 2
+          - calcs.optimum.y
+          endArrow: true
+          color: colors.demand
+          label:
+            text: \text{BUY}
+            fontSize: 8
+            location: 0.5
+            xPixelOffset: -15
+            align: right
+          show: "((params.showExplanation || params.showBuySell) && (calcs.optimum.x
+            < params.w1))"
+    sidebar:
+      controls:
+      - title: MRS vs. the Price Ratio
+        sliders:
+        - param: p1
+          label: \frac{p_1}{p_2}
+        divs:
+          - html: "`<hr/>MRS at endowment = ${calcs.endowmentBundle.mrs.toFixed(2)}<hr/>`"
+          - html: MRS at the endowment $> p_1/p_2$<br/>$\Rightarrow$ net <b>demander</b> of good 1.
+            show: (calcs.optimum.x > params.w1)
+          - html: MRS at the endowment $< p_1/p_2$<br/>$\Rightarrow$ net <b>supplier</b> of good 1.
+            show: (calcs.optimum.x < params.w1)
+          - html: MRS at the endowment $= p_1/p_2$<br/>$\Rightarrow$ don't trade at all, stay at endowment.
+            show: (calcs.optimum.x == params.w1)

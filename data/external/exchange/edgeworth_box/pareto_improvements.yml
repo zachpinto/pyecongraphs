@@ -1,0 +1,130 @@
+---
+schema: EconSchema
+colors:
+  paretoLens: purple
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: 12
+  min: 0
+  max: 20
+  round: 0.01
+- name: x2
+  value: 2
+  min: 0
+  max: 10
+  round: 0.01
+- name: a1
+  value: 0.5
+  min: 0.25
+  max: 0.75
+  round: 0.01
+- name: a2
+  value: 0.5
+  min: 0.25
+  max: 0.75
+  round: 0.01
+- name: showPreferred
+  value: true
+- name: showIndifferenceCurves
+  value: true
+layout:
+  EdgeworthBoxPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+      - Overlap:
+          fill: green
+          shapes:
+          - Area:
+              fn: (calcs.bundleA.level/((x)^params.a1))^(1/(1 - params.a1))
+              above: green
+          - Area:
+              fn: 10-(calcs.bundleB.level/((20 - (x))^params.a2))^(1/(1 - params.a2))
+      - EconBundle:
+          color: colors.blue
+          name: bundleA
+          coordinates:
+          - params.x1
+          - params.x2
+          label: {}
+          droplines:
+            vertical: x_1^A
+            horizontal: x_2^A
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a1
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: false
+            color: colors.blue
+            label:
+              text:
+      - EconBundle:
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+          droplines: {}
+          drag:
+          - horizontal: x1
+          - vertical: x2
+          color: colors.endowment
+
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          name: bundleB
+          coordinates:
+          - (20 - params.x1)
+          - (10 - params.x2)
+          label: {}
+          droplines:
+            vertical: x_1^B
+            horizontal: x_2^B
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a2
+          r: 0
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: false
+            label:
+              text: 
+            color: colors.orange
+          color: colors.orange
+
+    sidebar:
+      controls:
+      - title: Pareto Improvements
+        description: The green area indicates the set of points that are Pareto improvements over X - that is, which both A and B prefer to X.
+        sliders:
+        - param: a1
+          label: a
+        - param: a2
+          label: b
+        divs:
+          - html: $$u^A(x_1^A, x_2^A) = a \ln x_1^A + (1-a) \ln x_2^B$$ $$u^B(x_1^B, x_2^B) = b \ln x_1^B + (1-b) \ln x_2^B$$
+          - html: At allocation $X$, $MRS^A > MRS^B$, so possible Pareto improvements involve A trading some of her good 2 for some of B's good 1.
+            show: (calcs.bundleA.mrs - calcs.bundleB.mrs > 0.1)
+          - html: At allocation $X$, $MRS^A < MRS^B$, so possible Pareto improvements involve A trading some of her good 1 for some of B's good 2.
+            show: (calcs.bundleB.mrs - calcs.bundleA.mrs > 0.1)
+          - html: At allocation $X$, $MRS^A = MRS^B$, so there are no possible Pareto improvements.
+            show: ((calcs.bundleA.mrs - calcs.bundleB.mrs)^2 <= 0.01)

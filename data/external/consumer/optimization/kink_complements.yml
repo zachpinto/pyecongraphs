@@ -1,0 +1,195 @@
+schema: EconSchema
+params:
+- {name: x1, min: 0, max: 100, round: 1, value: 20}
+calcs:
+  x2: (100 - params.x1)
+layout:
+  SquarePlusTwoVerticalGraphs:
+    bigGraph:
+      xAxis:
+        max: 150
+        ticks: 3
+        title: Good 1
+      yAxis:
+        max: 150
+        ticks: 3
+        title: Good 2
+
+      objects:
+      
+      # Ridge condition
+      - Line:
+          point: [40,60]
+          lineStyle: dotted
+          label:
+            text: "`3x_1 = 2x_2`"
+            x: 85
+            position: r
+            bgcolor: none
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            PerfectComplements:
+              coefficients: [3,2]
+          levels: [30, 60, 90, 120, 150, 180, 210, 240, 270]
+          yMin: -10
+          yMax: 130
+          xMin: 0
+          xMax: 130
+
+      # Budget Line
+      - Line:
+          yIntercept: 100
+          xIntercept: 100
+          areaBelow: true
+          color: budget
+          label:
+            text: BL
+            x: 90
+            position: l
+            bgcolor: none
+            
+      # Bundle
+      - EconBundle:
+          name: Y
+          utilityFunction:
+            PerfectComplements:
+              coefficients: [3,2]
+          coordinates: [params.x1, calcs.x2]
+          color: blue
+          draggable: true
+          droplines:
+            vertical: params.x1.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+
+      - Line:
+          point: [params.x1, calcs.x2]
+          slope: 0
+          color: colors.demand
+          min: params.x1 - 20
+          max: params.x1 + 20
+          strokeWidth: 5
+          label:
+            text: MRS
+            x: params.x1 + 20
+            position: t
+            bgcolor: 
+          show: (params.x1 > 40)
+          
+      - Segment:
+          a: [params.x1, calcs.x2 - 20]
+          b: [params.x1, calcs.x2 + 20]
+          color: colors.demand
+          strokeWidth: 5
+          label:
+            text: MRS
+            position: l
+            location: 1
+            bgcolor: 
+          show: (params.x1 < 40)
+          
+    topGraph:
+      xAxis:
+        max: 100
+        title: Money Spent on Good 1
+      yAxis:
+        max: 200
+        ticks: 0
+      objects:
+        - Curve:
+            fn: 3*(x)
+            color: utility
+            min: 0
+            max: 40
+        - Curve:
+            fn: (200-2*(x))
+            color: utility
+            min: 40
+            max: 100
+            label:
+              text: u(X)
+              x: 90
+              position: b
+              bgcolor: none
+        - Point:
+            coordinates: [params.x1, calcs.Y.level]
+            draggable: true
+            droplines:
+              vertical: params.x1
+              horizontal: calcs.Y.level.toFixed(2)
+    bottomGraph:
+      xAxis:
+        max: 100
+        title: Money Spent on Good 1
+      yAxis:
+        max: 3.01
+        ticks: 0
+      objects:
+      - Point:
+         coordinates: [params.x1, 3]
+         droplines:
+           vertical: params.x1
+         show: params.x1 < 40
+         draggable: true
+      - Point:
+         coordinates: [params.x1, 0]
+         droplines:
+           vertical: params.x1
+           horizontal: \infty
+         show: params.x1 > 40
+         draggable: true
+      - Point:
+         coordinates: [params.x1, 1]
+         color: budget
+         droplines:
+           vertical: params.x1
+           horizontal: 1
+         draggable: true
+      - Point:
+         coordinates: [40,3]
+         fill: white
+         stroke: blue
+         r: 4
+         droplines:
+           horizontal: \infty
+      - Point:
+         coordinates: [40,0.002]
+         fill: white
+         stroke: blue
+         r: 4
+      - Line:
+         yIntercept: 1
+         color: budget
+         label:
+           text: \frac{p_1}{p_2}
+           x: 90
+      - Line:
+         yIntercept: 3
+         color: demand
+         strokeWidth: 3
+         max: 40
+         label:
+           text: MRS
+           x: 10
+           position: t
+           bgcolor:
+      - Line:
+         yIntercept: 0
+         color: demand
+         strokeWidth: 5
+         min: 40
+         label:
+           text: MRS
+           x: 90
+           position: b
+           bgcolor:
+      - Line:
+         xIntercept: 40
+         color: demand
+         lineStyle: dashed
+         strokeWidth: "((params.x1 == 40) ? 3 : 1)"

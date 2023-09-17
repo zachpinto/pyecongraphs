@@ -1,0 +1,180 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: L
+    value: 4
+    min: 1
+    max: 8
+    round: 0.1
+  - name: K
+    value: 3
+    min: 1
+    max: 9
+    round: 0.1
+  - name: showMPL
+    value: 1
+  - name: showMPK
+    value: 1
+  - name: showPlanes
+calcs:
+  q: (4*sqrt(params.L)*params.K)
+  mpl: (2*params.K/sqrt(params.L))
+  mpk: (4*sqrt(params.L))
+layout:
+  MathboxPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 10
+        step: 2
+        title: L
+      yAxis:
+        min: 0
+        max: 10
+        step: 2
+        title: K
+      zAxis:
+        min: 0
+        max: 100
+        step: 20
+        title: q
+      objects:
+        - MathboxPlane:
+            y: params.K
+            fill: colors.orange
+            opacity: 0.3
+            shaded: false
+            show: params.showPlanes && params.showMPL
+        - MathboxPlane:
+            x: params.L
+            fill: colors.red
+            opacity: 0.3
+            shaded: false
+            show: params.showPlanes && params.showMPK
+        - MathboxLine:
+            x1: params.L - 1
+            y1: params.K
+            z1: calcs.q - calcs.mpl
+            x2: params.L + 1
+            y2: params.K
+            z2: calcs.q + calcs.mpl
+            strokeWidth: 10
+            stroke: orange
+            show: params.showMPL
+        - MathboxLine:
+            x1: params.L
+            y1: params.K - 1
+            z1: calcs.q - calcs.mpk
+            x2: params.L
+            y2: params.K + 1
+            z2: calcs.q + calcs.mpk
+            strokeWidth: 10
+            stroke: red
+            show: params.showMPK
+        - MathboxFunctionSurface:
+            fn:
+              fn: "(4*((x)^0.5)*(y))"
+              samplePoints: 20
+            shaded: false
+            fill: colors.purple
+            opacity: 0.4
+
+        # Original point
+        - MathboxPoint:
+            x: params.L
+            y: params.K
+            z: calcs.q
+            stroke: blue
+        # Dropline to x axis
+        - MathboxLine:
+            x1: params.L
+            x2: params.L
+            y2: params.K
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Dropline to y axis
+        - MathboxLine:
+            y1: params.K
+            x2: params.L
+            y2: params.K
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - MathboxLine:
+            x1: params.L
+            y1: params.K
+            x2: params.L
+            y2: params.K
+            z2: calcs.q
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+    graph:
+      yAxis:
+        max: 100
+      objects:
+
+        - Curve:
+            fn: "4*params.K*sqrt((x))"
+            color: blue
+            show: (params.f == 0)
+            label:
+              text: "`f(x|\\\\overline y = ${params.K.toFixed(1)}) = 4x^{1 \\\\over 2}\\\\times ${params.K.toFixed(1)}`"
+              x: 9
+              position: br
+
+        - Curve:
+            fn: "2*(x) + 4*params.K"
+            color: blue
+            show: (params.f == 1)
+            label:
+              text: "`f(x|\\\\overline y = ${params.K.toFixed(1)}) = 2x + 4\\\\times${params.K.toFixed(1)}`"
+              x: 9
+              position: br
+
+        - Curve:
+            fn: "(x)^2 + params.K*params.K"
+            color: blue
+            show: (params.f == 2)
+            label:
+              text: "`f(x|\\\\overline y = ${params.K.toFixed(1)}) = x^2 + (${params.K.toFixed(1)})^2`"
+              x: 9
+              position: br
+
+        # Point x
+        - Point:
+            coordinates: [params.L, calcs.q]
+            color: blue
+            drag:
+              - horizontal: x
+            droplines:
+              vertical: x
+              horizontal: f(x)
+
+        - Line:
+            point: [params.L, calcs.q]
+            slope: calcs.mpl
+            color: orange
+            strokeWidth: 4
+            min: params.L - 2
+            max: params.L + 2
+
+    sidebar:
+      controls:
+        - title: Marginal Products
+          sliders:
+            - param: L
+              label: L
+            - param: K
+              label: K
+          checkboxes:
+            - param: showMPL
+              label: \text{Show }MP_L
+            - param: showMPK
+              label: \text{Show }MP_K
+            - param: showPlanes
+              label: \text{Show $x/y$ planes}

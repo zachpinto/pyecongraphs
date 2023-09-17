@@ -1,0 +1,94 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: '10'
+    min: '0'
+    max: '100'
+  - name: x2
+    value: '40'
+    min: '0'
+    max: '100'
+  - name: y1
+    value: '50'
+    min: '0'
+    max: '100'
+  - name: y2
+    value: '20'
+    min: '0'
+    max: '100'
+  - name: showPreferred
+    value: true
+  - name: showDispreferred
+    value: false
+layout:
+  type: TwoHorizontalGraphsPlusSidebar
+  def:
+    leftGraph:
+      xAxis:
+        title: Risk (Bad)
+        max: 100
+        ticks: 0
+        yPixelOffset: 20
+      yAxis:
+        title: Return (Good)
+        max: 100
+        ticks: 0
+        xPixelOffset: 20
+      objects:
+        - Curve:
+            fn: 20 + 0.01*(x)^2
+            areaAbove: preferred
+            areaBelow: dispreferred
+            color: purple
+        - Arrow:
+            begin: [ 50, 50 ]
+            end: [ 30, 70 ]
+            color: preferred
+        - Label:
+            coordinates: [ 30,75 ]
+            text: \text{Preferred}
+            color: green
+            bgcolor: none
+    rightGraph:
+      xAxis:
+        title: Terrorist Attacks (Bad)
+        max: 100
+        ticks: 0
+        yPixelOffset: 20
+      yAxis:
+        title: Wait Time (Bad)
+        max: 100
+        ticks: 0
+        xPixelOffset: 20
+      objects:
+        - Curve:
+            fn: sqrt(80^2 - (x)^2)
+            areaAbove: dispreferred
+            areaBelow: preferred
+            color: purple
+            min: 0
+            max: 80
+        - Rectangle:
+            a: [ 80,0 ]
+            b: [ 100,100 ]
+            fill: dispreferred
+        - Arrow:
+            begin: [ 50, 50 ]
+            end: [ 30, 30 ]
+            color: preferred
+        - Label:
+            coordinates: [ 30,25 ]
+            text: \text{Preferred}
+            color: green
+            bgcolor: none
+    sidebar:
+      controls:
+        - title: 'Dealing with "Bads"'
+          divs:
+          - html: The left-hand graph shows the preferences of a risk-averse investor, for whom the riskiness of an investment is a "bad" while the return on investment is a "good." She prefers options that are above and to the left of the indifference curve.
+          - html: The right-hand graph shows the TSA's preferences over terrorist attacks and wait times, both of which are "bads" for the TSA. The set of preferred options is below and to the left of the indifference curve.
+
+

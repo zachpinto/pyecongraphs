@@ -1,0 +1,175 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 16
+    min: 0
+    max: 40
+    round: 1
+  - name: x2
+    value: 16
+    min: 0
+    max: 40
+    round: 1
+  - name: a
+    value: 2
+    min: 2
+    max: 10
+  - name: b
+    value: 8
+    min: 2
+    max: 10
+
+calcs:
+  u: (min(params.x1/params.a, params.x2/params.b))
+  maxU: (min(40/params.a, 40/params.b))
+  x1base: (params.a*calcs.u)
+  x2base: (params.b*calcs.u)
+  invA: (1/params.a)
+  invB: (1/params.b)
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 40
+        ticks: 0
+        title: Good 1
+      yAxis:
+        min: 0
+        max: 40
+        ticks: 0
+        title: Good 2
+      zAxis:
+        min: 0
+        max: calcs.maxU
+        ticks: 0
+        title: Utility
+      objects:
+        - Plane:
+            z: calcs.u
+            fill: blue
+            opacity: 0.5
+        - FunctionSurface:
+            fn:
+              fn: (calcs.invA*(x))
+              samplePoints: 200
+              domainCondition: ((params.b*(x))<=(params.a*(y)))
+            shaded: true
+            fill: purple
+            opacity: 0.4
+        - FunctionSurface:
+            fn:
+              fn: (calcs.invB*(y))
+              samplePoints: 200
+              domainCondition: ((params.b*(x))>=(params.a*(y)))
+            shaded: true
+            fill: purple
+            opacity: 0.4
+        - Line:
+            x1: 0
+            x2: (40*params.a*calcs.invB)
+            y1: 0
+            y2: 40
+            z1: 0
+            z2: (calcs.invB*40)
+            strokeWidth: 10
+            stroke: orange
+            show: (params.a <= params.b)
+        - Line:
+            x1: 0
+            x2: 40
+            y1: 0
+            y2: (40*params.b*calcs.invA)
+            z1: 0
+            z2: (40*calcs.invA)
+            strokeWidth: 10
+            stroke: orange
+            show: (params.a > params.b)
+        - Line:
+            x1: calcs.x1base
+            x2: calcs.x1base
+            y1: calcs.x2base
+            y2: 40
+            z1: calcs.u
+            z2: calcs.u
+            strokeWidth: 10
+            stroke: utility
+        - Line:
+            x1: calcs.x1base
+            x2: 40
+            y1: calcs.x2base
+            y2: calcs.x2base
+            z1: calcs.u
+            z2: calcs.u
+            strokeWidth: 10
+            stroke: utility
+        - MathboxPoint:
+            x: params.x1
+            y: params.x2
+            z: calcs.u
+            droplines: true
+    graph:
+      xAxis:
+        max: 40
+        ticks: 0
+        title: Good 1
+      yAxis:
+        max: 40
+        ticks: 0
+        title: Good 2
+      objects:
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectComplements:
+                coefficients: [ (1/params.a), (1/params.b) ]
+            levels: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 ]
+        - Line:
+            slope: (params.b/params.a)
+            ind: y
+            label:
+              text: "`{x_1 \\\\over ${params.a.toFixed(0)}} = {x_2 \\\\over ${params.b.toFixed(0)}}`"
+              y: 40
+            show: (params.a < params.b)
+        - Line:
+            slope: (params.b/params.a)
+            label:
+              text: "`{x_1 \\\\over ${params.a.toFixed(0)}} = {x_2 \\\\over ${params.b.toFixed(0)}}`"
+              x: 40
+            show: (params.a >= params.b)
+
+        - EconBundle:
+            coordinates: [ params.x1, params.x2 ]
+            color: blue
+            r: 4
+            label:
+              text:
+            droplines:
+              vertical: params.x1
+              horizontal: params.x2
+            utilityFunction:
+              PerfectComplements:
+                coefficients: [ (1/params.a), (1/params.b) ]
+            drag:
+              - horizontal: x1
+              - vertical: x2
+            indifferenceCurve:
+              label:
+                text: "`u(x_1,x_2) = ${calcs.u.toFixed(2)}`"
+                x: 30
+
+
+    sidebar:
+      controls:
+        - title: perfect complements
+          description: "Adjust the parameters a and b to see how the indifference map changes:"
+          sliders:
+            - param: a
+              label: a
+            - param: b
+              label: b
+          divs:
+            - html: $$u(x_1,x_2) = \min\left\{\tfrac{x_1}{a}, \tfrac{x_2}{b}\right\}$$
+            - html: "`$$u(${params.x1.toFixed(0)},${params.x2.toFixed(0)}) = \\\\min\\\\left\\\\{\\\\tfrac{${params.x1.toFixed(0)}}{${params.a.toFixed(0)}}, \\\\tfrac{${params.x2.toFixed(0)}}{${params.b.toFixed(0)}}\\\\right\\\\} = ${calcs.u.toFixed(2)}$$`"

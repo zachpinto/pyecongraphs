@@ -1,0 +1,86 @@
+schema: EconSchema
+params:
+  - name: p1
+    value: 5
+    max: 10
+    min: 1
+    round: 0.01
+  - name: p2
+    value: 5
+    max: 10
+    min: 1
+    round: 0.01
+  - name: U
+    value: 2
+    max: 3
+    min: 1
+    round: 0.01
+calcs:
+  slope: (params.p1/(params.p1 + params.p2))
+  arrowScale: (sqrt(params.p1*params.p1 + params.p2*params.p2))
+  arrowDX: (2*params.p1/calcs.arrowScale)
+  arrowDY: (2*params.p2/calcs.arrowScale)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Good 1 ($x_1$)
+      yAxis:
+        title: Good 2 ($x_2$)
+      objects:
+
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectSubstitutes:
+                alpha: calcs.slope
+            levels: [ 1,2,3,4,5,6,7,8,9 ]
+
+        - EconBundle:
+            name: X
+            color: demand
+            coordinates: [ (2*params.U), (3*params.U)]
+            label:
+              text: X^c
+            utilityFunction:
+              Complements:
+                alpha: 0.4
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              color: budget
+              label:
+                text: c
+            droplines:
+              vertical: x_1^c
+              horizontal: x_2^c
+            indifferenceCurve:
+              strokeWidth: 5
+              label:
+                text: "`U = ${params.U.toFixed(2)}`"
+
+        - Arrow:
+            color: grey
+            begin: [ 8.5,8.5 ]
+            end: [ (8.5-calcs.arrowDX),(8.5-calcs.arrowDY) ]
+            label:
+              text: \text{Lower cost}
+
+        - Arrow:
+            color: grey
+            begin: [ 2.5,2.5 ]
+            end: [ (2.5-calcs.arrowDX),(2.5-calcs.arrowDY) ]
+            label:
+              text: \text{Lower cost}
+
+
+    sidebar:
+      controls:
+        - title: Cost Minimization with Complements
+          description: For perfect complements, the cost-minimizing bundle is always the point on the utility constraint where the minimands are equal.
+          sliders:
+            - param: p1
+              label: p_1
+            - param: p2
+              label: p_2
+            - param: U
+              label: U

@@ -1,0 +1,113 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: 12
+  min: 0
+  max: 20
+  round: 0.01
+- name: x2
+  value: 2
+  min: 0
+  max: 10
+  round: 0.01
+- name: a1
+  value: 0.5
+  min: 0.25
+  max: 0.75
+  round: 0.01
+- name: a2
+  value: 0.5
+  min: 0.25
+  max: 0.75
+  round: 0.01
+- name: showPreferred
+  value: true
+- name: showIndifferenceCurves
+  value: true
+layout:
+  EdgeworthBoxPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          color: colors.blue
+          coordinates:
+          - params.x1
+          - params.x2
+          label: {}
+          droplines:
+            vertical: x_1^A
+            horizontal: x_2^A
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a1
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            color: colors.blue
+            label:
+              text:
+
+      - EconBundle:
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+          droplines: {}
+          drag:
+          - horizontal: x1
+          - vertical: x2
+          color: colors.endowment
+
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          coordinates:
+          - (20 - params.x1)
+          - (10 - params.x2)
+          label: {}
+          droplines:
+            vertical: x_1^B
+            horizontal: x_2^B
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a2
+          r: 0
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: 
+            color: colors.orange
+          color: colors.orange
+
+    sidebar:
+      controls:
+      - title: Preferences in the Edgeworth Box
+        description: This diagram shows the set of alternative allocations agents A and B prefer to X.
+        sliders:
+        - param: a1
+          label: a
+        - param: a2
+          label: b
+        divs:
+          - html: The utility functions for both A and B are Cobb-Douglas, with A's utility function being $$u^A(x_1^A, x_2^A) = a \ln x_1^A + (1-a) \ln x_2^A$$ and B's being $$u^B(x_1^B, x_2^B) = b \ln x_1^B + (1-b) \ln x_2^B$$

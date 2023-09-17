@@ -1,0 +1,99 @@
+schema: EconSchema
+params:
+  - {name: w, value: 8, min: 1, max: 10}
+  - {name: r, value: 2, min: 1, max: 10}
+calcs:
+  ca: (params.w*0 + params.r*4)
+  cb: (params.w*2 + params.r*3)
+  cc: (params.w*4 + params.r*2)
+  cd: (params.w*6 + params.r*1)
+  ce: (params.w*8 + params.r*0)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 10
+        ticks: 0
+        title: Labor ($L$)
+      yAxis:
+        max: 10
+        ticks: 0
+        title: Capital ($K$)
+      objects:
+
+      # Point object at coordinates (6,4)
+      - EconIndifferenceCurve:
+          name: X
+          utilityFunction:
+            Substitutes:
+              coefficients: [2,4]
+            samplePoints: 500
+          level: 16
+          color: blue
+          label:
+            text: "`q = 16`"
+            x: 6.5
+
+      - EconIndifferenceMap:
+          utilityFunction:
+            PerfectSubstitutes:
+              coefficients: [params.w, params.r]
+          levels: [calcs.ca, calcs.cb, calcs.cc, calcs.cd, calcs.ce]
+          stroke: green
+
+      - Point:
+          coordinates: [0,4]
+          droplines:
+            vertical: 0
+            horizontal: 4
+          r: 4
+
+      - Point:
+          coordinates: [2,3]
+          droplines:
+            vertical: 2
+            horizontal: 3
+          r: 4
+
+      - Point:
+          coordinates: [4,2]
+          droplines:
+            vertical: 4
+            horizontal: 2
+          r: 4
+
+      - Point:
+          coordinates: [6,1]
+          droplines:
+            vertical: 6
+            horizontal: 1
+          r: 4
+
+      - Point:
+          coordinates: [8,0]
+          droplines:
+            vertical: 8
+            horizontal: 0
+          r: 4
+
+
+
+    sidebar:
+      controls:
+      - title: Cost Minimization Along an Isoquant
+        description: This graph shows five combinations of labor (L) and capital (K) that lie along the isoquant for q = 16 units of output. Try adjusting the wage rate (w) and rental rate of capital (r) to see which is the lowest-cost option for the firm.
+        sliders:
+        - param: w
+          label: w
+        - param: r
+          label: r
+        divs:
+        - html: "`$$c = wL + rK = ${params.w}L + ${params.r}K$$`"
+        - table:
+            columns: [L,K,cost]
+            rows:
+            - [0, 4, calcs.ca]
+            - [2, 3, calcs.cb]
+            - [4, 2, calcs.cc]
+            - [6, 1, calcs.cd]
+            - [8, 0, calcs.ce]

@@ -1,0 +1,50 @@
+params:
+  - {name: q, min: 10, max: 100, value: 20, round: 10}
+  - {name: A, min: 1, max: 10, value: 4, round: 0.05}
+  - {name: a, min: 0.25, max: 1, value: 0.5, round: 0.05}
+  - {name: b, min: 0.25, max: 1, value: 1, round: 0.05}
+  - {name: theta, min: 0.4, max: 2.5, value: 2, round: 0.01}
+calcs:
+  K: ((params.q/(params.A*(8^params.a)))^(1/params.b))
+  MRTS: (-params.a*params.theta/params.b)
+  invMRTS: (-params.b/(params.a*params.theta))
+  dx: (2/(1+params.theta^2)^(0.5))
+
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Labor ($L$)
+      yAxis:
+        title: Capital ($K$)
+      objects:
+        - Curve:
+            fn: (((params.q/params.A)*((x)^(-params.a)))^(1/params.b))
+            strokeWidth: 5
+            color: purple
+            samplePoints: 200
+            label:
+              text: "`\\\\text{Isoquant for }q = ${params.q}`"
+              x: 8
+        - ContourMap:
+            levels: [10,20,30,40,50,60,70,80,90,100]
+            yMax: 11
+            xMax: 11
+            fn: (params.A * (x)^(params.a)*(y)^(params.b))
+
+
+    sidebar:
+      controls:
+        - title: "Cobb Douglas Production Function"
+          sliders:
+            - param: q
+              label: q
+            - param: a
+              label: a
+            - param: b
+              label: b
+            - param: A
+              label: A
+          divs:
+            - html: "`$$\\\\begin{aligned}f(L,K) &= AL^aK^b \\\\\\\\ &= ${params.A.toFixed(2)}L^{${params.a.toFixed(2)}}K^{${params.b.toFixed(2)}}\\\\end{aligned}$$`"
+

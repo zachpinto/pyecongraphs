@@ -1,0 +1,148 @@
+params:
+  - {name: p, value: 4, min: 1, max: 10, round: 0.25}
+calcs:
+  x: (2*params.p-2)
+  v: (10*(calcs.x) - 0.5*(calcs.x)^2)
+  c: (calcs.x + 0.25*(calcs.x)^2)
+  exp: (params.p*calcs.x)
+  cs: calcs.v - calcs.exp
+  ps: calcs.exp - calcs.c
+  pf: (1 + 0.5*calcs.x)
+  pc: (10 - calcs.x)
+
+layout:
+  TwoVerticalGraphs:
+    topGraph:
+      xAxis:
+        max: 9
+        ticks: 9
+      yAxis:
+        max: 50
+        title: Dollars
+      objects:
+
+      - Curve:
+          fn: (x) + ((x)^2)/4
+          min: 0
+          samplePoints: 500
+          color: red
+          label:
+            text: c(q)
+            x: 9
+
+      - Line:
+          slope: params.p
+          color: green
+          label:
+            text: p \times q
+            x: 7
+            show: (params.p <= 6.5)
+
+      - Label:
+          coordinates: [(45.5/params.p),45.5]
+          text: p \times q
+          color: green
+          show: (params.p > 6.5)
+
+      - Point:
+          coordinates: [calcs.x, calcs.c]
+          color: red
+
+      - Point:
+          coordinates: [calcs.x, calcs.exp]
+          drag:
+            - horizontal: x
+          color: green
+
+      - Segment:
+          a: [calcs.x + 0.1, 0.5]
+          b: [calcs.x + 0.1, calcs.exp - 1]
+          startArrow: true
+          endArrow: true
+          color: green
+          label:
+            text: "`p \\\\times q = ${calcs.exp.toFixed(2)}`"
+            align: left
+            xPixelOffset: 5
+
+      - Segment:
+          a: [calcs.x, calcs.c + 1]
+          b: [calcs.x, calcs.exp - 1]
+          startArrow: true
+          endArrow: true
+          color: orange
+          label:
+            text: "`PS = ${calcs.ps.toFixed(2)}`"
+            align: right
+            xPixelOffset: -5
+
+      - Segment:
+          a: [calcs.x, calcs.c - 1]
+          b: [calcs.x, 0.5]
+          startArrow: true
+          endArrow: true
+          color: red
+          label:
+            text: "`TC = ${calcs.c.toFixed(2)}`"
+            align: right
+            xPixelOffset: -5
+
+    bottomGraph:
+      xAxis:
+        max: 9
+        title: Quantity Produced ($q$)
+        ticks: 9
+      yAxis:
+        max: 12
+        title: Dollars Per Unit
+        ticks: 9
+      objects:
+
+      - Area:
+          fn1: params.p
+          fn2: 1 + 0.5*(x)
+          max: calcs.x
+          color: orange
+
+      - Area:
+          fn: 1 + 0.5*(x)
+          max: calcs.x
+          color: red
+
+      - Line:
+          yIntercept: 1
+          slope: 0.5
+          color: orange
+          label:
+            text: c'(q)
+            x: 9
+
+      - Line:
+          yIntercept: params.p
+          color: green
+          drag:
+            - vertical: p
+          label:
+            text: "`p = ${params.p.toFixed(2)}`"
+            x: 7
+
+
+      - Label:
+          coordinates: [(0.3*calcs.x), (params.p - 0.3(params.p - 1))]
+          text: "`PS = ${calcs.ps.toFixed(2)}`"
+          color: orange
+          bgcolor: none
+
+      - Label:
+          coordinates: [(0.7*calcs.x), (0.3*calcs.pf)]
+          text: "`TC = ${calcs.c.toFixed(2)}`"
+          color: red
+          bgcolor: none
+
+      - Point:
+          coordinates: [calcs.x, params.p]
+          drag:
+            - horizontal: x
+          color: orange
+          droplines:
+            vertical: "`q = ${calcs.x.toFixed(2)}`"

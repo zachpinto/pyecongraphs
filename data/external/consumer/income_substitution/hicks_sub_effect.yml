@@ -1,0 +1,148 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: a
+  value: 0.5
+  min: '0.05'
+  max: '0.95'
+  round: '0.01'
+- name: r
+  value: -1
+  min: -4
+  max: 0.8
+  round: '0.05'
+- name: p11
+  value: 2
+  min: '0.1'
+  max: '10'
+  round: '0.01'
+- name: p12
+  value: 8
+  min: '0.1'
+  max: '10'
+  round: '0.01'
+- name: p2
+  value: 2
+  min: '0.1'
+  max: '10'
+  round: '0.01'
+- name: m
+  value: 144
+  min: '0'
+  max: 200
+  round: '1'
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 80
+        ticks: 0
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 80
+        ticks: 0
+      objects:
+      - type: Line
+        def:
+          point:
+          - calcs.X.x
+          - calcs.X.y
+          stroke: colors.incomeOffer
+          lineStyle: dotted
+          ind: y
+          label:
+            text: IOC_1
+            y: 76
+      - type: Line
+        def:
+          point:
+          - calcs.Y.x
+          - calcs.Y.y
+          stroke: colors.incomeOffer
+          ind: y
+          label:
+            text: IOC_2
+            y: 76
+      - type: EconHicksBundle
+        def:
+          name: Y
+          utilityFunction:
+            type: CES
+            def:
+              alpha: params.a
+              r: params.r
+          budgetLine:
+            p1: params.p11
+            p2: params.p2
+            m: params.m
+            color: grey
+            strokeWidth: 0.5
+            label:
+              text: \frac{p_1^\prime}{p_2}
+              position: bl
+            min: 25
+            max: 35
+          level: calcs.X.level
+          p1: params.p12
+          label:
+            text: B
+          droplines: {}
+          indifferenceCurve:
+            inMap: true
+      - type: EconOptimalBundle
+        def:
+          name: X
+          utilityFunction:
+            type: CES
+            def:
+              alpha: params.a
+              r: params.r
+          budgetLine:
+            p1: params.p11
+            p2: params.p2
+            m: params.m
+            handles: true
+            draggable: true
+            label:
+              text: BL_1
+          label:
+            text: A
+          droplines: {}
+          indifferenceCurve:
+            label:
+              text: U_1
+      - Arrow:
+          begin: [ calcs.Y.x, calcs.Y.y ]
+          end: [ calcs.X.x, calcs.X.y ]
+          color: subEffect
+          strokeWidth: 5
+          trim: 0.9
+          label:
+            text: \text{Sub. effect}
+
+    sidebar:
+      controls:
+      - title: Hicks Substitution Effect
+        sliders:
+        - param: p11
+          label: p_1
+        - param: p12
+          label: p'_1
+        - param: p2
+          label: p_2
+        - param: m
+          label: m
+        divs:
+          - html: "When the price of good 1 rises, the IOC pivots toward the relatively less expensive good (good 2), and the cost-minimizing way of achieving utility $U_1$ will involve buying less good 1 and more good 2."
+            show: (params.p11 < params.p12)
+          - html: "When the price of good 1 falls, the IOC pivots toward the relatively less expensive good (good 1), and the cost-minimizing way of achieving utility $U_1$ will involve buying more good 1 and less good 2."
+            show: (params.p11 > params.p12)
+          - html: This is the <em>substitution effect</em> of the price change.

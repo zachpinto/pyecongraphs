@@ -1,0 +1,119 @@
+schema: EconSchema
+params:
+- {name: a, value: 0.25, min: 0.1, max: 0.9, round: 0.01}
+- {name: m, value: 100, min: 10, max: 200, round: 10}
+- {name: N, value: 64, min: 10, max: 100}
+- {name: p, value: 10, min: 10, max: 30}
+calcs:
+  x: (params.a*params.m/params.p)
+  D: (calcs.x*params.N)
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        ticks: 0
+        max: 10
+      yAxis:
+        max: 40
+        ticks: 0
+      objects:
+
+      - Label:
+          coordinates: [AXIS, 40]
+          text: p
+
+      - Label:
+          coordinates: [10, AXIS]
+          text: x^i
+
+      - Curve:
+          fn: (params.a*params.m/(y))
+          color: demand
+          ind: y
+          label:
+            y: 36
+            text: d(p)
+            position: tl
+            bgcolor: none
+
+
+      - Label:
+          coordinates: [AXIS, params.p]
+          color: budget
+          text: params.p.toFixed(0)
+
+      - Line:
+          yIntercept: params.p
+          color: budget
+          label:
+            text: p
+            x: 9
+          drag:
+            - vertical: p
+
+      - Point:
+          coordinates: [calcs.x, params.p]
+          droplines:
+            vertical: calcs.x.toFixed(2)
+
+    leftControls:
+      title: Demand by each individual
+      divs:
+      - html: "`$$\\\\begin{aligned}d(p) &= {\\\\alpha m \\\\over p}\\\\\\\\ &= {${params.a.toFixed(2)} \\\\times ${params.m.toFixed(0)} \\\\over ${params.p.toFixed(0)}} \\\\\\\\ &=${calcs.x.toFixed(2)}\\\\end{aligned}$$`"
+
+    rightGraph:
+      xAxis:
+        max: 200
+        ticks: 0
+      yAxis:
+        max: 40
+        ticks: 0
+      objects:
+
+      - Label:
+          coordinates: [AXIS, 40]
+          text: p
+
+      - Label:
+          coordinates: [1000, AXIS]
+          text: Q
+
+      - Curve:
+          fn: (params.N*params.a*params.m/(y))
+          color: demand
+          ind: y
+          label:
+            y: 36
+            text: D(p)
+            position: tl
+            bgcolor: none
+
+      - Line:
+          yIntercept: params.p
+          color: budget
+          label:
+            text: p
+            x: 900
+          drag:
+            - vertical: p
+      - Point:
+          coordinates: [calcs.D, params.p]
+          droplines:
+            vertical: calcs.D.toFixed(0)
+
+    rightControls:
+      title: Market Demand
+      divs:
+        - html: "`$$\\\\begin{aligned}D(p) &= N_C \\\\times x(p)\\\\\\\\ &= ${params.N} \\\\times ${calcs.x.toFixed(2)}\\\\\\\\ &= ${calcs.D.toFixed(0)}\\\\end{aligned}$$`"
+
+    sidebar:
+      controls:
+      - title: Market Demand with Identical Consumers
+        description: The left graph shows the qunatity demanded by each consumer at each price. The right graph multiplies this amount by the number of consumers to get the total quantity demanded in the market.
+        sliders:
+        - param: a
+          label: \alpha
+        - param: m
+          label: m
+        - param: N
+          label: N_C

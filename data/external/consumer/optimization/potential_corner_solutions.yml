@@ -1,0 +1,112 @@
+schema: EconSchema
+params:
+- {name: L, min: 0, max: 100, round: 1, value: 75}
+- {name: R, min: 0, max: 100, round: 1, value: 50}
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    rightGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+      yAxis:
+        max: 120
+        ticks: 0
+
+      objects:
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            PerfectSubstitutes:
+              coefficients: [1,4]
+          levels: [100,200,300,400,500]
+          yMin: -10
+          yMax: 130
+          xMin: 0
+          xMax: 130
+
+      # Budget Line
+      - Line:
+          yIntercept: 50
+          xIntercept: 100
+          areaBelow: true
+          color: budget
+
+
+
+      # Bundle
+      - EconBundle:
+          name: X
+          utilityFunction:
+            PerfectSubstitutes:
+              coefficients: [1,4]
+          coordinates: [params.R, (50-0.5*params.R)]
+          color: blue
+          draggable: true
+          r: 4
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+
+    leftGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+      yAxis:
+        max: 120
+        ticks: 0
+      objects:
+      
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            Quasilinear:
+              coefficients: [100]
+          levels: [280, 360, 420, 460, 500, 540, 575]
+          yMin: -10
+          yMax: 130
+          xMin: 0
+          xMax: 130
+
+      # Constraint
+      - Line:
+          yIntercept: 50
+          xIntercept: 100
+          areaBelow: true
+          color: budget
+            
+      # Bundle
+      - EconBundle:
+          name: Y
+          utilityFunction:
+            Quasilinear:
+              coefficients: [100]
+          coordinates: [params.L, (50 - 0.5*params.L)]
+          color: blue
+          r: 4
+          draggable: true
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+
+      # BUGFIX: Indifference curve when x = 0
+      - Curve:
+          fn: (y)*0
+          ind: y
+          color: purple
+          strokeWidth: 5
+          show: (params.L == 0)
+
+      - Rectangle:
+          a: [0,0]
+          b: [120,120]
+          fill: purple
+          show: (params.L == 0)
+
+      
+    sidebar:
+      controls:
+      - title: Potential Corner Solutions
+        description: Indifference curves that cross the axes, like quasilinear (left) and perfect substitutes (right), can result in optimum bundles occuring at the corners of the feasible sets.

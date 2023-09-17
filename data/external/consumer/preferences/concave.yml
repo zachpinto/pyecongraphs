@@ -1,0 +1,94 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: 10
+  min: 10
+  max: 100
+  round: 10
+- name: y2
+  value: 25
+  min: 10
+  max: 60
+  round: 5
+- name: t
+  value: 0.8
+  min: 0.1
+  max: 0.9
+  round: 0.1
+calcs:
+  x2: (0.5*sqrt(5000 - params.x1*params.x1))
+  y1: (sqrt(5000 - 4*params.y2*params.y2))
+  c1: (params.t*params.x1 + (1-params.t)*calcs.y1)
+  c2: (params.t*calcs.x2 + (1-params.t)*params.y2)
+  uc: (calcs.c1*calcs.c1 + 4*calcs.c2*calcs.c2)
+layout:
+  type: OneWideGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        max: 80
+        ticks: 8
+      yAxis:
+        title: Units of Good 2
+        max: 40
+        ticks: 4
+      objects:
+      - Ellipse:
+          center: [0,0]
+          rx: 70.71
+          ry: 35.35
+          strokeWidth: 2
+          stroke: utility
+          fill: dispreferred
+      - Label:
+          text: \text{Dispreferred to $A$ and $B$}
+          coordinates: [ 2,2 ]
+          position: bl
+          color: dispreferred
+          bgcolor: none
+      - Label:
+          text: "`U = 5000`"
+          coordinates: [ 72, 5 ]
+          position: bl
+          color: utility
+          bgcolor: none
+      - Point:
+          coordinates:
+          - params.x1
+          - calcs.x2
+          label:
+            text: "`A = (${params.x1.toFixed(0)}, ${calcs.x2.toFixed(0)})`"
+      - Point:
+          coordinates:
+          - calcs.y1
+          - params.y2
+          label:
+            text: "`B = (${calcs.y1.toFixed(0)}, ${params.y2.toFixed(0)})`"
+      - Segment:
+          a: [params.x1, calcs.x2]
+          b: [calcs.y1, params.y2]
+          lineStyle: dotted
+          color: red
+      - Point:
+          coordinates: [calcs.c1, calcs.c2]
+          color: red
+          drag:
+          - directions: xy
+            param: t
+            expression: ((drag.x - calcs.y1)/(params.x1 - calcs.y1))
+          label:
+            text: "`C = (${calcs.c1.toFixed(0)}, ${calcs.c2.toFixed(0)})`"
+            position: tr
+    sidebar:
+      controls:
+      - title: Concave preferences
+        description: If you're indifferent between A and B, you prefer either A or B to any convex combination of the two.
+        sliders:
+        - param: t
+          label: t
+        #divs:
+          #- html: "`$$\\\\begin{aligned}u(x_1,x_2) &= x_1^2 + 4x_2^2 \\\\\\\\ u(A) &= ${params.x1.toFixed(0)}^2 + 4\\\\times ${calcs.x2.toFixed(0)}^2=5000\\\\\\\\ u(B) &= ${calcs.y1.toFixed(0)}^2 + 4\\\\times ${params.y2.toFixed(0)}^2=5000\\\\\\\\ u(C) &= ${calcs.c1.toFixed(0)}^2 + 4\\\\times ${calcs.c2.toFixed(0)}^2=${calcs.uc.toFixed(0)}\\\\end{aligned}$$`"

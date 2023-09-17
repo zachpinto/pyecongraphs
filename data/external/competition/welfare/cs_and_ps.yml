@@ -1,0 +1,184 @@
+params:
+  - {name: p, value: 4, min: 2, max: 7, round: 0.2}
+calcs:
+  d: (10 - params.p)
+  s: (2*params.p - 2)
+  x: (min(calcs.d, calcs.s))
+  v: (10*(calcs.x) - 0.5*(calcs.x)^2)
+  c: (calcs.x + 0.25*(calcs.x)^2)
+  exp: (params.p*calcs.x)
+  cs: calcs.v - calcs.exp
+  ps: calcs.exp - calcs.c
+  pf: (1 + 0.5*calcs.x)
+  pc: (10 - calcs.x)
+
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 9
+        ticks: 9
+      yAxis:
+        max: 50
+        title: Dollars
+      objects:
+
+      - Curve:
+          fn: 10*(x) - 0.5*(x)^2
+          min: 0
+          samplePoints: 500
+          color: blue
+          label:
+            text: TB(Q)
+            x: 9
+
+      - Curve:
+          fn: (x) + ((x)^2)/4
+          min: 0
+          samplePoints: 500
+          color: red
+          label:
+            text: TC(Q)
+            x: 9
+
+      - Line:
+          slope: params.p
+          color: green
+          label:
+            text: P \times Q
+            x: 7
+            show: (params.p <= 6.5)
+
+      - Label:
+          coordinates: [(45.5/params.p),45.5]
+          text: P \times Q
+          color: green
+          show: (params.p > 6.5)
+
+      - Point:
+          coordinates: [calcs.x, calcs.v]
+          color: blue
+          r: 4
+
+      - Point:
+          coordinates: [calcs.x, calcs.c]
+          color: red
+          r: 4
+
+      - Point:
+          coordinates: [calcs.x, calcs.exp]
+          color: green
+          r: 4
+
+      - Segment:
+          a: [calcs.x, calcs.exp + 1]
+          b: [calcs.x, calcs.v - 1]
+          startArrow: true
+          endArrow: true
+          color: blue
+          label:
+            text: "`CS = ${calcs.cs.toFixed(2)}`"
+            align: right
+            xPixelOffset: -5
+            fontSize: 9
+
+      - Segment:
+          a: [calcs.x, calcs.c + 1]
+          b: [calcs.x, calcs.exp - 1]
+          startArrow: true
+          endArrow: true
+          color: orange
+          label:
+            text: "`PS = ${calcs.ps.toFixed(2)}`"
+            align: right
+            xPixelOffset: -5
+            fontSize: 9
+
+    bottomGraph:
+      xAxis:
+        max: 9
+        title: Quantity Produced and Consumed ($Q$)
+        ticks: 9
+      yAxis:
+        max: 12
+        title: Dollars Per Unit
+        ticks: 9
+      objects:
+
+      - Area:
+          fn1: 10 - (x)
+          fn2: params.p
+          max: calcs.x
+
+      - Area:
+          fn1: params.p
+          fn2: 1 + 0.5*(x)
+          max: calcs.x
+          color: orange
+
+      - Line:
+          yIntercept: 1
+          slope: 0.5
+          color: orange
+          label:
+            text: MC(Q)
+            x: 9
+
+      - Line:
+          yIntercept: params.p
+          color: green
+          drag:
+            - vertical: p
+          label:
+            text: "`P = ${params.p.toFixed(2)}`"
+            x: 7
+
+
+      - Line:
+          yIntercept: 10
+          slope: -1
+          color: blue
+          label:
+            text: MB(Q)
+            x: 9
+
+      - Label:
+          coordinates: [(0.3*calcs.x), (params.p + 0.3(10-params.p))]
+          text: "`CS = ${calcs.cs.toFixed(2)}`"
+          color: blue
+          bgcolor: none
+          fontSize: 9
+
+      - Label:
+          coordinates: [(0.3*calcs.x), (params.p - 0.3(params.p - 1))]
+          text: "`PS = ${calcs.ps.toFixed(2)}`"
+          color: orange
+          bgcolor: none
+          fontSize: 9
+
+      - Point:
+          coordinates: [calcs.x, params.p]
+          r: 4
+          drag:
+            - vertical: p
+          color: green
+          droplines:
+            vertical: "`Q = ${calcs.x.toFixed(1)}`"
+
+    sidebar:
+      controls:
+        - title: Producer's Surplus
+          description: The producer's surplus is the total revenue minus the total variable cost. It's maximized when MC = P.
+          sliders:
+            - param: p
+              label: P
+          divs:
+            - html: "`$$\\\\begin{aligned}\\\\\\\\ TB(Q) &= ${calcs.v.toFixed(2)} \\\\\\\\ TC(Q) &= ${calcs.c.toFixed(2)} \\\\\\\\ P \\\\times Q &= ${calcs.exp.toFixed(2)}\\\\\\\\ \\\\\\\\ PS &= P \\\\times Q - TC(Q) = ${calcs.ps.toFixed(2)}\\\\\\\\ CS &= TB(Q) - P \\\\times Q = ${calcs.cs.toFixed(2)}\\\\\\\\ \\\\\\\\ & \\\\text{Total welfare }= ${(calcs.cs+calcs.ps).toFixed(2)}\\\\end{aligned}$$`"
+
+    explanation:
+      divs:
+        - html: "`When $P = ${params.p.toFixed(1)}$, the consumer sets $MB= P$ at $Q = ${calcs.d.toFixed(1)}$ and the firm sets $P = MC$ at $Q = ${calcs.s.toFixed(1)}$.`"
+        - html: "`If we assume the total amount produced and consumed must be the smaller of those two, then the amount in the market is $Q = ${calcs.x.toFixed(2)}$. At that quantity, $MB > MC$, so total surplus could be increased if $Q$ were higher.`"
+          show: params.p != 4
+        - html: Since the amount the firm makes is the amount the consumer wants to consume, the market would be in competitive equilibrium. If you move the price up and down, you can see that the total surplus at the equilibrium price is higher than at any other price.
+          show: params.p == 4

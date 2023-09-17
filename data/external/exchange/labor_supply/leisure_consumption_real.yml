@@ -1,0 +1,174 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: "0.5"
+    min: "0.01"
+    max: "0.99"
+    round: "0.01"
+  - name: w
+    value: "10"
+    min: "0.1"
+    max: "50"
+    round: "0.01"
+  - name: p
+    value: "1"
+    min: "0.1"
+    max: "2"
+    round: "0.01"
+  - name: M
+    value: "60"
+    min: "0"
+    max: "250"
+    round: "10"
+  - name: showIndW
+    value: false
+  - name: showPOC
+    value: false
+  - name: showBuySell
+    value: false
+  - name: showExplanation
+    value: false
+calcs:
+  bottomGraphLeft: (-1*24)
+  bottomGraphRight: (100-24)
+  cutoffPrice: (calcs.endowmentBundle.mrs*params.p)
+  wealth: (24*params.w + params.M)
+  consumptionEndowment: (params.M/params.p)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Hours of Leisure, $R$
+        orient: bottom
+        min: 0
+        max: 24
+        ticks: 8
+      yAxis:
+        title: Real Consumption, $C$
+        orient: left
+        min: 0
+        max: 500
+      objects:
+        - type: EconPriceOfferCurve
+          def:
+            lineStyle: dashed
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.w
+              p2: params.p
+              x: 24
+              "y": params.M
+            good: 1
+            show: params.showPOC
+        - type: EconBundle
+          def:
+            name: endowmentBundle
+            coordinates:
+              - 24
+              - calcs.consumptionEndowment
+            droplines:
+              vertical: "24"
+              horizontal: \overline C = M/p
+            color: '((calcs.optimum.x < 24) ? colors.endowment : colors.utility)'
+            label:
+              text: '(calcs.optimum.x < 24 ? ''W'' : ''W = X'')'
+              position: tr
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            drag:
+              - directions: "y"
+                param: M
+                expression: drag.y*params.p
+            indifferenceCurve:
+              label:
+                text: ""
+              color: '((calcs.optimum.x < 24) ? colors.endowment : colors.utility)'
+              show: (params.showIndW || calcs.optimum.x >= 24)
+        - type: EconOptimalBundle
+          def:
+            name: optimum
+            label:
+              text: X
+            droplines:
+              vertical: R^*
+              horizontal: C^*
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            color: colors.utility
+            budgetLine:
+              p1: params.w
+              p2: params.p
+              x: 24
+              "y": calcs.consumptionEndowment
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+              show: true
+            indifferenceCurve: {}
+            show: (calcs.optimum.x < 24)
+        - type: Segment
+          def:
+            a:
+              - 24
+              - 10
+            b:
+              - calcs.optimum.x
+              - 10
+            endArrow: true
+            color: colors.supply
+            label:
+              text: '`\\text{Work ${(24-calcs.optimum.x).toFixed(1)} hours}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: ((params.showExplanation || params.showBuySell) && (calcs.optimum.x < 24))
+        - type: Segment
+          def:
+            a:
+              - 4
+              - calcs.consumptionEndowment
+            b:
+              - 4
+              - calcs.optimum.y
+            endArrow: true
+            color: colors.demand
+            label:
+              text: '`\\text{Earn \\$${(calcs.optimum.y-calcs.consumptionEndowment).toFixed(0)} in real terms}`'
+              location: 0.5
+              xPixelOffset: -15
+              align: right
+            show: ((params.showExplanation || params.showBuySell) && (calcs.optimum.x < 24))
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: \alpha
+          divs:
+            - html: "`$$u(R,C) = R^\\\\alpha C^{1 - \\\\alpha} = R^{${params.a.toFixed(2)}}C^{${(1-params.a).toFixed(2)}}$$`"
+        - title: Budget Parameters
+          sliders:
+            - param: w
+              label: w
+            - param: p
+              label: p
+            - param: M
+              label: M
+        - title: Options
+          checkboxes:
+            - param: showIndW
+              label: \text{Show indifference curve through $W$}
+            - param: showPOC
+              label: \text{Show offer curve}
+            - param: showBuySell
+              label: \text{Show hours worked and earnings}

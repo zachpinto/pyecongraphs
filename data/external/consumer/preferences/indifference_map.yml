@@ -1,0 +1,91 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: 15
+  min: '0'
+  max: '100'
+- name: x2
+  value: '40'
+  min: '0'
+  max: '100'
+- name: y1
+  value: 45
+  min: '0'
+  max: '100'
+- name: y2
+  value: 25
+  min: '0'
+  max: '100'
+calcs:
+  uA: (sqrt(params.x1*params.x2))
+  uB: (sqrt(params.y1*params.y2))
+  uAmod10: (calcs.uA % 10)
+  uBmod10: (calcs.uB % 10)
+  indA: (calcs.uA-calcs.uAmod10)
+  indB: (calcs.uB-calcs.uBmod10)
+  bPreferred: (calcs.indB > calcs.indA)
+  bDispreferred: (calcs.indA > calcs.indB)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      position:
+        x: 0.25
+        y: 0
+        width: 0.5
+        height: 1
+      xAxis:
+        title: Units of Good 1
+        max: 100
+        ticks: 0
+      yAxis:
+        title: Units of Good 2
+        max: 100
+        ticks: 0
+      objects:
+      - EconIndifferenceMap:
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          levels: [10, 20, 30, 40, 50, 60, 70, 80, 90]
+      - Point:
+          color: blue
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: A
+          drag:
+          - directions: x
+            param: x1
+            expression: params.x1 + drag.dx
+          - directions: y
+            param: x2
+            expression: params.x2 + drag.dy
+      - Point:
+          coordinates:
+          - params.y1
+          - params.y2
+          label:
+            text: B
+          drag:
+          - directions: x
+            param: y1
+            expression: params.y1 + drag.dx
+          - directions: y
+            param: y2
+            expression: params.y2 + drag.dy
+    sidebar:
+      controls:
+      - title: An Indifference Map
+        divs:
+        - html: We can tell that $B$ is preferred to $A$, because there is an indifference curve passing between them.
+          show: (calcs.bPreferred && calcs.uBmod10)
+        - html: We can tell that $A$ is preferred to $B$, because there is an indifference curve passing between them.
+          show: (calcs.bDispreferred && calcs.uAmod10)
+        - html: We can't tell which bundle is preferred from this indifference map, because they lie between the same two indifference curves.
+          show: ((calcs.indB == calcs.indA) && (calcs.uAmod10) && (calcs.uBmod10))
+

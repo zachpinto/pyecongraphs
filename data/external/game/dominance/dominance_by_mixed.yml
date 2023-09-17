@@ -1,0 +1,83 @@
+schema: EconSchema
+version: 1
+params:
+  - name: p
+    value: 0.8
+    min: 0
+    max: 1
+    round: 0.05
+calcs:
+  p1: (4*(1-params.p))
+  p2: (4*params.p)
+layout:
+  GameMatrixPlusGraphPlusSidebar:
+    game:
+      players:
+        - Player 1
+        - Player 2
+      strategies:
+        - [U (p), M (0), D (1-p)]
+        - [L, R]
+      payoffs:
+        - [[0,0],[4,4]]
+        - [[1,1],[1,1]]
+        - [[4,4],[0,0]]
+
+    graph:
+      xAxis:
+        max: 5
+        title: 1's Payoff if 2 Plays L
+      yAxis:
+        max: 5
+        title: 1's Payoff if 2 Plays R
+      objects:
+
+      # show points for reference
+      - Point:
+          coordinates: [4,0]
+          label:
+            text: D
+
+      - Point:
+          coordinates: [0,4]
+          label:
+            text: U
+
+      - Point:
+          coordinates: [1,1]
+          label:
+            text: M
+          droplines:
+            vertical:
+            horizontal:
+
+      - Point:
+          coordinates: [calcs.p1, calcs.p2]
+          label:
+            text: "`\\\\sigma = (${params.p.toFixed(2)}, 0, ${(1 - params.p).toFixed(2)})`"
+          droplines:
+            vertical: calcs.p1.toFixed(2)
+            horizontal: calcs.p2.toFixed(2)
+          drag:
+            - directions: xy
+              param: p
+              expression: (0.25*(4-drag.x))
+
+      - Line:
+          yIntercept: 4
+          slope: -1
+          lineStyle: dotted
+          color: blue
+
+    sidebar:
+      controls:
+        - title: Domination by a Mixed Strategy
+          description: Use the slider to have player 1 play a mixed strategy, placing probability p on U and (1 - p) on D.
+          sliders:
+            - param: p
+              label: p
+          divs:
+            - html: Neither $U$ nor $D$ dominates $M$.
+            - html: However, the mixed strategy $\sigma = (p, 0, 1-p)$ strictly dominates $M$ for some values of $p$. Can you figure out which?
+
+              

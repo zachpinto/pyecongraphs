@@ -1,0 +1,192 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: a
+  value: '0.5'
+  min: '0.01'
+  max: '0.99'
+  round: '0.01'
+- name: w
+  value: '10'
+  min: 0.1
+  max: 25
+  round: '0.01'
+- name: p
+  value: '1'
+  min: '0.1'
+  max: '2'
+  round: '0.01'
+- name: M
+  value: '60'
+  min: '0'
+  max: '250'
+  round: '10'
+- name: showIndW
+  value: false
+- name: showPOC
+  value: false
+- name: showBuySell
+  value: true
+- name: showExplanation
+  value: false
+calcs:
+  bottomGraphLeft: "(-1*24)"
+  bottomGraphRight: "(100-24)"
+  cutoffPrice: "(calcs.endowmentBundle.mrs*params.p)"
+  wealth: "(24*params.w + params.M)"
+  consumptionEndowment: "(params.M/params.p)"
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Hours of Leisure, $R$
+        orient: bottom
+        min: 0
+        max: 24
+        ticks: 8
+      yAxis:
+        title: Nominal Consumption (Dollars), $C$
+        orient: left
+        min: 0
+        max: 500
+      objects:
+      - type: EconPriceOfferCurve
+        def:
+          lineStyle: dashed
+          samplePoints: 100
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a
+          budgetLine:
+            p1: params.w
+            p2: 1
+            x: 24
+            y: calcs.consumptionEndowment
+          good: 1
+          show: params.showPOC
+      - type: EconBundle
+        def:
+          name: endowmentBundle
+          coordinates:
+          - 24
+          - calcs.consumptionEndowment
+          droplines:
+            vertical: '24'
+            horizontal: M
+          color: "((calcs.optimum.x < 24) ? colors.endowment : colors.utility)"
+          label:
+            text: "(calcs.optimum.x < 24 ? 'W' : 'W = X')"
+            position: tr
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a
+          drag:
+          - directions: y
+            param: M
+            expression: drag.y*params.p
+          indifferenceCurve:
+            label:
+              text: ''
+            color: "((calcs.optimum.x < 24) ? colors.endowment : colors.utility)"
+            show: "(params.showIndW || calcs.optimum.x >= 24)"
+      - type: EconOptimalBundle
+        def:
+          name: optimum
+          label:
+            text: X
+          droplines:
+            vertical: R^*
+            horizontal: C^*
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a
+          color: colors.utility
+          budgetLine:
+            p1: params.w
+            p2: params.p
+            x: 24
+            y: calcs.consumptionEndowment
+            draggable: false
+            handles: false
+            set: false
+            color: colors.budget
+            show: true
+          indifferenceCurve: {}
+          show: "(calcs.optimum.x < 24)"
+      - type: Segment
+        def:
+          a:
+          - 24
+          - 20
+          b:
+          - calcs.optimum.x
+          - 20
+          endArrow: true
+          color: colors.supply
+          label:
+            text: "`\\\\text{Work ${(24-calcs.optimum.x).toFixed(1)} hours}`"
+            location: 0.5
+            yPixelOffset: -15
+          show: "((params.showExplanation || params.showBuySell) && (calcs.optimum.x < 24))"
+
+    bottomGraph:
+      xAxis:
+        title: Hours of labor supplied, $L$
+        max: 24
+        ticks: 8
+      yAxis:
+        title: Wage, $w$
+        max: 25
+      objects:
+        - Line:
+            yIntercept: params.w
+            color: green
+            drag:
+              - vertical: w
+        - Segment:
+            a: [0.01, 0]
+            b: [0.01, calcs.cutoffPrice]
+            color: colors.supply
+            lineWidth: 2
+        - EconNetSupplyCurve:
+            name: laborSupply
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p2: 1
+              x: 24
+              y: params.M
+            color: colors.supply
+            min: calcs.cutoffPrice
+        - Point:
+            coordinates: [(24 - calcs.optimum.x), params.w]
+            color: colors.supply
+            show: (params.w > calcs.cutoffPrice)
+            droplines:
+              vertical: (24 - calcs.optimum.x).toFixed(1)
+        - Point:
+            coordinates: [0, params.w]
+            color: colors.supply
+            show: (params.w <= calcs.cutoffPrice)
+    sidebar:
+      controls:
+      - title: Utility Function
+        sliders:
+        - param: a
+          label: "\\alpha"
+        divs:
+        - html: "`$$u(R,C) = R^\\\\alpha C^{1 - \\\\alpha} = R^{${params.a.toFixed(2)}}C^{${(1-params.a).toFixed(2)}}$$`"
+      - title: Budget Parameters
+        sliders:
+        - param: w
+          label: w
+        - param: M
+          label: M

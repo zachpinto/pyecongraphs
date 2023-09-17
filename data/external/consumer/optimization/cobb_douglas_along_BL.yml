@@ -1,0 +1,151 @@
+schema: EconSchema
+params:
+  - {name: a, value: 25, min: 0, max: 100}
+  - {name: p1, value: 1, min: 1, max: 10, round: 0.01}
+  - {name: p2, value: 2, min: 1, max: 10, round: 0.01}
+  - {name: m, value: 40, min: 1, max: 50, round: 0.01}
+calcs:
+  x1: (0.01*params.a*params.m/params.p1)
+  x2: (0.01*(100-params.a)*params.m/params.p2)
+  u: calcs.utilityCurve.utility.y
+  pr: (params.p1/params.p2)
+  mrs: calcs.mrsCurve.mrsX.y
+layout:
+  SquarePlusTwoVerticalGraphs:
+    bigGraph:
+      xAxis:
+        title: Units of Good 1
+        max: 50
+      yAxis:
+        title: Units of Good 2
+        max: 50
+      objects:
+
+      - EconBudgetLine:
+          p1: params.p1
+          p2: params.p2
+          m: params.m
+          handles: true
+          draggable: true
+
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: -calcs.mrs
+          color: blue
+          min: calcs.x1 - 5
+          max: calcs.x1 + 5
+          label:
+            text: MRS(X)
+            x: calcs.x1 + 5
+            fontSize: 9
+            yPixelOffset: -10
+
+
+      - EconBundle:
+          coordinates: [calcs.x1, calcs.x2]
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          indifferenceCurve: {}
+          droplines:
+            horizontal: calcs.x2.toFixed(1)
+            vertical: calcs.x1.toFixed(1)
+          drag:
+          - directions: x
+            param: a
+            expression: (100*drag.x*params.p1/params.m)
+
+
+    topGraph:
+      xAxis:
+        title: \% Income spent on good 1
+        max: 100
+        ticks: 1
+      yAxis:
+        title: Utility
+        max: 50
+      objects:
+
+      # Title
+      - Label:
+          text: u(x_1,x_2) = \sqrt{x_1x_2}
+          fontSize: 14
+          coordinates: [80,40]
+          align: right
+
+      # Point corresponding to bundle X
+      - Point:
+          coordinates: [params.a, calcs.u]
+          droplines:
+            vertical: "`${params.a}\\\\%`"
+            horizontal: calcs.u.toFixed(2)
+          drag:
+            - horizontal: a
+          color: utility
+          label:
+            text: u(X)
+            position: b
+
+      # Curve showing utility
+      - Curve:
+          name: utilityCurve
+          fn: (0.01*(x)*(params.m/params.p1)*0.01*(100-(x))*(params.m/params.p2))^0.5
+          pts: [{name: utility, x: params.a}]
+          color: utility
+
+    bottomGraph:
+      xAxis:
+        title: \% Income spent on good 1
+        max: 100
+        ticks: 1
+      yAxis:
+        title: Units of 2 per Units of 1
+        max: 2
+      objects:
+
+      # Title
+      - Label:
+          text: MRS(x_1,x_2) = \frac{x_2}{x_1}
+          fontSize: 14
+          coordinates: [80,1.5]
+          align: right
+
+      # Line at price ratio
+      - Line:
+          yIntercept: calcs.pr
+          color: budget
+          label:
+            text: \frac{p_1}{p_2}
+            x: 100
+
+      # Curve showing MRS
+      - Curve:
+          name: mrsCurve
+          fn: (100-(x))*params.p1/((x)*params.p2)
+          pts: [{name: mrsX, x: params.a}]
+          color: blue
+          label:
+            text: MRS
+            x: 90
+            position: bl
+
+      # Point corresponding to bundle X
+      - Point:
+          coordinates: [params.a, calcs.mrs]
+          droplines:
+            vertical: "`${params.a}\\\\%`"
+            horizontal:
+          drag:
+            - horizontal: a
+          color: blue
+          label:
+            text: "`MRS(X) = ${calcs.mrs.toFixed(2)}`"
+
+
+
+    explanation:
+      divs:
+      - html: "`The main graph shows the budget line for a consumer with income $m = ${params.m}$ facing the prices $p_1 = ${params.p1.toFixed(2)}$ and $p_2 = ${params.p2.toFixed(2)}$. Point $X$ is the bundle they would buy if they spent ${params.a}\\% of their income on good 1 (buying $x_1 \\\\approx ${calcs.x1.toFixed(1)}$ units), and the remaining ${100-params.a}\\% of their income on good 2 (buying $x_2 \\\\approx ${calcs.x2.toFixed(1)}$ units). The indifferece curve passing through $X$ corresponds to the utility function $u(x_1,x_2) = \\\\sqrt{x_1x_2}$.`"
+      - html: "`The top-right graph shows the utility this person would get, as a function of the fraction of their income spent on good 1. Since spending ${params.a}\\% of their income on good 1 results in the bundle $X = (${calcs.x1.toFixed(1)}, ${calcs.x2.toFixed(1)})$, their utility at this point is approximately $u(${calcs.x1.toFixed(1)}, ${calcs.x2.toFixed(1)}) = \\\\sqrt{${calcs.x1.toFixed(1)}\\\\times ${calcs.x2.toFixed(1)}}\\\\approx ${calcs.u.toFixed(2)}$`"
+      - html: "`The bottom-right graph compares the MRS at with the price ratio. For this utility function, the $MRS = x_2/x_1$; so the MRS at point $X$ is $${calcs.x1.toFixed(1)} / ${calcs.x2.toFixed(1)} \\\\approx ${calcs.mrs.toFixed(2)}$. The price ratio is constant at $p_1/p_2 = ${params.p1.toFixed(2)}/${params.p2.toFixed(2)} \\\\approx ${calcs.pr.toFixed(2)}$.`"
+      - html: Note that for this particular utility function, setting $MRS = p_1/p_2$ finds the optimal (utility-maximizing) point, and since $MRS(x_1,x_2) = x_2/x_1$, this means setting$$\frac{x_2}{x_1} = \frac{p_1}{p_2} \Rightarrow p_1x_1 = p_2x_2$$...that is, spending the same amount (50% of income) on each good.

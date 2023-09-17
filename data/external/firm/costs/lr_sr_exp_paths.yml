@@ -1,0 +1,107 @@
+schema: EconSchema
+params:
+- {name: w, value: 8, min: 1, max: 10, round: 0.01}
+- {name: r, value: 2, min: 1, max: 10, round: 0.01}
+- {name: q, value: 32, min: 8, max: 80, round: 1}
+- {name: K, value: 32, min: 1, max: 60, round: 1}
+calcs:
+  L: ((params.q^2)/params.K)
+  c: (params.w*calcs.L + params.r*params.K)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 100
+        ticks: 0
+        title: Labor ($L$)
+      yAxis:
+        max: 100
+        ticks: 0
+        title: Capital ($K$)
+      objects:
+      
+      - Line:
+          slope: params.w/params.r
+          label:
+            y: 100
+            text: \text{LR Expansion Path}
+            
+      - Line:
+          slope: params.w/params.r
+          label:
+            x: 100
+            text: \text{LR Expansion Path}
+      
+      - Line:
+          yIntercept: params.K
+          color: red
+          drag:
+            - vertical: K
+          label:
+            x: 100
+            text: \text{SR Expansion Path}
+          
+      - Line:
+          point: [calcs.L, params.K]
+          slope: -params.w/params.r
+          color: green
+          label:
+            text: "`\\\\text{$c^{SR} = ${calcs.c.toFixed(2)}$}`"
+            y: 4
+            position: bl
+              
+      - LowestCostBundle:
+          name: X
+          color: orange
+          label: 
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          level: params.q
+          droplines:
+            vertical: calcs.X.x.toFixed(2)
+            horizontal: calcs.X.y.toFixed(2)
+          prices: [params.w, params.r]
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`\\\\text{Isoquant for $q = ${params.q.toFixed(0)}$}`"
+              x: 100
+              position: r
+          budgetLine:
+            color: green
+            label:
+              text: "`\\\\text{$c^{LR} = ${calcs.X.cost.toFixed(2)}$}`"
+              position: tr
+              y: 2
+              
+      - EconBundle:
+          color: red
+          label:
+            text:
+          coordinates: [calcs.L, params.K]
+          droplines:
+             vertical: calcs.L.toFixed(2)
+             horizontal: "`\\\\overline K = ${params.K.toFixed(0)}`"
+            
+
+    sidebar:
+      controls:
+      - title: Short-Run and Long-Run Expansion Paths
+        description:
+        sliders:
+        - param: w
+          label: w
+        - param: r
+          label: r
+        - param: q
+          label: q
+        - param: K
+          label: \overline K
+        divs:
+          - html: "`LR Conditional Demands for Labor and Capital: $$L^*(w,r,q) = ${calcs.X.x.toFixed(2)},\\\\ K^*(w,r,q) = ${calcs.X.y.toFixed(2)}$$`"
+          #- html: "`LR Cost of producing $q = ${params.q.toFixed(2)}$ units of output: $$\\\\begin{aligned}c^{LR}(q) &= wL^*(w,r,q) + rK^*(w,r,q)\\\\\\\\ &= ${params.w.toFixed(2)} \\\\times ${calcs.X.x.toFixed(2)} + ${params.r.toFixed(2)} \\\\times ${calcs.X.y.toFixed(2)}\\\\\\\\&= ${calcs.X.cost.toFixed(2)}\\\\end{aligned}$$`"
+          - html: "`SR Conditional Demands for Labor and Capital: $$L(q|\\\\overline K = ${params.K}) = ${calcs.L.toFixed(2)},\\\\ \\\\overline K = ${params.K}$$`"
+          #- html: "`SR Cost of producing $q = ${params.q.toFixed(2)}$ units of output: $$\\\\begin{aligned}c^{SR}(q) &= wL(q|\\\\overline K = ${params.K}) + r\\\\overline K\\\\\\\\ &= ${params.w.toFixed(2)} \\\\times ${calcs.L.toFixed(2)} + ${params.r.toFixed(2)} \\\\times ${params.K.toFixed(2)}\\\\\\\\&= ${calcs.c.toFixed(2)}\\\\end{aligned}$$`"

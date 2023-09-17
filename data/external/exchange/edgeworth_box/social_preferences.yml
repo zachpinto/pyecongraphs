@@ -1,0 +1,164 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: 8
+  min: 0
+  max: 20
+  round: 0.01
+- name: x2
+  value: 6.25
+  min: 0
+  max: 10
+  round: 0.01
+- name: y1
+  value: 4.75
+  min: 0
+  max: 20
+  round: 0.01
+- name: y2
+  value: 0.75
+  min: 0
+  max: 10
+  round: 0.01
+- name: showPreferred
+  value: true
+- name: showIndifferenceCurves
+  value: true
+layout:
+  EdgeworthBoxAboveOneGraphPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+
+      - ContourMap:
+          fn: ((x)^0.25)*((y)^0.125)*((20-(x))^0.125)*((10-(y))^0.25)
+          levels: [3, 3.5, 4, 4.5]
+
+
+      - EconBundle:
+          name: XA
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+          droplines: {}
+          draggable: true
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [0.5, 0.25]
+          color: blue
+
+      - EconBundle:
+          name: YA
+          coordinates:
+          - params.y1
+          - params.y2
+          label:
+            text: Y
+          droplines: {}
+          draggable: true
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [0.5, 0.25]
+          color: red
+
+      - EconContractCurve:
+          a: 0.66
+          b: 0.33
+          totalGood1: 20
+          totalGood2: 10
+
+
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+
+      - EconBundle:
+          color: orange
+          name: XB
+          coordinates:
+          - (20 - params.x1)
+          - (10 - params.x2)
+          label: {}
+          droplines: {}
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [0.25, 0.5]
+          r: 0
+
+      - EconBundle:
+          color: orange
+          name: YB
+          coordinates:
+          - (20 - params.y1)
+          - (10 - params.y2)
+          label: {}
+          droplines: {}
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [0.25, 0.5]
+          r: 0
+
+
+    graph:
+      xAxis:
+        max: 16
+        title: A's Utility
+      yAxis:
+        max: 8
+        title: B's Utility
+      objects:
+
+
+
+      - EconIndifferenceMap:
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          levels: [3, 3.5, 4, 4.5]
+
+      - Point:
+          coordinates: [calcs.XA.level, calcs.XB.level]
+          label:
+            text: U(X)
+            position: tr
+
+      - Point:
+          coordinates: [calcs.YA.level, calcs.YB.level]
+          label:
+            text: U(Y)
+            position: tr
+          color: red
+
+      - Curve:
+          parametricFunction:
+            xFunction: ((t)^0.5)*(10*(t)/(80-3*(t)))^0.25
+            yFunction: ((20-(t))^0.25)*(10 - 10*(t)/(80-3*(t)))^0.5
+            min: 0
+            max: 20
+          color: utility
+          label:
+            t: 18
+            text: \text{Utility Possibilities Frontier }(UPF)
+            position: bl
+
+    sidebar:
+      controls:
+      - title: Social Preferences
+        description: The contour maps here show the indifference curves of a "social planner" who has Cobb-Douglas preferences over the utilities of agents A and B.

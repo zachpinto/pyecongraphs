@@ -1,0 +1,138 @@
+schema: EconSchema
+colors:
+  marginalCost: colors.orange
+  averageCost: colors.purple
+  totalCost: colors.red
+params:
+  - name: p
+    value: 12.5
+    min: 8
+    max: 25
+    round: 0.5
+calcs:
+  q: (4 + sqrt(2*params.p - 16))
+  qLow: (4 - sqrt(2*params.p - 16))
+  tc: (81 + 16*calcs.q-2*(calcs.q)^2+(1/6)*(calcs.q)^3)
+  tcLow: (81 + 16*calcs.qLow-2*(calcs.qLow)^2+(1/6)*(calcs.qLow)^3)
+  mc: (16 - 4*calcs.q + 0.5*calcs.q*calcs.q)
+  vc: (calcs.tc - 81)
+  ac: (calcs.tc/calcs.q)
+  avc: (calcs.vc/calcs.q)
+  tr: (calcs.q * params.p)
+  profit: (calcs.tr - calcs.tc)
+  profitLow: (params.p*calcs.qLow - calcs.tcLow)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      yAxis:
+        title: Profit (Dollars)
+        max: 50
+        min: -100
+      xAxis:
+        max: 12
+        ticks: 12
+      objects:
+
+        # Total profit
+        - Curve:
+            fn: params.p*(x) - (81 + 16*(x)-2*(x)*(x)+(x)*(x)*(x)/6)
+            color: purple
+            label:
+              text: \text{Profit/Loss}
+              x: calcs.q + 2
+              position: bl
+              bgcolor: none
+
+        - Line:
+            point: [ calcs.q, calcs.profit ]
+            slope: 0
+            color: grey
+            min: calcs.q - 1
+            max: calcs.q + 1
+
+        - Line:
+            point: [ calcs.qLow, calcs.profitLow ]
+            slope: 0
+            color: grey
+            min: calcs.qLow - 1
+            max: calcs.qLow + 1
+            show: (params.p <= 16)
+
+        - Point:
+            coordinates: [ calcs.q, calcs.profit ]
+            color: purple
+            droplines:
+              vertical:
+              horizontal:
+
+        - Point:
+            coordinates: [ calcs.qLow, calcs.profitLow ]
+            color: purple
+            droplines:
+              vertical:
+              horizontal:
+
+
+    bottomGraph:
+      yAxis:
+        title: Dollars per Unit
+        max: 25
+      xAxis:
+        title: Output ($q$)
+        max: 12
+        ticks: 12
+      objects:
+
+        # Marginal cost
+        - Curve:
+            fn: 16 - 4*(x)+0.5*(x)*(x)
+            color: marginalCost
+            label:
+              text: MC
+              x: 9.83
+              position: bl
+              bgcolor: none
+
+        - Point:
+            coordinates: [ calcs.q, calcs.mc ]
+            color: marginalCost
+            droplines:
+              vertical:
+
+        # Average revenue
+        - Line:
+            yIntercept: params.p
+            color: demand
+            drag:
+              - vertical: p
+            label:
+              text: MR
+              x: 12
+              position: tr
+              bgcolor: none
+
+        - Point:
+            coordinates: [ calcs.q, params.p ]
+            color: demand
+            drag:
+              - vertical: p
+            droplines:
+              vertical:
+              horizontal: "`p = ${params.p.toFixed(1)}`"
+
+        - Point:
+            coordinates: [ calcs.qLow, params.p ]
+            color: demand
+            drag:
+              - vertical: p
+            droplines:
+              vertical:
+
+
+
+    sidebar:
+      controls:
+        - title: Profit Maximization with Quadratic MC
+          sliders:
+            - param: p
+              label: p

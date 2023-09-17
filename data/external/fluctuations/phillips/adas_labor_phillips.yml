@@ -1,0 +1,247 @@
+schema: EconSchema
+params:
+  - {name: demandShift, value: 0, min: -3, max: 4, round: 0.5}
+  - {name: nominalWage, value: 10.4, min: 10.1, max: 10.8, round: 0.05}
+  - {name: a, value: 5, min: 1, max: 10, round: 0.01}
+  - {name: b, value: 5, min: 0, max: 10, round: 0.01}
+  - {name: YP, value: 104, min: 102, max: 106}
+calcs:
+  realWage: (100*params.nominalWage/calcs.asad.P)
+  inflation: (calcs.asad.P - 100)
+  cyclicalU: (calcs.LS.l.x - calcs.LD.l.x)
+  U: (4 + calcs.cyclicalU)
+layout:
+  ThreeHorizontalGraphs:
+    leftGraph:
+      xAxis:
+        min: 100
+        max: 108
+        intercept: 100
+        title: Real GDP
+      yAxis:
+        min: 100
+        max: 110
+        intercept: 100
+        title: Price Level
+      objects:
+        - Line:
+            xIntercept: 104
+            lineStyle: dashed
+            label:
+              y: 109
+              text: LRAS
+        - EconLinearEquilibrium:
+            name: asad
+            demand:
+              name: AD
+              label:
+                text: AD
+                x: 102
+              xIntercept: (208 + params.demandShift)
+              invSlope: -1
+              drag:
+                - horizontal: demandShift
+            supply:
+              name: AS
+              slope: (100*params.nominalWage/1040)
+              label:
+                text: SRAS
+                x: 102
+            equilibrium:
+              droplines:
+                vertical: Y
+                horizontal: calcs.asad.P.toFixed(2)
+        - Segment:
+            a: [params.YP + 0.05, 101]
+            b: [calcs.asad.Q - 0.05,101]
+            startArrow: true
+            endArrow: true
+            color: green
+            show: (calcs.asad.Q - params.YP > 0.2)
+            label:
+              text: Output Gap
+              plainText: true
+              position: t
+              fontSize: 9
+        - Segment:
+            a: [params.YP - 0.05, 101]
+            b: [calcs.asad.Q + 0.05,101]
+            startArrow: true
+            endArrow: true
+            color: red
+            show: (params.YP - calcs.asad.Q > 0.2)
+            label:
+              text: Output Gap
+              plainText: true
+              position: t
+              fontSize: 9
+
+    leftControls:
+      title: Aggregate Demand and supply
+      description: Use the slider or drag the AD curve to the right or left to simulate expansionary or contractionary policy.
+      sliders:
+        - param: demandShift
+          label: \text{AD shift}
+          showNumber: false
+          plainText: true
+
+
+    middleGraph:
+      xAxis:
+        min: 95
+        max: 105
+        intercept: 9
+        title: Labor (Millions of Workers Employed)
+      yAxis:
+        min: 9
+        max: 11
+        intercept: 95
+        title: Real Wage Rate ($W/P$)
+      objects:
+        - EconLinearEquilibrium:
+            name: labor
+            demand:
+              name: LD
+              point: [100,10]
+              drag:
+                - directions: xy
+                  expression: -(drag.x - 100)/(drag.y - 10)
+                  param: a
+              slope: -1/params.a
+              label:
+                text: LD
+                y: 10.75
+              pts:
+                - name: l
+                  y: calcs.realWage
+            supply:
+              name: LS
+              slope: (1/params.b)
+              point: [100,10]
+              label:
+                text: LS
+                y: 10.75
+              drag:
+                - directions: xy
+                  expression: (drag.x - 100)/(drag.y - 10)
+                  param: b
+              pts:
+                - name: l
+                  y: calcs.realWage
+        - Line:
+            yIntercept: (calcs.realWage)
+            slope: 0
+            color: green
+            drag:
+              - directions: y
+                param: nominalWage
+                expression: (0.01*drag.y*calcs.asad.P)
+        - Point:
+            coordinates: [calcs.LD.l.x, calcs.LD.l.y]
+            color: blue
+            show: (calcs.LD.l.x != calcs.LS.l.x)
+            droplines:
+              vertical: calcs.LD.l.x.toFixed(2)
+        - Point:
+            coordinates: [calcs.LS.l.x, calcs.LS.l.y]
+            color: orange
+            show: (calcs.LD.l.x != calcs.LS.l.x)
+            droplines:
+              vertical: calcs.LS.l.x.toFixed(2)
+        - Point:
+            coordinates: [calcs.LD.l.x, calcs.LD.l.y]
+            color: green
+            show: (calcs.LD.l.x == calcs.LS.l.x)
+            droplines:
+              vertical: (100).toFixed(2)
+        - Segment:
+            a: [calcs.LD.l.x - 0.1, 9.2]
+            b: [calcs.LS.l.x + 0.1, 9.2]
+            startArrow: true
+            endArrow: true
+            color: green
+            show: (calcs.cyclicalU < -0.25)
+            label:
+              text: "`\\\\text{Cyclical Unemployment: }${calcs.cyclicalU.toFixed(2)}\\\\%`"
+              position: t
+              fontSize: 9
+        - Segment:
+            a: [calcs.LD.l.x + 0.1, 9.2]
+            b: [calcs.LS.l.x - 0.1, 9.2]
+            startArrow: true
+            endArrow: true
+            color: red
+            show: (calcs.cyclicalU > 0.25)
+            label:
+              text: "`\\\\text{Cyclical Unemployment: +}${calcs.cyclicalU.toFixed(2)}\\\\%`"
+              position: t
+              fontSize: 9
+
+
+    middleControls:
+      title: labor market
+      description: After changing AD, the labor market will cease to be in equilibrium, causing cyclical unemployment or overemployment, because the change in the price level <em>P</em> will affect the real wage rate <em>W/P</em>. Bring it back to equilibrium by changing the nominal wage rate.
+      sliders:
+        - param: nominalWage
+          label: \text{Nominal Wage ($W$)}
+          showNumber: false
+          plainText: true
+      divs:
+        - html: "<em>Note: You can also change the elasticity of labor demand or supply by dragging the curves. How does making these less elastic affect the Phillips Curve...?</em>"
+
+    rightGraph:
+      xAxis:
+        title: Unemployment Rate (\%)
+        min: 0
+        max: 8
+      yAxis:
+        title: Inflation Rate ( (\%)
+        min: 0
+        max: 10
+      objects:
+        - Line:
+            xIntercept: 4
+            color: blue
+            lineStyle: dashed
+            label:
+              y: 9
+              text: NRU
+        - Curve:
+            fn: -100+(100*(params.a + params.b)*params.nominalWage)/(10*(params.a + params.b)+(x) - 4)
+            color: blue
+            label:
+              text: Phillips Curve
+              plainText: true
+              x: 1
+              position: bl
+        - Point:
+            coordinates: [calcs.U, calcs.inflation]
+            droplines:
+              vertical: calcs.U.toFixed(2)
+              horizontal: calcs.inflation.toFixed(2)
+        - Arrow:
+            begin: [3.9,1]
+            end: [calcs.U + 0.1, 1]
+            color: green
+            show: (calcs.cyclicalU < -0.25)
+            label:
+              text: "`\\\\text{Cyclical Unemployment: }${calcs.cyclicalU.toFixed(2)}\\\\%`"
+              position: t
+              fontSize: 9
+        - Arrow:
+            begin: [4.1,1]
+            end: [calcs.U - 0.1, 1]
+            color: red
+            show: (calcs.cyclicalU > 0.25)
+            label:
+              text: "`\\\\text{Cyclical Unemployment: }${calcs.cyclicalU.toFixed(2)}\\\\%`"
+              position: t
+              fontSize: 9
+
+    
+    
+    
+    
+    rightControls:
+      title: phillips curve
+      description: The Phillips Curve shows the relationship between the unemployment rate and inflation, holding nominal wages constant. How does a change in AD affect this graph? What about a change in the nominal wage rate?

@@ -1,0 +1,170 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: r
+  value: '0.25'
+  min: '0.25'
+  max: '2'
+  round: '0.01'
+- name: pi
+  value: '0.4'
+  min: '0'
+  max: '1'
+  round: '0.01'
+- name: c1
+  value: '10'
+  min: '10'
+  max: '50'
+  round: '1'
+- name: c2
+  value: '80'
+  min: '50'
+  max: '80'
+  round: '1'
+- name: showPi
+  value: false
+calcs:
+  u1: "(params.c1^params.r)"
+  u2: "(params.c2^params.r)"
+  EU: "(params.pi*(params.c1^params.r)+(1-params.pi)*(params.c2^params.r))"
+  EC: "(params.pi*params.c1 + (1-params.pi)*params.c2)"
+  CE: "((params.pi*(params.c1^params.r)+(1-params.pi)*(params.c2^params.r))^(1/params.r))"
+  UEC: "((params.pi*params.c1 + (1-params.pi)*params.c2)^params.r)"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Consumption
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 0
+      yAxis:
+        title: Utility
+        orient: left
+        min: 0
+        max: "(100^params.r)"
+        ticks: 0
+      objects:
+      - type: Curve
+        def:
+          univariateFunction:
+            fn: "(x)^params.r"
+          samplePoints: 500
+          label:
+            text: u(c)
+            x: 90
+          color: colors.utility
+      - type: Segment
+        def:
+          a:
+          - params.c1
+          - calcs.u1
+          b:
+          - params.c2
+          - calcs.u2
+          lineStyle: dotted
+          color: colors.endowment
+      - type: Point
+        def:
+          coordinates:
+          - params.c1
+          - calcs.u1
+          color: colors.red
+          droplines:
+            vertical: c_1
+            horizontal: u(c_1)
+          drag:
+          - directions: x
+            param: c1
+            expression: params.c1 + drag.dx
+      - type: Point
+        def:
+          coordinates:
+          - params.c2
+          - calcs.u2
+          color: colors.green
+          droplines:
+            vertical: c_2
+            horizontal: u(c_2)
+          drag:
+          - directions: x
+            param: c2
+            expression: params.c2 + drag.dx
+      - type: Point
+        def:
+          coordinates:
+          - calcs.EC
+          - Math.max(calcs.UEC,calcs.EU)
+          color: colors.blue
+          r: 0
+          droplines:
+            vertical: "\\mathbb{E}[c]"
+      - type: Point
+        def:
+          coordinates:
+          - calcs.EC
+          - calcs.EU
+          color: colors.orange
+          droplines:
+            horizontal: "\\mathbb{E}[u(c)]"
+      - type: Point
+        def:
+          coordinates:
+          - calcs.EC
+          - calcs.UEC
+          color: colors.utility
+          droplines:
+            horizontal: u(\mathbb{E}[c])
+      - type: Segment
+        def:
+          a:
+          - "(calcs.EC)"
+          - "(calcs.EU)"
+          b:
+          - "(params.c2)"
+          - "(calcs.u2)"
+          startArrow: true
+          endArrow: true
+          color: colors.green
+          label:
+            text: "`${(params.pi*100).toFixed(0)}\\\\%`"
+          show: params.showPi
+      - type: Segment
+        def:
+          a:
+          - "(calcs.EC)"
+          - "(calcs.EU)"
+          b:
+          - "(params.c1)"
+          - "(calcs.u1)"
+          startArrow: true
+          endArrow: true
+          color: colors.red
+          label:
+            text: "`${((1-params.pi)*100).toFixed(0)}\\\\%`"
+          show: params.showPi
+    sidebar:
+      controls:
+      - title: Expected Utility vs. Utility from Expected Consumption
+        sliders:
+        - param: r
+          label: r
+        - param: pi
+          label: "\\pi"
+        divs:
+        - html: "`<br/><hr/><br/>Since $$\\\\textcolor{${colors.orange}}{\\\\mathbb{E}[u(c)]}
+            < \\\\textcolor{${colors.utility}}{u(\\\\mathbb{E}[c])}$$the consumer
+            is <b>risk averse</b>.`"
+          show: params.r < 1
+        - html: "`<br/><hr/><br/>Since $$\\\\textcolor{${colors.orange}}{\\\\mathbb{E}[u(c)]}
+            > \\\\textcolor{${colors.utility}}{u(\\\\mathbb{E}[c])}$$the consumer
+            is <b>risk loving</b>.`"
+          show: params.r > 1
+        - html: "`<br/><hr/><br/>Since $$\\\\textcolor{${colors.orange}}{\\\\mathbb{E}[u(c)]}
+            = \\\\textcolor{${colors.utility}}{u(\\\\mathbb{E}[c])}$$the consumer
+            is <b>risk neutral</b>.`"
+          show: params.r == 1

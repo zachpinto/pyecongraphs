@@ -1,0 +1,240 @@
+schema: EconSchema
+version: 1
+params:
+  - name: A
+    value: "1"
+    min: "1"
+    max: "10"
+    round: "0.01"
+  - name: a
+    value: "0.5"
+    min: "0.25"
+    max: "2"
+    round: "0.01"
+  - name: b
+    value: "0.5"
+    min: "0.25"
+    max: "2"
+    round: "0.01"
+  - name: "y"
+    value: "5"
+    min: "1"
+    max: "20"
+    round: "0.1"
+  - name: w
+    value: "10"
+    min: "1"
+    max: "20"
+    round: "0.01"
+  - name: r
+    value: "10"
+    min: "1"
+    max: "20"
+    round: "0.01"
+  - name: k
+    value: "10"
+    min: "1"
+    max: "100"
+    round: "1"
+  - name: showExplanation
+    value: false
+calcs:
+  L: ((params.y)/(params.A))^(1/(params.a))
+  c: ((params.w)*((params.y)/(params.A))^(1/(params.a)))
+  MPL: ((params.a)*(params.A)*(params.L)^(params.a - 1))
+  theta: (((params.a/params.b)^(params.b/(params.a+params.b)))+((params.b/params.a)^(params.a/(params.a+params.b))))*((params.w)^(params.a/(params.a+params.b)))*((params.r)^(params.b/(params.a+params.b)))
+  xMaxTop: (50/(params.a+params.b)^2)
+  yMaxBottom: (40*10^(1/(params.a+params.b)))
+  fixedCost: (params.r*params.k)
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Labor ($L$)
+        orient: bottom
+        min: 0
+        max: calcs.xMaxTop
+      yAxis:
+        title: Capital ($K$)
+        orient: left
+        min: 0
+        max: (0.5*calcs.xMaxTop)
+      objects:
+        - type: LowestCostBundle
+          def:
+            name: longRunBundle
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - params.A
+                exponents:
+                  - params.a
+                  - params.b
+            prices:
+              - params.w
+              - params.r
+            level: params.y
+            label:
+              text: LR
+            indifferenceCurve:
+              color: colors.production
+              label:
+                text: '`f(L,K) = ${params.y.toFixed(1)}`'
+            budgetLine:
+              color: colors.longRun
+              label:
+                text: '`c = ${calcs.longRunBundle.cost.toFixed(0)}`'
+                align: right
+            droplines: {}
+        - type: Line
+          def:
+            point:
+              - 0
+              - params.k
+            slope: 0
+            color: colors.shortRun
+            drag:
+              - directions: "y"
+                param: k
+                expression: params.k + drag.dy
+            lineStyle: dotted
+            label:
+              text: \text{SR exp. path}
+              align: right
+              x: (0.95*(50/(params.a+params.b)^2))
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 0
+            b:
+              - (0.5*params.a*params.r*calcs.xMaxTop)/(params.b*params.w)
+              - (0.5*calcs.xMaxTop)
+            color: colors.longRun
+            lineStyle: dotted
+            label:
+              text: \text{LR exp. path}
+              location: 0.05
+        - type: EconShortRunProductionBundle
+          def:
+            name: shortRunBundle
+            level: params.y
+            capital: params.k
+            color: colors.shortRun
+            prices:
+              - params.w
+              - params.r
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - params.A
+                exponents:
+                  - params.a
+                  - params.b
+            budgetLine:
+              label:
+                text: '`c_s = ${calcs.shortRunBundle.cost.toFixed(0)}`'
+                align: left
+                location: 0.8
+            droplines:
+              horizontal: '`\\overline K = ${params.k.toFixed(0)}`'
+            label:
+              text: SR
+    bottomGraph:
+      xAxis:
+        title: Output ($y$)
+        orient: bottom
+        min: 0
+        max: 20
+      yAxis:
+        title: Total Cost (Dollars)
+        orient: left
+        min: 0
+        max: calcs.yMaxBottom
+      objects:
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: (calcs.theta)*(x)^(1/(params.a + params.b))
+              samplePoints: 200
+            stroke: colors.longRun
+            strokeWidth: 2
+            label:
+              text: c(y)
+              x: 2
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: (calcs.fixedCost + params.w*((x)/((params.k)^(params.b)))^(1/(params.a)))
+              samplePoints: 200
+            stroke: colors.shortRun
+            strokeWidth: 2
+            label:
+              text: c_s(y)
+              x: 2
+        - type: Point
+          def:
+            coordinates:
+              - params.y
+              - calcs.shortRunBundle.cost.toFixed(1)
+            r: 0
+            color: colors.production
+            drag:
+              - directions: x
+                param: "y"
+                expression: params.y + drag.dx
+            droplines:
+              vertical: '`y = ${params.y.toFixed(1)}`'
+        - type: Point
+          def:
+            coordinates:
+              - params.y
+              - calcs.longRunBundle.cost.toFixed(1)
+            color: colors.longRun
+            drag:
+              - directions: x
+                param: "y"
+                expression: params.y + drag.dx
+            droplines:
+              horizontal: '`c(${(params.y).toFixed(1)}) = ${calcs.longRunBundle.cost.toFixed(0)}`'
+        - type: Point
+          def:
+            coordinates:
+              - params.y
+              - calcs.shortRunBundle.cost.toFixed(1)
+            color: colors.shortRun
+            drag:
+              - directions: x
+                param: "y"
+                expression: params.y + drag.dx
+            droplines:
+              horizontal: '`c_s(${(params.y).toFixed(1)}) = ${calcs.shortRunBundle.cost.toFixed(0)}`'
+    sidebar:
+      controls:
+        - title: Production and Cost with Two Inputs
+          sliders:
+            - param: a
+              label: a
+            - param: b
+              label: b
+            - param: k
+              label: \overline K
+            - param: w
+              label: w
+            - param: r
+              label: r
+          checkboxes:
+            - param: showExplanation
+              label: \text{Show explanation}
+          divs:
+            - html: '`Suppose the firm''s production function is $$\\color{${colors.production}}{f(L) = L^aK^b = L^{ ${params.a.toFixed(2)} }K^{ ${params.b.toFixed(2)} } }$$`'
+              show: params.showExplanation
+            - html: '`If the firm wants to produce $y = ${params.y.toFixed(1)}$ units of output, can vary both labor and capital, and faces prices $w = ${params.w.toFixed(2)}$ and $r = ${params.r.toFixed(2)}$, it minimizes its cost by buying input combination $LR = (${calcs.longRunBundle.x.toFixed(1)},${calcs.longRunBundle.y.toFixed(1)})$. This costs$$\\begin{aligned}\\color{${colors.longRun}}c( ${params.y.toFixed(1)} ) &= wL(${params.y.toFixed(1)}) + rK(${params.y.toFixed(1)}) \\\\ &= ${params.w.toFixed(2)} \\times ${calcs.longRunBundle.x.toFixed(1)} + ${params.r.toFixed(2)} \\times ${calcs.longRunBundle.y.toFixed(1)} \\\\ &= ${calcs.longRunBundle.cost.toFixed(2)}\\end{aligned}$$`'
+              show: params.showExplanation
+            - html: '`If its capital is fixed at $\\overline K = ${params.k.toFixed(0)}$, then the firm''s short-run production function is $$\\color{${colors.production}}{f(L) = L^a\\overline{K}^b = ${(Math.pow(params.k,params.b)).toFixed(2)} L^{ ${params.a.toFixed(2)} } }$$`'
+              show: params.showExplanation
+            - html: '`In this case only way to produce $y = ${params.y.toFixed(1)}$ units of output is $SR = (${calcs.shortRunBundle.x.toFixed(1)},${params.k.toFixed(0)})$. This costs$$\\begin{aligned}\\color{${colors.shortRun}}c_s( ${params.y.toFixed(1)} ) &= wL(${params.y.toFixed(1)}|\\overline K) + r\\overline K \\\\ &= ${params.w.toFixed(2)} \\times ${calcs.shortRunBundle.x.toFixed(1)} + ${params.r.toFixed(2)} \\times ${params.k.toFixed(0)} \\\\ &= ${calcs.shortRunBundle.cost.toFixed(2)}\\end{aligned}$$`'
+              show: params.showExplanation

@@ -1,0 +1,441 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1tl
+    value: 60
+    min: 0
+    max: 120
+    round: 5
+  - name: x2tl
+    value: 60
+    min: 0
+    max: 120
+    round: 5
+  - name: x1tr
+    value: 60
+    min: 0
+    max: 120
+    round: 5
+  - name: x2tr
+    value: 60
+    min: 0
+    max: 120
+    round: 5
+  - name: x1bl
+    value: 60
+    min: 0
+    max: 120
+    round: 4
+  - name: x2bl
+    value: 60
+    min: 0
+    max: 120
+    round: 4
+  - name: x1br
+    value: 60
+    min: 0
+    max: 120
+    round: 5
+  - name: x2br
+    value: 60
+    min: 0
+    max: 120
+    round: 5
+calcs:
+  unaffordableTR: (params.x1tr + 2*params.x2tr > 100)
+  worseTR: (calcs.TR.level < 460.517)
+  utilityBL: (sqrt(params.x1bl^2 + params.x2bl^2))
+  utilityBR: (sqrt((params.x1br - 20)^2 + (params.x2br - 40)^2))
+layout:
+  FourGraphsPlusSidebar:
+    topLeftGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+      yAxis:
+        max: 120
+        ticks: 0
+      objects:
+      
+      # Graph label
+      - Label:
+          coordinates: [3, 117]
+          position: tl
+          text: \text{(a)}
+          bgcolor: none
+      
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          levels: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+          yMin: -10
+          yMax: 130
+          xMin: 0
+          xMax: 130
+
+      # PPF
+      - EconBudgetLine:
+          p1: 1
+          p2: 1
+          m: 80
+          set: true
+          label:
+            text:
+            
+      # Bundle
+      - EconBundle:
+          name: TL
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          coordinates: [params.x1tl, params.x2tl]
+          color: blue
+          draggable: true
+          droplines: {}
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+              
+      # Evaluation
+      - Label:
+          coordinates: [111, 108]
+          text: \text{Affordable}
+          position: br
+          bgcolor: none
+          
+      - Label:
+          coordinates: [111, 108]
+          text: \text{No Overlap}
+          position: tr
+          bgcolor: none
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \checkmark
+          position: bl
+          bgcolor: none
+          color: green
+          show: (params.x1tl + params.x2tl <= 80)
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \times
+          position: bl
+          bgcolor: none
+          color: red
+          show: (params.x1tl + params.x2tl > 80)
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \checkmark
+          position: tl
+          bgcolor: none
+          color: green
+          show: (calcs.TL.level >= 40)
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \times
+          position: tl
+          bgcolor: none
+          color: red
+          show: (calcs.TL.level < 40)
+              
+    topRightGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+      yAxis:
+        max: 120
+        ticks: 0
+      objects:
+
+      # Graph label
+      - Label:
+          coordinates: [3, 117]
+          position: tl
+          text: \text{(b)}
+          bgcolor: none
+      
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            Quasilinear:
+              coefficients: [100]
+          levels: [280, 360, 420, 460, 500, 540, 575]
+          yMin: -10
+          yMax: 130
+          xMin: 0
+          xMax: 130
+
+      # BudgetLine
+      - EconBudgetLine:
+          p1: 1
+          p2: 2
+          m: 100
+          set: true
+          label:
+            text:
+            
+      # Bundle
+      - EconBundle:
+          name: TR
+          utilityFunction:
+            Quasilinear:
+              coefficients: [100]
+          coordinates: [params.x1tr, params.x2tr]
+          droplines: {}
+          color: blue
+          draggable: true
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+              
+      # Evaluation
+      - Label:
+          coordinates: [111, 108]
+          text: \text{Affordable}
+          position: br
+          bgcolor: none
+          
+      - Label:
+          coordinates: [111, 108]
+          text: \text{No Overlap}
+          position: tr
+          bgcolor: none
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \checkmark
+          position: bl
+          bgcolor: none
+          color: green
+          show: (params.x1tr + 2*params.x2tr <= 100)
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \times
+          position: bl
+          bgcolor: none
+          color: red
+          show: (params.x1tr + 2*params.x2tr > 100)
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \checkmark
+          position: tl
+          bgcolor: none
+          color: green
+          show: (calcs.TR.level >= 460.517)
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \times
+          position: tl
+          bgcolor: none
+          color: red
+          show: (calcs.TR.level < 460.517)
+           
+    bottomLeftGraph:
+      xAxis:
+        max: 140
+        ticks: 0
+      yAxis:
+        max: 140
+        ticks: 0
+      objects:
+      
+      # Graph label
+      - Label:
+          coordinates: [3.5, 136.5]
+          position: tl
+          text: \text{(c)}
+          bgcolor: none
+      
+      - ContourMap:
+          fn: sqrt((x)^2 + (y)^2)
+          levels: [20,40,60,80,100,120,140, 160, 180]
+          yMax: 150
+          xMax: 150
+      
+      - Circle:
+          c: [0,0]
+          r: calcs.utilityBL
+          stroke: utility
+          strokeWidth: 2
+          fill: none
+          
+      - Area:
+          fn: sqrt(calcs.utilityBL^2 - (x)^2)
+          above: true
+          max: calcs.utilityBL
+          color: utility
+      
+      - Rectangle:
+          a: [calcs.utilityBL, 0]
+          b: [140,140]
+          color: utility
+
+      # BudgetLine
+      - EconBudgetLine:
+          p1: 2
+          p2: 1
+          m: 120
+          set: true
+          label:
+            text:
+            
+      # Bundle
+      - EconBundle:
+          name: BL
+          coordinates: [params.x1bl, params.x2bl]
+          color: blue
+          draggable: true
+          droplines: {}
+          
+      # Evaluation
+      - Label:
+          coordinates: [129.5, 126]
+          text: \text{Affordable}
+          position: br
+          bgcolor: none
+          
+      - Label:
+          coordinates: [129.5, 126]
+          text: \text{No Overlap}
+          position: tr
+          bgcolor: none
+          
+      - Label:
+          coordinates: [126, 126]
+          text: \checkmark
+          position: bl
+          bgcolor: none
+          color: green
+          show: (2*params.x1bl + params.x2bl <= 120)
+          
+      - Label:
+          coordinates: [126, 126]
+          text: \times
+          position: bl
+          bgcolor: none
+          color: red
+          show: (2*params.x1bl + params.x2bl > 120)
+          
+      - Label:
+          coordinates: [126, 126]
+          text: \checkmark
+          position: tl
+          bgcolor: none
+          color: green
+          show: (params.x1bl^2 + params.x2bl^2 >= 120^2)
+          
+      - Label:
+          coordinates: [126, 126]
+          text: \times
+          position: tl
+          bgcolor: none
+          color: red
+          show: (params.x1bl^2 + params.x2bl^2 < 120^2)
+              
+    bottomRightGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+      yAxis:
+        max: 120
+        ticks: 0
+      objects:
+      
+      # Graph label
+      - Label:
+          coordinates: [3, 117]
+          position: tl
+          text: \text{(d)}
+          bgcolor: none
+      
+      - ContourMap:
+          fn: sqrt(((x)-20)^2 + ((y)-40)^2)
+          levels: [1,14, 28, 45, 60, 75, 90, 105]
+          yMax: 125
+          xMax: 125
+      
+      - Circle:
+          c: [20,40]
+          r: calcs.utilityBR
+          color: utility
+          strokeWidth: 2
+      
+      # BudgetLine
+      - EconBudgetLine:
+          p1: 1
+          p2: 1
+          m: 100
+          set: true
+          label:
+            text:
+            
+      # Bundle
+      - EconBundle:
+          name: BR
+          coordinates: [params.x1br, params.x2br]
+          color: blue
+          draggable: true
+          droplines: {}
+          
+      # Evaluation
+      - Label:
+          coordinates: [111, 108]
+          text: \text{Affordable}
+          position: br
+          bgcolor: none
+          
+      - Label:
+          coordinates: [111, 108]
+          text: \text{No Overlap}
+          position: tr
+          bgcolor: none
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \checkmark
+          position: bl
+          bgcolor: none
+          color: green
+          show: (params.x1br + params.x2br <= 100)
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \times
+          position: bl
+          bgcolor: none
+          color: red
+          show: (params.x1br + params.x2br > 100)
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \checkmark
+          position: tl
+          bgcolor: none
+          color: green
+          show: ((params.x1br == 20 && params.x2br == 40))
+          
+      - Label:
+          coordinates: [108, 108]
+          text: \times
+          position: tl
+          bgcolor: none
+          color: red
+          show: (!((params.x1br == 20 && params.x2br == 40)))
+    sidebar:
+      controls:
+      - title: Developing intuition for optimality
+        description: Each of these diagrams shows a budget set (in green), a bundle X, the indifference curve passing through X, and the set of bundles preferred to X (shaded in purple).
+        divs:
+          - html: <p>Try dragging the each bundle to a point where:<ul><li>It is affordable</li><li>There is no overlap between the budget set and the set of bundles preferred to X</li></ul></p>

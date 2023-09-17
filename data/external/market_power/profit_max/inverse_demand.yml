@@ -1,0 +1,65 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: xIntercept
+  value: 20
+  min: 10
+  max: 20
+  round: 1
+- name: invSlope
+  value: -1
+  min: -10
+  max: 0.05
+  round: 0.05
+- name: theta
+  value: 0.4
+  min: 0
+  max: 0.75
+  round: 0.01
+calcs:
+  q: "(params.theta*params.xIntercept)"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Quantity ($q$)
+        min: 0
+        max: 20
+      yAxis:
+        title: Price ($p$)
+        orient: left
+        max: 20
+      objects:
+      - type: EconLinearDemand
+        def:
+          name: demand
+          xIntercept: params.xIntercept
+          invSlope: params.invSlope
+          label:
+            text: D
+            x: "(0.9*params.xIntercept)"
+          handles: true
+          draggable: true
+      - type: Point
+        def:
+          coordinates:
+          - calcs.q
+          - "(calcs.demand.yIntercept + calcs.demand.slope*calcs.q)"
+          drag:
+          - directions: x
+            param: theta
+            expression: "(drag.x/params.xIntercept)"
+          color: colors.demand
+          droplines:
+            vertical: calcs.q.toFixed(2)
+            horizontal: "(calcs.demand.yIntercept + calcs.demand.slope*calcs.q).toFixed(2)"
+    sidebar:
+      controls:
+      - title: Demand and Inverse Demand
+        description: Drag the line or the endpoints to change the demand equation; drag the point to change the output quantity.
+        divs:
+        - html: "`If the market demand is$$\\\\color{${colors.demand}}{D(p) = ${params.xIntercept.toFixed(0)}${params.invSlope.toFixed(2)}p}$$`"
+        - html: "`Then the inverse demand is given by $$\\\\color{${colors.demand}}{p(q) = ${calcs.demand.yIntercept.toFixed(0)}${calcs.demand.slope.toFixed(2)}q}$$`"
+        - html: "`If a firm facing this inverse demand wanted to sell $q = ${calcs.q.toFixed(2)}$ units, the highest price it could charge would be $p = \\\\$${(calcs.demand.yIntercept + calcs.demand.slope*calcs.q).toFixed(2)}$ per unit.`"

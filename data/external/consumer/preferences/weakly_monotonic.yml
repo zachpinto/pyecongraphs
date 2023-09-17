@@ -1,0 +1,135 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 0.75
+    min: 0
+    max: 1.5
+    round: 0.05
+  - name: x2
+    value: 0.75
+    min: 0
+    max: 2.5
+    round: 0.05
+calcs:
+  doses1: ((params.x1 - (params.x1 % 0.3))/0.3)
+  doses2: ((params.x2 - (params.x2 % 0.5))/0.5)
+  u: (calcs.doses1 + calcs.doses2)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 1.5
+        ticks: 3
+        title: Pfizer (mL)
+      yAxis:
+        max: 1.5
+        ticks: 3
+        title: Moderna (mL)
+      objects:
+        - Rectangle:
+            a: [0,0]
+            b: [0.3, (0.5*calcs.u)]
+            fill: red
+            label:
+              text: \prec X
+        - Rectangle:
+            a: [0, (0.5*calcs.u)]
+            b: [0.3, (0.5*calcs.u + 0.5)]
+            fill: purple
+        - Rectangle:
+            a: [0, (0.5*calcs.u + 0.5)]
+            b: [0.3, 1.5]
+            fill: green
+        - Rectangle:
+            a: [ 0.3,0 ]
+            b: [ 0.6, (0.5*calcs.u - 0.5) ]
+            fill: red
+        - Rectangle:
+            a: [ 0.3, (0.5*calcs.u - 0.5) ]
+            b: [ 0.6, (0.5*calcs.u) ]
+            fill: purple
+        - Rectangle:
+            a: [ 0.3, (0.5*calcs.u) ]
+            b: [ 0.6, 1.5 ]
+            fill: green
+        - Rectangle:
+            a: [ 0.6,0 ]
+            b: [ 0.9, (0.5*calcs.u - 1) ]
+            fill: red
+        - Rectangle:
+            a: [ 0.6, (0.5*calcs.u - 1) ]
+            b: [ 0.9, (0.5*calcs.u - 0.5) ]
+            fill: purple
+        - Rectangle:
+            a: [ 0.6, (0.5*calcs.u - 0.5) ]
+            b: [ 0.9, 1.5 ]
+            fill: green
+        - Rectangle:
+            a: [ 0.9,0 ]
+            b: [ 1.2, (0.5*calcs.u - 1.5) ]
+            fill: red
+        - Rectangle:
+            a: [ 0.9, (0.5*calcs.u - 1.5) ]
+            b: [ 1.2, (0.5*calcs.u - 1) ]
+            fill: purple
+        - Rectangle:
+            a: [ 0.9, (0.5*calcs.u - 1) ]
+            b: [ 1.2, 1.5 ]
+            fill: green
+        - Rectangle:
+            a: [ 1.2, 0 ]
+            b: [ 1.5, (0.5*calcs.u - 2) ]
+            fill: red
+        - Rectangle:
+            a: [ 1.2, (0.5*calcs.u - 2) ]
+            b: [ 1.5, (0.5*calcs.u - 1.5) ]
+            fill: purple
+        - Rectangle:
+            a: [ 1.2, (0.5*calcs.u - 1.5) ]
+            b: [ 1.5, 1.5 ]
+            fill: green
+            label:
+              text: \succ X
+        - Point:
+            coordinates: [ params.x1, params.x2 ]
+            color: blue
+            r: 4
+            label:
+              text: X
+              position: tr
+            droplines:
+              vertical: params.x1.toFixed(2)
+              horizontal: params.x2.toFixed(2)
+            drag:
+              - horizontal: x1
+              - vertical: x2
+
+        - Label:
+            text: "`\\\\succ X`"
+            coordinates: [ 6, 11]
+            color: green
+            bgcolor: none
+        - Label:
+            text: "`\\\\prec X`"
+            coordinates: [ 11, 1 ]
+            color: red
+            bgcolor: none
+
+
+
+    sidebar:
+      controls:
+        - title: Weakly Monotonic Preferences
+          divs:
+            - html: "`The $x_1 = ${params.x1.toFixed(2)}$mL of Pfizer vaccine yields ${calcs.doses1.toFixed(0)} usable doses of 0.3mL each.`"
+              show: "(calcs.doses1.toFixed(0) != '1')"
+            - html: "`The $x_1 = ${params.x1.toFixed(2)}$mL of Pfizer vaccine yields 1 usable dose of 0.3mL.`"
+              show: "(calcs.doses1.toFixed(0) == '1')"
+            - html: "`The $x_2 = ${params.x2.toFixed(2)}$mL of Moderna vaccine yields ${calcs.doses2.toFixed(0)} usable doses of 0.5mL each.`"
+              show: "(calcs.doses2.toFixed(0) != '1')"
+            - html: "`The $x_2 = ${params.x2.toFixed(2)}$mL of Moderna vaccine yields 1 usable dose of 0.5mL.`"
+              show: "(calcs.doses2.toFixed(0) == '1')"
+            - html: 'The purple shaded area shows the other combinations of $(x_1,x_2)$ that would yield the same number of total usable doses. Because a range of quantities yields those doses, this "indifference curve" is thick.'

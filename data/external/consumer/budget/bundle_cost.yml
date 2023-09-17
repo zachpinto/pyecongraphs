@@ -1,0 +1,63 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: x1
+  value: '10'
+  min: '0'
+  max: '100'
+- name: x2
+  value: '40'
+  min: '0'
+  max: '100'
+- name: p1
+  value: '3'
+  min: '0.1'
+  max: '10'
+  round: '0.01'
+- name: p2
+  value: '4'
+  min: '0.1'
+  max: '10'
+  round: '0.01'
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 100
+      objects:
+      - type: Point
+        def:
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+          drag:
+          - directions: x
+            param: x1
+            expression: params.x1 + drag.dx
+          - directions: y
+            param: x2
+            expression: params.x2 + drag.dy
+    sidebar:
+      controls:
+      - title: Cost of Bundle X
+        sliders:
+        - param: p1
+          label: p_1
+        - param: p2
+          label: p_2
+        divs:
+        - html: "`$$\\\\begin{array}{rcl}p_1x_1 + p_2x_2 &=& \\\\$ ${params.p1.toFixed(2)}\\\\times${params.x1.toFixed(0)}
+            + \\\\$ ${params.p2.toFixed(2)}\\\\times${params.x2.toFixed(0)}\\\\\\\\
+            &=& \\\\$ ${(params.p1*params.x1 + params.p2*params.x2).toFixed(2)}\\\\end{array}$$`"

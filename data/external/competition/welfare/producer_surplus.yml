@@ -1,0 +1,237 @@
+params:
+  - {name: x, value: 4, min: 2, max: 10, round: 0.1}
+  - {name: p, value: 4, min: 3, max: 6, round: 0.2}
+calcs:
+  c: (params.x + 0.25*(params.x)^2)
+  mc: (1 + 0.5*params.x)
+  exp: (params.p*params.x)
+  ps: (calcs.exp - calcs.c)
+  xStar: (2*params.p - 2)
+  psStar: (0.25*(2*params.p-2)^2)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 11
+      yAxis:
+        max: 55
+        title: Dollars
+      objects:
+
+        - Line:
+            slope: params.p
+            drag:
+              - directions: y
+                param: p
+                expression: drag.y/drag.x
+            color: green
+            label:
+              text: \text{Total Revenue }(p \times q)
+              x: 10
+              position: br
+              bgcolor: none
+
+
+        - Curve:
+            fn: (x) + ((x)^2)/4
+            min: 0
+            samplePoints: 500
+            color: red
+            label:
+              text: \text{Total Cost }(c(q))
+              x: 10
+              position: tl
+
+        - Point:
+            coordinates: [params.x, calcs.c]
+            r: 4
+            color: red
+            drag:
+              - horizontal: x
+
+        - Point:
+            coordinates: [params.x, calcs.exp]
+            r: 4
+            drag:
+              - horizontal: x
+            color: green
+
+        - Segment:
+            a: [params.x, calcs.c - 1]
+            b: [params.x, 0.5]
+            drag:
+              - horizontal: x
+            startArrow: true
+            endArrow: true
+            color: red
+            label:
+              text: "`TC = ${calcs.c.toFixed(2)}`"
+              align: left
+              xPixelOffset: 5
+              fontSize: 9
+
+        - Segment:
+            a: [params.x, calcs.exp -1.5]
+            b: [params.x, calcs.c + 1]
+            drag:
+              - horizontal: x
+            startArrow: true
+            endArrow: true
+            color: blue
+            label:
+              text: "`PS = ${calcs.ps.toFixed(2)}`"
+              align: left
+              xPixelOffset: 5
+              fontSize: 9
+
+        - Segment:
+            a: [params.x - 0.2, 1]
+            b: [params.x - 0.2, calcs.exp - 1.5]
+            drag:
+              - horizontal: x
+            startArrow: true
+            endArrow: true
+            color: green
+            label:
+              text: "`TR = ${calcs.exp.toFixed(2)}`"
+              align: right
+              xPixelOffset: -5
+              fontSize: 9
+              location: 0.6
+
+    bottomGraph:
+      xAxis:
+        max: 11
+        title: Quantity of Good 1
+      yAxis:
+        max: 11
+        title: Dollars Per Unit of Good 1
+      objects:
+
+        - Area:
+            fn: 1 + 0.5*(x)
+            max: params.x
+            color: red
+
+        - Area:
+            fn1: 1 + 0.5*(x)
+            fn2: params.p
+            max: params.x
+            color: orange
+
+        - Line:
+            yIntercept: 1
+            slope: 0.5
+            color: orange
+            label:
+              text: \text{Marginal Cost }(c'(q))
+              x: 10.75
+              position: br
+              bgcolor: none
+
+        - Label:
+            coordinates: [(0.5*params.x), (0.25*calcs.mc)]
+            text: calcs.c.toFixed(2)
+            color: red
+            bgcolor: none
+            fontSize: 9
+
+        - Point:
+            coordinates: [params.x, calcs.mc]
+            r: 4
+            drag:
+              - horizontal: x
+            color: orange
+            droplines:
+              vertical: "`q = ${params.x.toFixed(1)}`"
+
+        - Line:
+            yIntercept: params.p
+            color: green
+            drag:
+              - vertical: p
+            label:
+              text: \text{Price }(p)
+              x: 10.75
+              position: tr
+              bgcolor: none
+
+        - Rectangle:
+            x1: 0.05
+            x2: params.x
+            y1: 0.05
+            y2: params.p
+            fill: none
+            strokeWidth: 4
+            stroke: green
+
+
+        - Point:
+            coordinates: [params.x, params.p]
+            r: 4
+            drag:
+              - horizontal: x
+            color: green
+            droplines:
+              horizontal: params.p.toFixed(1)
+              vertical:
+
+
+
+        - Label:
+            coordinates: [(0.5*params.x), (params.p + 2)]
+            text: calcs.exp.toFixed(2)
+            color: green
+            fontSize: 9
+
+        - Arrow:
+            begin: [(0.5*params.x), (params.p + 2)]
+            end: [(0.5*params.x), (params.p + 0.1)]
+            color: green
+            
+        - Label:
+            coordinates: [(0.5*params.x), (0.5*(1+params.p+0.25*params.x))]
+            text: calcs.ps.toFixed(2)
+            color: orange
+            bgcolor: none
+            fontSize: 9
+            show: params.x < calcs.xStar
+
+        - Label:
+            coordinates: [(0.5*calcs.xStar), (0.5*(1+params.p+0.25*calcs.xStar))]
+            text: calcs.psStar.toFixed(2)
+            color: orange
+            bgcolor: none
+            fontSize: 9
+            show: params.x >= calcs.xStar
+
+        - Label:
+            coordinates: [(0.3*calcs.xStar + 0.7*params.x), (0.7*params.p+0.3*calcs.mc)]
+            text: (calcs.ps-calcs.psStar).toFixed(2)
+            color: black
+            bgcolor: none
+            fontSize: 9
+            show: params.x > calcs.xStar
+
+
+
+    sidebar:
+      controls:
+        - title: Producer's Surplus
+          description: The producer's surplus is the total revenue minus the total variable cost. It's maximized when MC = P.
+          sliders:
+            - param: p
+              label: p
+            - param: x
+              label: q
+          divs:
+            - html: "`$$\\\\begin{aligned}TC(${params.x.toFixed(1)}) &= 10\\\\times${params.x.toFixed(1)} - \\\\tfrac{1}{2}(${params.x.toFixed(1)})^2 \\\\\\\\ &= ${calcs.c.toFixed(2)} \\\\\\\\ \\\\\\\\ PS(${params.x.toFixed(1)}) &= ${params.p.toFixed(1)} \\\\times ${params.x.toFixed(1)} - ${calcs.c.toFixed(2)} = ${calcs.ps.toFixed(2)}\\\\end{aligned}$$`"
+
+    explanation:
+      divs:
+        - html: 'Because $MC < p$ at this quantity, PS could be increased by increasing $q$.'
+          show: params.x < calcs.xStar
+        - html: 'Because $MC > p$ at this quantity, PS could be increased by decreasing $q$.'
+          show: params.x > calcs.xStar
+        - html: 'Because $MC = p$ at this quantity, PS is maximized.'
+          show: params.x == calcs.xStar

@@ -1,0 +1,231 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: w1
+    value: 12
+    min: 0
+    max: 20
+    round: 0.01
+  - name: w2
+    value: 2
+    min: 0
+    max: 10
+    round: 0.01
+  - name: x1
+    value: 10
+    min: 0
+    max: 20
+    round: 0.01
+  - name: x2
+    value: 3
+    min: 0
+    max: 10
+    round: 0.01
+  - name: a1
+    value: 0.5
+    min: 0.01
+    max: 1
+    round: 0.01
+  - name: a2
+    value: 0.5
+    min: 0.01
+    max: 1
+    round: 0.01
+  - name: showPreferred
+    value: false
+  - name: showIndifferenceCurves
+    value: true
+  - name: showPotentialTrade
+    value: true
+  - name: showContractCurve
+    value: false
+layout:
+  EdgeworthBoxAboveOneGraphPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+        - Overlap:
+            fill: green
+            shapes:
+              - Area:
+                  fn: (calcs.A.level/(x))
+                  above: green
+              - Area:
+                  fn: (10-(calcs.B.level/(20 - (x))))
+        - EconBundle:
+            name: A
+            color: colors.blue
+            coordinates:
+              - params.w1
+              - params.w2
+            label: { }
+            droplines:
+              vertical: "e_1^A"
+              horizontal: "e_2^A"
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients: [1,1]
+            indifferenceCurve:
+              show: params.showIndifferenceCurves
+              color: blue
+              showPreferred: params.showPreferred
+              label:
+                text:
+        - Line:
+            point: [ params.w1, params.w2 ]
+            slope: -calcs.A.mrs
+            color: blue
+            lineStyle: dashed
+        - EconBundle:
+            coordinates:
+              - params.w1
+              - params.w2
+            label:
+              text: "\\text{Endowment}"
+            droplines: { }
+            drag:
+              - horizontal: w1
+              - vertical: w2
+            color: colors.endowment
+
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+        - EconBundle:
+            name: B
+            coordinates:
+              - (20 - params.w1)
+              - (10 - params.w2)
+            label: { }
+            droplines:
+              vertical: "e_1^B"
+              horizontal: "e_2^B"
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients: [ 1,1 ]
+            indifferenceCurve:
+              show: params.showIndifferenceCurves
+              showPreferred: params.showPreferred
+              label:
+                text:
+              color: colors.orange
+            color: colors.orange
+        - Line:
+            point:
+              - (20 - params.w1)
+              - (10 - params.w2)
+            slope: -calcs.B.mrs
+            color: orange
+            lineStyle: dashed
+
+    graph:
+      yAxis:
+        title: Price Ratio ($p_1/p_2$)
+        ticks: 0
+        min: -6
+        max: 6
+      xAxis:
+        show: false
+      objects:
+        - Rectangle:
+            y1: log(calcs.A.mrs)
+            y2: log(calcs.B.mrs)
+            x1: 3
+            x2: 7
+            color: green
+        - Point:
+            coordinates: [ 3, log(calcs.A.mrs) ]
+            color: blue
+        - Point:
+            coordinates: [ 7, log(calcs.B.mrs) ]
+            color: orange
+        - Line:
+            point: [ 3, log(calcs.A.mrs) ]
+            slope: 0
+            color: blue
+            lineStyle: dashed
+        - Arrow:
+            begin: [ 3, log(calcs.A.mrs) ]
+            end: [ 3, 5 ]
+            label:
+              text: \text{ SELL 1 / BUY 2}
+              fontsize: 8
+              position: l
+            color: blue
+        - Arrow:
+            begin: [ 3, log(calcs.A.mrs) ]
+            end: [ 3, -5 ]
+            label:
+              text: \text{ BUY 1 / SELL 2}
+              fontsize: 8
+              position: l
+            color: blue
+        - Line:
+            point: [ 7, log(calcs.B.mrs) ]
+            slope: 0
+            color: orange
+            lineStyle: dashed
+        - Arrow:
+            begin: [ 7, log(calcs.B.mrs) ]
+            end: [ 7, 5 ]
+            label:
+              text: \text{ SELL 1 / BUY 2}
+              fontsize: 8
+              position: r
+            color: orange
+        - Arrow:
+            begin: [ 7, log(calcs.B.mrs) ]
+            end: [ 7, -5 ]
+            label:
+              text: \text{ BUY 1 / SELL 2}
+              fontsize: 8
+              position: r
+            color: orange
+        - Label:
+            coordinates: [ 1.5, log(calcs.A.mrs) ]
+            text: MRS^A
+            color: blue
+        - Label:
+            coordinates: [ 8.5, log(calcs.B.mrs) ]
+            text: MRS^B
+            color: orange
+        - Label:
+            coordinates: [ AXIS, log(calcs.A.mrs) ]
+            text: calcs.A.mrs.toFixed(2)
+            color: blue
+        - Label:
+            coordinates: [ AXIS, log(calcs.B.mrs) ]
+            text: calcs.B.mrs.toFixed(2)
+            color: orange
+
+
+
+    sidebar:
+      controls:
+        - title: Potential for Trade and the MRS
+          description: If there is a difference in the MRSs at the endowment point, then there is a range of price ratios at which there are potential mutual gains from trade. Try dragging the endowment point around to see how the potential price ratios, and who would buy and who would sell, change.
+          divs:
+            - html: "`<p>At this point, $MRS^A > MRS^B$, so there is a range of price ratios at which B wants to sell good 1 and buy good 2, while A wants to buy good 1 and sell good 2.</p><p>Specifically, B will want to sell good 1 as long as $p_1/p_2 > ${calcs.B.mrs.toFixed(2)}$, while A will want to buy good 1 as long as $p_1/p_2 < ${calcs.A.mrs.toFixed(2)}$.</p>`"
+              show: (calcs.A.mrs/calcs.B.mrs > 1.01)
+            - html: "`<p>At this point, $MRS^A > MRS^B$, so there is a range of price ratios at which A wants to sell good 1 and buy good 2, while B wants to buy good 1 and sell good 2.</p><p>Specifically, A will want to sell good 1 as long as $p_1/p_2 > ${calcs.A.mrs.toFixed(2)}$, while B will want to buy good 1 as long as $p_1/p_2 < ${calcs.B.mrs.toFixed(2)}$.</p>`"
+              show: (calcs.A.mrs/calcs.B.mrs < 0.99)
+            - html: At this point, $MRS^A = MRS^B$, so it is Pareto efficient and there are no potential gains from trade.
+              show: (calcs.A.mrs/calcs.B.mrs >= 0.99) && (calcs.A.mrs/calcs.B.mrs <= 1.01)
+
+

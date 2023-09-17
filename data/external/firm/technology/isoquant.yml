@@ -1,0 +1,118 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: q
+    value: 20
+    min: 0
+    max: 100
+    round: 1
+calcs:
+  x: ((params.q/4)^(2/3))
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 10
+        step: 2
+        title: L
+      yAxis:
+        min: 0
+        max: 10
+        step: 2
+        title: K
+      zAxis:
+        min: 0
+        max: 100
+        step: 2
+        title: q
+      objects:
+        - MathboxPlane:
+            z: params.q
+            fill: blue
+            opacity: 0.5
+        - MathboxFunctionSurface:
+            fn:
+              fn: "(4*((x)^0.5)*(y))"
+              samplePoints: 20
+            shaded: true
+            fill: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "params.q/(4*(x)^0.5)"
+              fnZ: params.q
+            strokeWidth: 10
+            stroke: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "(params.q/(4*(y)))^2"
+              fnZ: params.q
+              ind: y
+            strokeWidth: 10
+            stroke: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "params.q/(4*(x)^0.5)"
+              fnZ: 0
+            strokeWidth: 3
+            stroke: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "(params.q/(4*(y)))^2"
+              fnZ: 0
+              ind: y
+            strokeWidth: 3
+            stroke: purple
+            opacity: 0.4
+        - MathboxLine:
+            x1: (params.q*params.q/1600)
+            x2: (params.q*params.q/1600)
+            y1: 10
+            y2: 10
+            z2: params.q
+            linestyle: dotted
+        - MathboxLine:
+            x1: 10
+            x2: 10
+            y1: (params.q/(4*sqrt(10)))
+            y2: (params.q/(4*sqrt(10)))
+            z2: params.q
+            linestyle: dotted
+    graph:
+      objects:
+        - Contour:
+            fn: "(4*sqrt((x))*(y))"
+            level: params.q
+            color: purple
+            xMax: 11
+            yMax: 11
+            strokeWidth: 5
+        - ContourMap:
+            levels: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+            fn: "(4*sqrt((x))*(y))"
+            xMax: 11
+            yMax: 11
+        - Label:
+            coordinates: [calcs.x + 2, calcs.x]
+            text: "`\\\\text{Isoquant for } q=${params.q}`"
+            color: purple
+        - Label:
+            coordinates: [10, 0]
+            text: L
+            yPixelOffset: -30
+        - Label:
+            coordinates: [0, 10]
+            text: K
+            xPixelOffset: -30
+    sidebar:
+      controls:
+        - title: Isoquants and Isoquant Maps
+          sliders:
+            - param: q
+              label: q

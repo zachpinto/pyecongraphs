@@ -1,0 +1,142 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: L
+    value: 100
+    min: 25
+    max: 144
+  - name: K
+    value: 100
+    min: 25
+    max: 144
+  - name: f
+    value: 0
+calcs:
+  sqrtK: (sqrt(params.K))
+  z: (sqrt(params.L*params.K))
+  m: (0.5*sqrt(params.K/params.L))
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 200
+        title: L
+      yAxis:
+        min: 0
+        max: 200
+        title: K
+      zAxis:
+        min: 0
+        max: 200
+        title: q
+      objects:
+        - MathboxPlane:
+            y: params.K
+            fill: production
+            opacity: 0.3
+            shaded: false
+        - MathboxLine:
+            x1: params.L - 40
+            y1: params.K
+            z1: calcs.z - 40*calcs.m
+            x2: params.L + 40
+            y2: params.K
+            z2: calcs.z + 40*calcs.m
+            strokeWidth: 10
+            stroke: mpl
+        - MathboxFunctionSurface:
+            fn:
+              fn: (((x)*(y))^0.5)
+              samplePoints: 200
+            shaded: false
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: (params.K)
+              fnZ: (((x)*params.K)^0.5)
+              samplePoints: 200
+            strokeWidth: 5
+            stroke: blue
+
+        # Original point
+        - MathboxPoint:
+            x: params.L
+            y: params.K
+            z: calcs.z
+            stroke: blue
+        # Dropline to x axis
+        - MathboxLine:
+            x1: params.L
+            x2: params.L
+            y2: params.K
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Dropline to y axis
+        - MathboxLine:
+            y1: params.K
+            x2: params.L
+            y2: params.K
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - MathboxLine:
+            x1: params.L
+            y1: params.K
+            x2: params.L
+            y2: params.K
+            z2: calcs.z
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+    graph:
+      yAxis:
+        max: 200
+        title: Output ($q$)
+      xAxis:
+        max: 200
+        title: Hours of Labor ($L$)
+      objects:
+
+        - Curve:
+            fn: "sqrt(params.K*(x))"
+            color: blue
+            show: (params.f == 0)
+            label:
+              text: f(L | \overline K)
+              x: 150
+              position: br
+
+        # Point x
+        - Point:
+            coordinates: [params.L, calcs.z]
+            color: blue
+            drag:
+              - horizontal: L
+            droplines:
+              vertical: L
+              horizontal: q
+
+        - Line:
+            point: [params.L, calcs.z]
+            slope: calcs.m
+            color: mpl
+            strokeWidth: 4
+            min: params.L - 40
+            max: params.L + 40
+
+    sidebar:
+      controls:
+        - title: "Short Run Production Function: Holding K Constant"
+          sliders:
+            - param: L
+              label: L
+            - param: K
+              label: \overline K
+          divs:
+            - html: "`$$f(L,K) = \\\\sqrt{LK} \\\\\\\\ f(L|\\\\overline K = ${params.K.toFixed(0)}) = ${calcs.sqrtK.toFixed(2)}\\\\sqrt{L}$$`"

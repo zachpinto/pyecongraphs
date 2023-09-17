@@ -1,0 +1,194 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: s
+    value: '1'
+    min: '0.01'
+    max: 2
+    round: '0.01'
+  - name: a
+    value: '0.5'
+    min: '0'
+    max: '2'
+    round: '0.1'
+  - name: b
+    value: '0.5'
+    min: '0'
+    max: '2'
+    round: '0.1'
+  - name: L
+    value: '20'
+    min: '0'
+    max: '25'
+    round: '1'
+  - name: K
+    value: '20'
+    min: '0'
+    max: '25'
+    round: '1'
+calcs:
+  maxQ: (2.5*(25^(params.a+params.b)))
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 50
+        ticks: 0
+        title: L
+      yAxis:
+        min: 0
+        max: 50
+        ticks: 0
+        title: K
+      zAxis:
+        min: 0
+        max: calcs.maxQ
+        ticks: 0
+        title: q
+      objects:
+        - FunctionSurface:
+            fn:
+              fn: params.s*((x)^(params.a))*((y)^(params.b))
+              samplePoints: 200
+            shaded: true
+            fill: purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: ((calcs.inputs.level*(x)^(-params.a))^(1/params.b))
+              fnZ: calcs.inputs.level
+            stroke: blue
+        - MathboxCurve:
+            fn:
+              fn: ((calcs.inputs.level*2*(x)^(-params.a))^(1/params.b))
+              fnZ: calcs.inputs.level*2
+            stroke: blue
+            lineStyle: dashed
+        - MathboxCurve:
+            fn:
+              fn: ((x)*params.K/params.L)
+              fnZ: (params.s*((x)^(params.a))*(((x)*params.K/params.L)^params.b))
+            stroke: orange
+        - MathboxCurve:
+            fn:
+              fn: params.K
+              fnZ: (params.s*((x)^(params.a))*(params.K^params.b))
+            stroke: red
+        - MathboxPoint:
+            x: params.L
+            y: params.K
+            z: calcs.inputs.level
+            droplines: true
+        - MathboxPoint:
+            x: (2*params.L)
+            y: (2*params.K)
+            z: (calcs.inputs.level*2^(params.a+params.b))
+            droplines: true
+            stroke: orange
+        - MathboxPoint:
+            x: (2*params.L)
+            y: params.K
+            z: calcs.doubleL.level
+            stroke: red
+            droplines: true
+    graph:
+      xAxis:
+        title: Labor
+        orient: bottom
+        min: 0
+        max: 50
+      yAxis:
+        title: Capital
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - Line:
+            point: [0, params.K]
+            slope: 0
+            color: colors.shortRun
+            drag:
+              - vertical: K
+        - Line:
+            slope: "(params.K/params.L)"
+            color: colors.longRun
+        - EconBundle:
+            name: inputs
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - params.s
+                exponents:
+                  - params.a
+                  - params.b
+            coordinates:
+              - params.L
+              - params.K
+            label:
+              text: X
+              position: tr
+            drag:
+              - vertical: K
+              - horizontal: L
+            droplines:
+              vertical: \hat L
+              horizontal: \hat K
+            indifferenceCurve:
+              color: colors.production
+              label:
+                text: f(\hat L, \hat K)
+            color: colors.production
+            indifferenceCurveColor: colors.production
+        - EconIndifferenceCurve:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - params.s
+                exponents:
+                  - params.a
+                  - params.b
+            level: 2*(calcs.inputs.level)
+            color: colors.production
+            label:
+              text: "`2f(\\\\hat L, \\\\hat K)`"
+            lineStyle: dashed
+        - EconBundle:
+            name: doubleL
+            coordinates:
+              - "(2*(params.L))"
+              - params.K
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - params.s
+                exponents:
+                  - params.a
+                  - params.b
+            color: colors.shortRun
+            droplines: {}
+            label:
+              text: "\\text{Double labor}"
+        - EconBundle:
+            coordinates:
+              - "(2*(params.L))"
+              - "(2*(params.K))"
+            color: colors.longRun
+            droplines: {}
+            label:
+              text: "\\text{Double both}"
+    sidebar:
+      controls:
+        - title: Returns to Scale for Cobb-Douglas
+          sliders:
+            - param: a
+              label: a
+            - param: b
+              label: b
+          divs:
+            - html: "`$$f(L,K) = L^a K^b = L^{${params.a.toFixed(2)}}K^{${(params.b).toFixed(2)}}$$`"

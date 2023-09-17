@@ -1,0 +1,182 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 40
+    min: 1
+    max: 80
+    round: 1
+  - name: x2
+    value: 20
+    min: 1
+    max: 80
+    round: 1
+calcs:
+  u: (sqrt(params.x1*params.x2))
+  mu1: (0.5*sqrt(params.x2/params.x1))
+  mu2: (0.5*sqrt(params.x1/params.x2))
+  u1: (calcs.u + 10*calcs.mu1)
+  u2: (calcs.u + 10*calcs.mu2)
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 80
+        ticks: 0
+        title: Pizza
+      yAxis:
+        min: 0
+        max: 80
+        ticks: 0
+        title: Soda
+      zAxis:
+        min: 0
+        max: 80
+        ticks: 0
+        title: Utility
+      objects:
+        - FunctionSurface:
+            fn:
+              fn: "((x)*(y))^0.5"
+              samplePoints: 100
+              domainCondition: (z < calcs.u)
+            shaded: true
+            fill: red
+            opacity: 0.4
+        - FunctionSurface:
+            fn:
+              fn: "((x)*(y))^0.5"
+              samplePoints: 100
+              domainCondition: "(z >= calcs.u)"
+            shaded: true
+            fill: green
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "calcs.u*calcs.u/(x)"
+              fnZ: calcs.u
+            strokeWidth: 10
+            stroke: purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "calcs.u*calcs.u/(y)"
+              fnZ: calcs.u
+              ind: y
+            strokeWidth: 10
+            stroke: purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "calcs.u*calcs.u/(x)"
+              fnZ: 0
+            strokeWidth: 3
+            stroke: purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "calcs.u*calcs.u/(y)"
+              fnZ: 0
+              ind: y
+            strokeWidth: 3
+            stroke: purple
+            opacity: 0.4
+        - Line:
+            x1: params.x1
+            x2: params.x1 + 10
+            y1: params.x2
+            y2: params.x2
+            z1: calcs.u
+            z2: calcs.u1
+            end: true
+            stroke: green
+            strokeWidth: 5
+        - Line:
+            x1: params.x1
+            x2: params.x1
+            y1: params.x2
+            y2: params.x2 + 10
+            z1: calcs.u
+            z2: calcs.u2
+            end: true
+            stroke: green
+            strokeWidth: 5
+        - Line:
+            x1: (calcs.u*calcs.u/80)
+            x2: (calcs.u*calcs.u/80)
+            y1: 80
+            y2: 80
+            z2: calcs.u
+            linestyle: dotted
+        - Line:
+            x1: 80
+            x2: 80
+            y1: (calcs.u*calcs.u/80)
+            y2: (calcs.u*calcs.u/80)
+            z2: calcs.u
+            linestyle: dotted
+        - MathboxPoint:
+            x: params.x1
+            y: params.x2
+            z: calcs.u
+            droplines: true
+
+
+    graph:
+      xAxis:
+        max: 80
+        ticks: 0
+        title: Pizza
+      yAxis:
+        max: 80
+        ticks: 0
+        title: Soda
+      objects:
+        - EconBundle:
+            coordinates: [ params.x1, params.x2 ]
+            color: blue
+            r: 4
+            label:
+              text: X
+              position: tr
+            droplines:
+              vertical:
+              horizontal:
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            drag:
+              - horizontal: x1
+              - vertical: x2
+            indifferenceCurve:
+              label:
+                text:
+              showPreferred: true
+              showDispreferred: true
+        - Label:
+            text: "`\\\\succ X`"
+            coordinates: [ (0.5*(params.x1 + 80)), (0.5*(params.x2 + 80))]
+            color: green
+            bgcolor: none
+        - Label:
+            text: "`\\\\prec X`"
+            coordinates: [ (0.5*params.x1), (0.5*params.x2) ]
+            color: red
+            bgcolor: none
+        - Arrow:
+            begin: [ params.x1, params.x2 ]
+            end: [params.x1, params.x2 + 10]
+            color: green
+        - Arrow:
+            begin: [params.x1, params.x2 ]
+            end: [params.x1 + 10, params.x2 ]
+            color: green
+
+
+    sidebar:
+      controls:
+        - title: "Monotonic Preferences: Lifetime Pizza and Soda"
+          description: "No matter where you drag the point in the right-hand graph, utility is increasing as you gain more of either good: that is, moves you into the set of bundles which is strictly preferred to X, indicated by the green region."

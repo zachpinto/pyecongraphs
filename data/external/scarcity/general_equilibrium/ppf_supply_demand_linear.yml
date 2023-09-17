@@ -1,0 +1,410 @@
+{
+  "schema": "EconSchema",
+  "version": 1,
+  "params": [
+    {
+      "name": "p",
+      "value": 1,
+      "min": 0.2,
+      "max": 5,
+      "round": 0.01
+    },
+    {
+      "name": "A1",
+      "value": 4,
+      "min": 1,
+      "max": 5,
+      "round": 0.01
+    },
+    {
+      "name": "A2",
+      "value": 2,
+      "min": 1,
+      "round": 0.01
+    }
+  ],
+  "calcs": {
+    "y1": "((params.p*params.A1 > params.A2) ? 100*params.A1 : (params.p*params.A1 < params.A2) ? 0 : 50*params.A1)",
+    "y2": "((params.p*params.A1 < params.A2) ? 100*params.A2 : (params.p*params.A1 > params.A2) ? 0 : 50*params.A2)",
+    "showSurplus": "(params.p*params.A1 != params.A2)",
+    "p2": "(1/params.p)",
+    "max1": "(100*params.A1)",
+    "max2": "(100*params.A2)",
+    "m": "(100*max(params.p*params.A1,params.A2))",
+    "produce1": "(params.p*params.A1 > params.A2)",
+    "produceEither": "(params.p*params.A1 == params.A2)",
+    "cutoffP1": "(params.A2/params.A1)",
+    "cutoffP2": "(params.A1/params.A2)"
+  },
+  "layout": {
+    "type": "SquarePlusTwoVerticalGraphs",
+    "def": {
+      "bigGraph": {
+        "xAxis": {
+          "title": "Quantity of Good 1",
+          "orient": "bottom",
+          "min": 0,
+          "max": 500
+        },
+        "yAxis": {
+          "title": "Quantity of Good 2",
+          "orient": "left",
+          "min": 0,
+          "max": 500
+        },
+        "objects": [
+          {
+            "type": "Line",
+            "def": {
+              "color": "colors.longRun",
+              "xIntercept": "calcs.max1",
+              "yIntercept": "calcs.max2",
+              "label": {
+                "text": "PPF",
+                "x": 20
+              }
+            }
+          },
+          {
+            "type": "Point",
+            "def": {
+              "color": "colors.longRun",
+              "coordinates": ["calcs.max1",0],
+              "r": 4,
+              "drag": [
+                {
+                  "directions": "x",
+                  "param": "A1",
+                  "expression": "drag.x/100"
+                }
+              ]
+            }
+          },
+          {
+            "type": "Point",
+            "def": {
+              "color": "colors.longRun",
+              "coordinates": [0, "calcs.max2"],
+              "r": 4,
+              "drag": [
+                {
+                  "directions": "y",
+                  "param": "A2",
+                  "expression": "drag.y/100"
+                }
+              ]
+            }
+          },
+          {
+            "type": "Point",
+            "def": {
+              "color": "colors.supply",
+              "coordinates": ["calcs.y1","calcs.y2"],
+              "droplines": {
+                "vertical": "y_1^*",
+                "horizontal": "y_2^*"
+              },
+              "label": {
+                "text": "Y^*",
+                "position": "tr"
+              }
+            }
+          },
+          {
+            "type": "EconOptimalBundle",
+            "def": {
+              "name": "bundle",
+              "utilityFunction": {
+                "type": "CobbDouglas",
+                "def": {
+                  "alpha": 0.5
+                }
+              },
+              "budgetLine": {
+                "p1": "params.p",
+                "p2": 1,
+                "m": "(calcs.m)",
+                "handles": false,
+                "draggable": false,
+                "color": "colors.budget",
+                "label": {
+                  "text": "`p_1x_1 + p_2x_2 = ${calcs.produce1 ? calcs.max1.toFixed(0) + 'p_1' : calcs.max2.toFixed(0) + 'p_2'}`"
+                }
+              },
+              "label": {
+                "text": "X^*",
+                "position": "bl"
+              },
+              "color": "colors.demand",
+              "indifferenceCurve": {
+                "color": "colors.demand"
+              }
+            }
+          },
+          {
+            "type": "Segment",
+            "def": {
+              "a": ["calcs.bundle.x",10],
+              "b": ["calcs.y1",10],
+              "startArrow": true,
+              "endArrow": true,
+              "color": "colors.price",
+              "show": "calcs.showSurplus",
+              "label": {
+                "text": "`\\\\text{${(calcs.bundle.x > calcs.y1) ? 'Shortage' : 'Surplus'} }`",
+                "location": 0.5
+              }
+            }
+          },
+          {
+            "type": "Segment",
+            "def": {
+              "a": [10,"calcs.bundle.y"],
+              "b": [10,"calcs.y2"],
+              "startArrow": true,
+              "endArrow": true,
+              "color": "colors.price",
+              "show": "calcs.showSurplus",
+              "label": {
+                "text": "`\\\\text{${(calcs.bundle.y > calcs.y2) ? 'Shortage' : 'Surplus'} }`",
+                "location": 0.5
+              }
+            }
+          }
+        ]
+      },
+      "topGraph": {
+        "xAxis": {
+          "title": "Quantity of Good 1",
+          "orient": "bottom",
+          "min": 0,
+          "max": 500
+        },
+        "yAxis": {
+          "title": "Relative Price of Good 1 $(p_1/p_2)$",
+          "orient": "left",
+          "min": 0,
+          "max": 2.5
+        },
+        "objects": [
+          {
+            "type": "Segment",
+            "def": {
+              "color": "colors.supply",
+              "a": ["calcs.max1", "calcs.cutoffP1"],
+              "b": ["calcs.max1", 2.5],
+              "label": {
+                "text": "S_1",
+                "y": 2.25
+              }
+            }
+          },
+          {
+            "type": "Segment",
+            "def": {
+              "color": "colors.supply",
+              "a": ["calcs.max1", "calcs.cutoffP1"],
+              "b": [0, "calcs.cutoffP1"]
+            }
+          },
+          {
+            "type": "Segment",
+            "def": {
+              "color": "colors.supply",
+              "a": [0,0],
+              "b": [0, "calcs.cutoffP1"]
+            }
+          },
+          {
+            "type": "Curve",
+            "def": {
+              "color": "colors.demand",
+              "univariateFunction": {
+                "ind": "y",
+                "fn": "(0.5*calcs.max2/(y))",
+                "max": "calcs.cutoffP1"
+              }
+            }
+          },
+          {
+            "type": "Segment",
+            "def": {
+              "color": "colors.demand",
+              "a": ["(0.5*calcs.max1)",2.5],
+              "b": ["(0.5*calcs.max1)", "calcs.cutoffP1"],
+              "label": {
+                "text": "D_1",
+                "location": 0.5
+              }
+            }
+          },
+          {
+            "type": "Line",
+            "def": {
+              "color": "colors.budget",
+              "yIntercept": "params.p",
+              "drag": [
+                {
+                  "directions": "y",
+                  "param": "p",
+                  "expression": "drag.y"
+                }
+              ]
+            }
+          },
+          {
+            "type": "Point",
+            "def": {
+              "coordinates": ["calcs.y1","params.p"],
+              "color": "colors.supply",
+              "droplines": {
+                "vertical": "y_1^*"
+              }
+            }
+          },
+          {
+            "type": "Point",
+            "def": {
+              "coordinates": ["calcs.bundle.x","params.p"],
+              "color": "colors.demand",
+              "droplines": {
+                "vertical": "x_1^*"
+              }
+            }
+          },
+          {
+            "type": "Segment",
+            "def": {
+              "a": ["calcs.bundle.x",0.25],
+              "b": ["calcs.y1",0.25],
+              "startArrow": true,
+              "endArrow": true,
+              "color": "colors.price",
+              "show": "calcs.showSurplus",
+              "label": {
+                "text": "`\\\\text{${(calcs.bundle.x > calcs.y1) ? 'Shortage' : 'Surplus'} }`",
+                "location": 0.5
+              }
+            }
+          }
+        ]
+      },
+      "bottomGraph": {
+        "xAxis": {
+          "title": "Quantity of Good 2",
+          "orient": "bottom",
+          "min": 0,
+          "max": 500
+        },
+        "yAxis": {
+          "title": "Relative Price of Good 2 $(p_2/p_1)$",
+          "orient": "left",
+          "min": 0,
+          "max": 2.5
+        },
+        "objects": [
+          {
+            "type": "Segment",
+            "def": {
+              "color": "colors.supply",
+              "a": ["calcs.max2", "calcs.cutoffP2"],
+              "b": ["calcs.max2", 2.5],
+              "label": {
+                "text": "S_2",
+                "y": 2.25
+              }
+            }
+          },
+          {
+            "type": "Segment",
+            "def": {
+              "color": "colors.supply",
+              "a": ["calcs.max2", "calcs.cutoffP2"],
+              "b": [0, "calcs.cutoffP2"]
+            }
+          },
+          {
+            "type": "Segment",
+            "def": {
+              "color": "colors.supply",
+              "a": [0,0],
+              "b": [0, "calcs.cutoffP2"]
+            }
+          },
+          {
+            "type": "Curve",
+            "def": {
+              "color": "colors.demand",
+              "univariateFunction": {
+                "ind": "y",
+                "fn": "(0.5*calcs.max1/(y))",
+                "max": "calcs.cutoffP2"
+              }
+            }
+          },
+          {
+            "type": "Segment",
+            "def": {
+              "color": "colors.demand",
+              "a": ["(0.5*calcs.max2)",2.5],
+              "b": ["(0.5*calcs.max2)", "calcs.cutoffP2"],
+              "label": {
+                "text": "D_2",
+                "location": 0.5
+              }
+            }
+          },
+          {
+            "type": "Line",
+            "def": {
+              "color": "colors.budget",
+              "yIntercept": "calcs.p2",
+              "drag": [
+                {
+                  "directions": "y",
+                  "param": "p",
+                  "expression": "(1/drag.y)"
+                }
+              ]
+            }
+          },
+          {
+            "type": "Point",
+            "def": {
+              "coordinates": ["calcs.y2","calcs.p2"],
+              "color": "colors.supply",
+              "droplines": {
+                "vertical": "y_2^*"
+              }
+            }
+          },
+          {
+            "type": "Point",
+            "def": {
+              "coordinates": ["calcs.bundle.y","calcs.p2"],
+              "color": "colors.demand",
+              "droplines": {
+                "vertical": "x_2^*"
+              }
+            }
+          },
+          {
+            "type": "Segment",
+            "def": {
+              "a": ["calcs.bundle.y",0.25],
+              "b": ["calcs.y2",0.25],
+              "startArrow": true,
+              "endArrow": true,
+              "color": "colors.price",
+              "show": "calcs.showSurplus",
+              "label": {
+                "text": "`\\\\text{${(calcs.bundle.y > calcs.y2) ? 'Shortage' : 'Surplus'} }`",
+                "location": 0.5
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

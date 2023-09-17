@@ -1,0 +1,114 @@
+schema: EconSchema
+params:
+- {name: w, value: 8, min: 1, max: 10, round: 0.01}
+- {name: r, value: 2, min: 1, max: 10, round: 0.01}
+- {name: K, value: 32, min: 1, max: 60, round: 1}
+calcs:
+  L1: (16*16/params.K)
+  L2: (32*32/params.K)
+  L3: (48*48/params.K)
+  c1: (params.w*calcs.L1 + params.r*params.K)
+  c2: (params.w*calcs.L2 + params.r*params.K)
+  c3: (params.w*calcs.L3 + params.r*params.K)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 100
+        ticks: 0
+        title: Labor ($L$)
+      yAxis:
+        max: 100
+        ticks: 0
+        title: Capital ($K$)
+      objects:
+
+      - Line:
+          yIntercept: params.K
+          color: red
+          drag:
+            - vertical: K
+          label:
+            x: 100
+            text: \text{SR Expansion Path}
+
+      - EconBundle:
+          name: X3
+          color: red
+          coordinates: [calcs.L1, params.K]
+          r: 4
+          label:
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          droplines:
+            vertical: calcs.L1.toFixed(0)
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`q = 16`"
+              x: 100
+              position: r
+
+
+      - EconBundle:
+          name: X4
+          color: red
+          coordinates: [calcs.L2, params.K]
+          r: 4
+          label:
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          droplines:
+            vertical: calcs.L2.toFixed(0)
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`q = 32`"
+              x: 100
+              position: r
+
+
+      - EconBundle:
+          name: X5
+          color: red
+          coordinates: [calcs.L3, params.K]
+          r: 4
+          label:
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          droplines:
+            vertical: calcs.L3.toFixed(0)
+            horizontal: "`\\\\overline K = ${params.K.toFixed(0)}`"
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`q = 48`"
+              x: 100
+              position: r
+
+
+    sidebar:
+      controls:
+      - title: Short-Run Expansion Path
+        description: "In the short run, with capital fixed, the firm doesn't face a cost-minimization problem: it must use whatever amount of labor it has to in order to produce a given quantity, regardless of the prices of inputs."
+        sliders:
+        - param: w
+          label: w
+        - param: r
+          label: r
+        divs:
+        - table:
+            columns: [$q$,$L^\star(q)$,$\overline K$,$c(q)$]
+            rows:
+            - [16,calcs.L1.toFixed(0),params.K,calcs.c1.toFixed(0)]
+            - [32,calcs.L2.toFixed(0),params.K,calcs.c2.toFixed(0)]
+            - [48,calcs.L3.toFixed(0),params.K,calcs.c3.toFixed(0)]

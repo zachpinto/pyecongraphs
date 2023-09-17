@@ -1,0 +1,181 @@
+schema: EconSchema
+colors:
+  marginalCost: colors.orange
+  averageCost: colors.purple
+  totalCost: colors.red
+params:
+  - { name: q, value: 24, min: 4, max: 48, round: 1 }
+  - name: p
+    value: 12
+    min: 4
+    max: 16
+calcs:
+  q: (2*params.p)
+  tc: (64 + 0.25*calcs.q^2)
+  mc: (0.25*2*calcs.q^(2-1))
+  ac: (64/calcs.q + 0.25*calcs.q^(2 - 1))
+  tr: (calcs.q * params.p)
+  profit: (calcs.tr - calcs.tc)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      yAxis:
+        title: Dollars
+        max: 550
+        min: -64
+        ticks: 1
+      xAxis:
+        max: 40
+        ticks: 0
+      objects:
+
+        # Total Cost
+        - Curve:
+            fn: 64 + 0.25*(x)^2
+            color: shortRun
+            label:
+              text: TC
+              x: 40
+              position: bl
+              bgcolor: none
+
+        - Point:
+            coordinates: [ calcs.q, calcs.tc ]
+            color: shortRun
+            droplines:
+              vertical:
+              horizontal: calcs.tc.toFixed(0)
+
+        # Total revenue
+        - Line:
+            slope: params.p
+            drag:
+              - directions: y
+                param: p
+                expression: (drag.y/drag.x)
+            color: green
+            label:
+              text: TR
+              x: 33
+              position: tl
+
+        - Point:
+            coordinates: [ calcs.q, calcs.tr ]
+            color: green
+            droplines:
+              vertical:
+              horizontal: calcs.tr.toFixed(0)
+
+        # Total profit
+        - Curve:
+            fn: params.p*(x) - (64 + 0.25*(x)*(x))
+            color: purple
+            label:
+              text: \text{Profit/Loss}
+              x: min(33,4*params.p)
+              position: bl
+              bgcolor: none
+
+        - Point:
+            coordinates: [ calcs.q, calcs.profit ]
+            color: purple
+            droplines:
+              vertical: calcs.q.toFixed(0)
+              horizontal: calcs.profit.toFixed(0)
+
+
+    bottomGraph:
+      yAxis:
+        title: Dollars per Unit
+        max: 20
+        ticks: 1
+      xAxis:
+        title: Output ($q$)
+        max: 40
+        ticks: 0
+      objects:
+
+        # Average cost
+        - Curve:
+            fn: 64/(x) + 0.25*(x)
+            color: averageCost
+            label:
+              text: AC
+              x: 4
+              position: bl
+              bgcolor: none
+
+        - Point:
+            coordinates: [ calcs.q, calcs.ac ]
+            color: averageCost
+            droplines:
+              vertical:
+              horizontal: calcs.ac.toFixed(2)
+
+        # Marginal cost
+        - Curve:
+            fn: 0.25*2*(x)
+            color: marginalCost
+            label:
+              text: MC
+              x: 40
+              position: bl
+
+        - Point:
+            coordinates: [ calcs.q, calcs.mc ]
+            color: marginalCost
+            droplines:
+              vertical:
+              horizontal: calcs.mc.toFixed(0)
+
+        # Average revenue
+        - Line:
+            yIntercept: params.p
+            color: demand
+            drag:
+              - vertical: p
+            label:
+              text: D = AR = MR
+              x: 40
+              position: br
+              bgcolor: none
+
+        - Point:
+            coordinates: [ calcs.q, params.p ]
+            color: demand
+            drag:
+              - vertical: p
+            droplines:
+              vertical: calcs.q.toFixed(0)
+              horizontal: "`p = ${params.p.toFixed(0)}`"
+
+        ## Profit
+
+        - Rectangle:
+            x1: 0
+            y1: calcs.ac
+            x2: calcs.q
+            y2: params.p
+            color: profit
+            show: (calcs.profit > 0)
+            label:
+              text: "`\\\\text{Profit = ${calcs.profit.toFixed(0)}}`"
+
+        - Rectangle:
+            x1: 0
+            y1: calcs.ac
+            x2: calcs.q
+            y2: params.p
+            color: loss
+            show: (calcs.profit < 0)
+            label:
+              text: "`\\\\text{Loss = ${-calcs.profit.toFixed(0)}}`"
+
+
+
+    sidebar:
+      controls:
+        - title: Optimal Quantity as a function of price
+          sliders:
+            - param: p
+              label: p

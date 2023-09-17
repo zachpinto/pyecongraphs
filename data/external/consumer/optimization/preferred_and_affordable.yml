@@ -1,0 +1,106 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: x1
+  value: '10'
+  min: '0'
+  max: '100'
+  round: 0.01
+- name: x2
+  value: '40'
+  min: '0'
+  max: '100'
+  round: 0.01
+- name: p1
+  value: '3'
+  min: '0.1'
+  max: '10'
+  round: '0.01'
+- name: p2
+  value: '4'
+  min: '0.1'
+  max: '10'
+  round: '0.01'
+- name: alpha
+  value: 0.5
+  min: 0.05
+  max: 0.95
+  round: '0.01'
+- name: showCheaper
+  value: false
+- name: showCostlier
+  value: false
+- name: showPreferred
+  value: false
+- name: showDispreferred
+  value: false
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 100
+      objects:
+      - type: EconBundle
+        def:
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.alpha
+          budgetLine:
+            p1: params.p1
+            p2: params.p2
+            m: params.p1*params.x1+params.p2*params.x2
+            label: BL
+            draggable: false
+            handles: false
+            set: params.showCheaper
+            costlier: params.showCostlier
+            show: "(params.showCheaper || params.showCostlier)"
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+            position: tr
+          drag:
+          - directions: x
+            param: x1
+            expression: params.x1 + drag.dx
+          - directions: y
+            param: x2
+            expression: params.x2 + drag.dy
+          droplines:
+            vertical: params.x1.toFixed(0)
+            horizontal: params.x2.toFixed(0)
+          indifferenceCurve:
+            showPreferred: params.showPreferred
+            showDispreferred: params.showDispreferred
+    sidebar:
+      controls:
+      - title: Cost and Benefit of Bundle X
+        sliders:
+        - param: p1
+          label: p_1
+        - param: p2
+          label: p_2
+        - param: alpha
+          label: "\\alpha"
+        checkboxes:
+        - param: showPreferred
+          label: "\\text{show preferred bundles}"
+        - param: showDispreferred
+          label: "\\text{show dispreferred bundles}"
+        - param: showCheaper
+          label: "\\text{show less costly bundles}"
+        - param: showCostlier
+          label: "\\text{show more costly bundles}"

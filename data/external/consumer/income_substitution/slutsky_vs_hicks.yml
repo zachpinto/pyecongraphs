@@ -1,0 +1,349 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: "0.5"
+    min: "0.05"
+    max: "0.95"
+    round: "0.01"
+  - name: r
+    value: 0.25
+    min: -4
+    max: 0.8
+    round: "0.05"
+  - name: p11
+    value: "4"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: p12
+    value: "2"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: p2
+    value: "4"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: m
+    value: "160"
+    min: "0"
+    max: "400"
+    round: "1"
+  - name: showIOC
+    value: false
+restrictions:
+  - expression: params.m/params.p11
+    min: "1"
+    max: "100"
+  - expression: params.m/params.p12
+    min: "1"
+    max: "100"
+  - expression: params.m/params.p2
+    min: "1"
+    max: "50"
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      position:
+        x: 0.25
+        "y": 0
+        width: 0.5
+        height: 1
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - type: EconSlutskyBundle
+          def:
+            name: slutskyBundle
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              lineStyle: dotted
+            p1: params.p12
+            label:
+              text: "Y"
+            droplines: {}
+            show: (params.r != 0)
+        - type: EconSlutskyBundle
+          def:
+            name: slutskyBundle
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              lineStyle: dotted
+            p1: params.p12
+            label:
+              text: "Y"
+            droplines: {}
+            show: (params.r == 0)
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p12
+              p2: params.p2
+              m: params.m
+              handles: true
+              draggable: true
+              label:
+                text: BL_2
+            label:
+              text: Z
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_2
+            show: (params.r != 0)
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              stroke: gray
+              handles: true
+              draggable: true
+              label:
+                text: BL_1
+            label:
+              text: X
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_1
+            show: (params.r != 0)
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p12
+              p2: params.p2
+              m: params.m
+              handles: true
+              draggable: true
+              label:
+                text: BL_2
+            label:
+              text: Z
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_2
+            show: (params.r == 0)
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              stroke: gray
+              handles: true
+              draggable: true
+              label:
+                text: BL_1
+            label:
+              text: X
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_1
+            show: (params.r == 0)
+    bottomGraph:
+      position:
+        x: 0.25
+        "y": 0
+        width: 0.5
+        height: 1
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - type: EconHicksBundle
+          def:
+            name: hicksBundle
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              lineStyle: dotted
+            p1: params.p12
+            label:
+              text: C
+            show: (params.r != 0)
+            droplines: {}
+        - type: EconHicksBundle
+          def:
+            name: hicksBundle
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              lineStyle: dotted
+            p1: params.p12
+            label:
+              text: C
+            droplines: {}
+            show: (params.r == 0)
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p12
+              p2: params.p2
+              m: params.m
+              handles: true
+              draggable: true
+              label:
+                text: BL_2
+            label:
+              text: Z
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_2
+            show: (params.r != 0)
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              stroke: gray
+              handles: true
+              draggable: true
+              label:
+                text: BL_1
+            label:
+              text: X
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_1
+            show: (params.r != 0)
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p12
+              p2: params.p2
+              m: params.m
+              handles: true
+              draggable: true
+              label:
+                text: BL_2
+            label:
+              text: Z
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_2
+            show: (params.r == 0)
+        - type: EconOptimalBundle
+          def:
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              stroke: gray
+              handles: true
+              draggable: true
+              label:
+                text: BL_1
+            label:
+              text: X
+            droplines: {}
+            indifferenceCurve:
+              label:
+                text: U_1
+            show: (params.r == 0)
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: \alpha
+            - param: r
+              label: r
+          divs:
+            - html: '`$$u(x_1,x_2) = (\\alpha x_1^r + (1 - \\alpha) x_2^r)^{1/r}$$`'
+        - title: Budget Parameters
+          sliders:
+            - param: p11
+              label: p_1
+            - param: p12
+              label: p'_1
+            - param: p2
+              label: p_2
+            - param: m
+              label: m

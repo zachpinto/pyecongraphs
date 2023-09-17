@@ -1,0 +1,92 @@
+params:
+  - {name: x, value: 4, min: 2, max: 10, round: 0.1}
+calcs:
+  v: (10*(params.x) - 0.5*(params.x)^2)
+  mv: (10 - params.x)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 11
+      yAxis:
+        max: 55
+        title: Dollars
+      objects:
+
+      - Curve:
+          fn: 10*(x) - 0.5*(x)^2
+          min: 0
+          samplePoints: 500
+          color: blue
+          label:
+            text: \text{Total Benefit }(v(x_1))
+            x: 11
+            position: b
+            bgcolor: none
+
+      - Point:
+          r: 4
+          coordinates: [params.x, calcs.v]
+          drag:
+            - horizontal: x
+          color: blue
+
+      - Segment:
+          a: [params.x, 1]
+          b: [params.x, calcs.v - 1.5]
+          drag:
+            - horizontal: x
+          startArrow: true
+          endArrow: true
+          color: blue
+          label:
+            text: "`TB(${params.x.toFixed(1)}) = ${calcs.v.toFixed(2)}`"
+            align: left
+            xPixelOffset: 5
+            fontSize: 9
+
+    bottomGraph:
+      xAxis:
+        max: 11
+        title: Quantity of Good 1
+      yAxis:
+        max: 11
+        title: Dollars Per Unit of Good 1
+      objects:
+
+      - Line:
+          yIntercept: 10
+          slope: -1
+          color: blue
+          areaBelow: {max: params.x}
+          label:
+            text: \text{Marginal Benefit }(v'(x_1))
+            x: 9
+            position: bl
+            bgcolor: none
+
+      - Label:
+          coordinates: [(0.5*params.x), (1 + 0.5*calcs.mv)]
+          text: "`TB = ${calcs.v.toFixed(2)}`"
+          color: blue
+          bgcolor: none
+          fontSize: 9
+
+      - Point:
+          r: 4
+          coordinates: [params.x, calcs.mv]
+          drag:
+            - horizontal: x
+          color: blue
+          droplines:
+            vertical: "`x_1 = ${params.x.toFixed(1)}`"
+
+    sidebar:
+      controls:
+        - title: Total and Marginal Benefit
+          description: The total benefit (or gross consumer's surplus) from consuming x units of a good is the integral of the marginal benefit from 0 to x.
+          sliders:
+            - param: x
+              label: x_1
+          divs:
+            - html: "`$$\\\\begin{aligned}TB(${params.x.toFixed(1)}) &= 10\\\\times${params.x.toFixed(1)} - \\\\tfrac{1}{2}(${params.x.toFixed(1)})^2 \\\\\\\\ &= ${calcs.v.toFixed(2)} \\\\\\\\ \\\\\\\\ MB(${params.x.toFixed(1)}) &= 10 - ${params.x.toFixed(1)} \\\\\\\\ &= ${calcs.mv.toFixed(2)}\\\\end{aligned}$$`"

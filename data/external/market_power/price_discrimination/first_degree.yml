@@ -1,0 +1,97 @@
+colors:
+  type1: colors.blue
+  type2: colors.blue
+params:
+  - {name: q1, value: 20, min: 0, max: 20}
+  - {name: q2, value: 30, min: 0, max: 30}
+calcs:
+  tb11: (20*params.q1 - 0.5*params.q1*params.q1)
+  tb22: (30*params.q2 - 0.5*params.q2*params.q2)
+  tb21: (30*params.q2 - 0.5*params.q1*params.q1)
+  cs21: (calcs.tb21 - calcs.tb11)
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        max: 30
+        title: Quality of Budget Offering
+      yAxis:
+        max: 30
+        title: Dollars per unit of quality
+      objects:
+
+        - Line:
+            yIntercept: 20
+            slope: -1
+            color: colors.type1
+            areaBelow:
+              max: params.q1
+            label:
+              x: 15
+              text: MB_1(q_1)
+              position: bl
+
+        - Point:
+            coordinates: [params.q1, (20-params.q1)]
+            color: colors.type1
+            draggable: true
+            droplines:
+              vertical: q_1
+
+        - Label:
+            coordinates: [(0.4*params.q1), (10-0.2*params.q1)]
+            text: TB_1(q_1)
+            bgcolor: none
+            color: colors.type1
+            show: (params.q1 > 0)
+
+    leftControls:
+      title: "Type 1 Consumers: low valuation"
+      divs:
+        - html: "`$$\\\\color{${colors.type1}}\\\\begin{aligned}TB_1(q_1) &= 20q_1 - \\\\tfrac{1}{2}q_1^2\\\\\\\\TB_1(${params.q1}) &= ${calcs.tb11}\\\\end{aligned}$$`"
+
+    rightGraph:
+      xAxis:
+        max: 30
+        title: Quality of Premium Offering
+      yAxis:
+        max: 30
+        title: Dollars per unit of quality
+      objects:
+
+        - Line:
+            yIntercept: 30
+            slope: -1
+            color: colors.type2
+            areaBelow:
+              max: params.q2
+            label:
+              x: 15
+              text: MB_2(q_2)
+              position: bl
+
+        - Point:
+            coordinates: [params.q2, (30-params.q2)]
+            color: colors.type2
+            draggable: true
+            droplines:
+              vertical: q_2
+
+        - Label:
+            coordinates: [(0.4*params.q2), (15-0.2*params.q2)]
+            text: TB_2(q_2)
+            show: (params.q2 > 0)
+            bgcolor: none
+            color: colors.type2
+
+    rightControls:
+      title: "Type 2 Consumers: high valuation"
+      divs:
+        - html: "`$$\\\\color{${colors.type2}}\\\\begin{aligned}TB_2(q_2) &= 30q_2 - \\\\tfrac{1}{2}q_2^2\\\\\\\\TB_2(${params.q2}) &= ${calcs.tb22}\\\\end{aligned}$$`"
+
+    sidebar:
+      controls:
+        - title: First-Degree Price Discrimination
+          divs:
+            - html: "If a firm can perfectly observe the total benefit a consumer places on its product's quality, it can offer two products aimed at two market segments: a low-price, low-quality âbudget offeringâ and a high-price, high-quality âpremium offering.â"
+            - html: "`Because the firm can perfectly observe each type of consumer, it can charge each one their highest valuation for the relevant product:$$\\\\begin{aligned}\\\\text{Total Revenue} &= \\\\textcolor{${colors.type1}}{TB_1(q_1)} + \\\\color{${colors.type2}}{TB_2(q_2)}\\\\\\\\&= \\\\textcolor{${colors.type1}}{${calcs.tb11}} + \\\\color{${colors.type2}}{${calcs.tb22}}\\\\\\\\&= ${(calcs.tb11+calcs.tb22)}\\\\end{aligned}$$`"

@@ -1,0 +1,83 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 30
+    min: 1
+    max: 60
+    round: 1
+  - name: x2
+    value: 30
+    min: 1
+    max: 60
+    round: 1
+  - name: alpha
+    value: 0.6
+    min: 0.01
+    max: 0.99
+    round: 0.01
+calcs:
+  mrs: (params.alpha*params.x2/((1-params.alpha)*params.x1))
+  dx: (sqrt(400/(1 + calcs.mrs*calcs.mrs)))
+layout:
+  OneGraphPlusSidebar:
+
+    graph:
+      xAxis:
+        max: 80
+        ticks: 4
+        title: Good 1
+      yAxis:
+        max: 80
+        ticks: 4
+        title: Good 2
+      objects:
+        - EconIndifferenceMap:
+            utilityFunction:
+              CobbDouglas:
+                alpha: params.alpha
+            levels: [ 10, 20, 30, 40, 50, 60, 70, 80, 90]
+        - EconBundle:
+            coordinates: [ params.x1, params.x2 ]
+            color: blue
+            r: 4
+            label:
+              text:
+            droplines:
+              vertical: params.x1
+              horizontal: params.x2
+            utilityFunction:
+              CobbDouglas:
+                alpha: params.alpha
+            drag:
+              - horizontal: x1
+              - vertical: x2
+            indifferenceCurve:
+              label:
+                text:
+        - Line:
+            point: [params.x1, params.x2]
+            slope: (-1*calcs.mrs)
+            min: (params.x1 - calcs.dx)
+            max: (params.x1 + calcs.dx)
+            color: mrs
+            label:
+              text: "`MRS = ${calcs.mrs.toFixed(2)}`"
+              x: (params.x1 + calcs.dx)
+              position: t
+
+
+
+    sidebar:
+      controls:
+        - title: Normalized Cobb-Douglas Utility
+          description: By normalizing the exponents to sum to 1, we can express the agent's preferences with a single parameter.
+          sliders:
+            - param: alpha
+              label: \alpha
+          divs:
+            - html: "`$$u(x_1,x_2) = x_1^\\\\alpha x_2^{1 - \\\\alpha}$$`"
+            - html: "`$$MRS(x_1,x_2) = {\\\\alpha x_2 \\\\over (1-\\\\alpha)x_1}$$`"
+            - html: "`$$MRS(${params.x1.toFixed(0)},${params.x2.toFixed(0)}) = {${params.alpha.toFixed(2)} \\\\times ${params.x2.toFixed(0)} \\\\over ${(1-params.alpha).toFixed(2)} \\\\times ${params.x1.toFixed(0)}} = ${calcs.mrs.toFixed(2)}$$`"

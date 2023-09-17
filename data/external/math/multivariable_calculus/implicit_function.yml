@@ -1,0 +1,360 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x
+    value: 1
+    min: 1
+    max: 8
+    round: 0.1
+  - name: dx
+    value: 2
+    max: 2
+    min: 0
+    round: 0.01
+  - name: z
+    value: 20
+    min: 0
+    max: 40
+    round: 1
+  - name: f
+    value: 0
+  - name: showProjection
+    value: 1
+calcs:
+  y1: "(params.z/(4*sqrt(params.x)))"
+  y2: "(0.25*params.z - 0.5*params.x)"
+  y3: "(sqrt(params.z - params.x*params.x))"
+  y: "((params.f == 0) ? calcs.y1 : (params.f == 1) ? calcs.y2 : calcs.y3)"
+  xFinal: (params.x + params.dx)
+  yFinal1: "(params.z/(4*sqrt(calcs.xFinal)))"
+  yFinal2: "(0.25*params.z - 0.5*calcs.xFinal)"
+  yFinal3: "(sqrt(params.z - calcs.xFinal*calcs.xFinal))"
+  yFinal: "((params.f == 0) ? calcs.yFinal1 : (params.f == 1) ? calcs.yFinal2 : calcs.yFinal3)"
+  zMid1: (4*sqrt(calcs.xFinal)*calcs.y)
+  zMid2: (2*calcs.xFinal + 4*calcs.y)
+  zMid3: (calcs.xFinal*calcs.xFinal + calcs.y*calcs.y)
+  zMid: "((params.f == 0) ? calcs.zMid1 : (params.f == 1) ? calcs.zMid2 : calcs.zMid3)"
+  dzMid: "(calcs.zMid - params.z)"
+  m1: "(calcs.y/(2*params.x))"
+  m2: "(0.5)"
+  m3: "(params.x/calcs.y)"
+  dydx: "((calcs.y - calcs.yFinal)/params.dx)"
+  m: "(params.dx > 0 ? calcs.dydx : (params.f == 0) ? calcs.m1 : (params.f == 1) ? calcs.m2 : calcs.m3)"
+layout:
+  MathboxPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 10
+        step: 1
+        title: x
+      yAxis:
+        min: 0
+        max: 10
+        step: 1
+        title: y
+      zAxis:
+        min: 0
+        max: 100
+        step: 10
+        title: z
+      objects:
+        - MathboxPlane:
+            z: params.z
+            fill: colors.blue
+            opacity: 0.5
+        - MathboxFunctionSurface:
+            fn:
+              fn: "(4*((x)^0.5)*(y))"
+              samplePoints: 20
+            shaded: true
+            show: (params.f == 0)
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "params.z/(4*(x)^0.5)"
+              fnZ: params.z
+            strokeWidth: 10
+            show: (params.f == 0)
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "(params.z/(4*(y)))^2"
+              fnZ: params.z
+              ind: y
+            strokeWidth: 10
+            show: (params.f == 0)
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "params.z/(4*(x)^0.5)"
+              fnZ: 0
+            strokeWidth: 3
+            show: (params.f == 0 && params.showProjection)
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "(params.z/(4*(y)))^2"
+              fnZ: 0
+              ind: y
+            strokeWidth: 3
+            show: (params.f == 0 && params.showProjection)
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxLine:
+            x1: (params.z*params.z/1600)
+            x2: (params.z*params.z/1600)
+            y1: 10
+            y2: 10
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 0 && params.showProjection)
+        - MathboxLine:
+            x1: 10
+            x2: 10
+            y1: (params.z/(4*sqrt(10)))
+            y2: (params.z/(4*sqrt(10)))
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 0 && params.showProjection)
+
+        # f(x,y) = 2x + 4y
+        - MathboxFunctionSurface:
+            fn:
+              fn: "(2*(x) + 4*(y))"
+              samplePoints: 20
+            shaded: true
+            show: (params.f == 1)
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "0.25*params.z - 0.5*(x)"
+              fnZ: params.z
+            strokeWidth: 10
+            show: (params.f == 1)
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "0.25*params.z - 0.5*(x)"
+              fnZ: 0
+            strokeWidth: 3
+            show: (params.f == 1 && params.showProjection)
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxLine:
+            y1: (0.25*params.z)
+            y2: (0.25*params.z)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 1 && params.z < 40 && params.showProjection)
+        - MathboxLine:
+            y1: 10
+            y2: 10
+            x1: (0.5*params.z - 20)
+            x2: (0.5*params.z - 20)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 1 && params.z >= 40 && params.z <= 60 && params.showProjection)
+        - MathboxLine:
+            x1: (0.5*params.z)
+            x2: (0.5*params.z)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 1 && params.z < 20 && params.showProjection)
+        - MathboxLine:
+            x1: 10
+            x2: 10
+            y1: (0.25*params.z - 5)
+            y2: (0.25*params.z - 5)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 1 && params.z >= 20 && params.z <= 60 && params.showProjection)
+
+        # f(x,y) = x^2 + y^2
+        - MathboxFunctionSurface:
+            fn:
+              fn: "((x)^2)+((y)^2)"
+              samplePoints: 20
+            shaded: true
+            show: (params.f == 2)
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "sqrt(params.z - (x)*(x))"
+              fnZ: params.z
+            strokeWidth: 10
+            show: (params.f == 2)
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "sqrt(params.z - (y)*(y))"
+              fnZ: params.z
+              ind: y
+            strokeWidth: 10
+            show: (params.f == 2)
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "sqrt(params.z - (x)*(x))"
+              fnZ: 0
+            strokeWidth: 3
+            show: (params.f == 2 && params.showProjection)
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: "sqrt(params.z - (y)*(y))"
+              fnZ: 0
+              ind: y
+            strokeWidth: 3
+            show: (params.f == 2 && params.showProjection)
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxLine:
+            x1: sqrt(params.z)
+            x2: sqrt(params.z)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 2 && params.showProjection)
+        - MathboxLine:
+            y1: sqrt(params.z)
+            y2: sqrt(params.z)
+            z2: params.z
+            linestyle: dotted
+            show: (params.f == 2 && params.showProjection)
+
+        
+        # Intermediate Point
+        - MathboxPoint:
+            x: calcs.xFinal
+            y: calcs.y
+            z: calcs.zMid
+            stroke: orange
+        # Dropline showing x movement
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.y
+            x2: calcs.xFinal
+            y2: calcs.y
+            stroke: orange
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - MathboxLine:
+            x1: calcs.xFinal
+            y1: calcs.y
+            x2: calcs.xFinal
+            y2: calcs.y
+            z2: calcs.zMid
+            stroke: orange
+            strokeWidth: 10
+            lineStyle: dotted
+        # Final Point
+        - MathboxPoint:
+            x: calcs.xFinal
+            y: calcs.yFinal
+            z: params.z
+            stroke: red
+        # Dropline showing y movement
+        - MathboxLine:
+            x1: calcs.xFinal
+            y1: calcs.y
+            x2: calcs.xFinal
+            y2: calcs.yFinal
+            stroke: red
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - MathboxLine:
+            x1: calcs.xFinal
+            y1: calcs.yFinal
+            x2: calcs.xFinal
+            y2: calcs.yFinal
+            z2: params.z
+            stroke: red
+            strokeWidth: 10
+            lineStyle: dotted
+        # Original point
+        - MathboxPoint:
+            x: params.x
+            y: calcs.y
+            z: params.z
+            stroke: blue
+        # Vertical dropline
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.y
+            x2: params.x
+            y2: calcs.y
+            z2: params.z
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.y
+            z1: params.z
+            x2: calcs.xFinal
+            y2: calcs.y
+            z2: calcs.zMid
+            strokeWidth: 10
+            stroke: orange
+        - MathboxLine:
+            x1: calcs.xFinal
+            y1: calcs.y
+            z1: calcs.zMid
+            x2: calcs.xFinal
+            y2: calcs.yFinal
+            z2: params.z
+            strokeWidth: 10
+            stroke: red
+
+        # Lines showing tangency slope
+        - MathboxLine:
+            x1: params.x - 2
+            x2: calcs.xFinal + 2
+            y1: calcs.y + 2*calcs.m
+            y2: calcs.yFinal - 2*calcs.m
+            z1: params.z
+            z2: params.z
+            strokeWidth: 10
+            stroke: blue
+        - MathboxLine:
+            x1: params.x - 2
+            x2: calcs.xFinal + 2
+            y1: calcs.y + 2*calcs.m
+            y2: calcs.yFinal - 2*calcs.m
+            strokeWidth: 3
+            stroke: blue
+
+        
+
+    sidebar:
+      controls:
+        - title: Total Derivative along a Level Set
+          description: Along a level set, the changes in f(x,y) due to the changes in x and y cancel each other out. 
+          sliders:
+            - param: x
+              label: x
+            - param: dx
+              label: \Delta x
+            - param: z
+              label: z
+          radioGroup:
+            param: f
+            options:
+              - $f(x,y) = 4x^{1 \over 2}y$
+              - $f(x,y) = 2x + 4y$
+              - $f(x,y) = x^2 + y^2$

@@ -1,0 +1,166 @@
+schema: EconSchema
+colors:
+  marginalCost: colors.orange
+  averageCost: colors.purple
+  variableCost: colors.gray
+  totalCost: colors.red
+params:
+  - name: p
+    value: 8.5
+    min: 8
+    max: 25
+    round: 0.5
+calcs:
+  q: (4 + sqrt(2*params.p - 16))
+  qLow: (4 - sqrt(2*params.p - 16))
+  tc: (81 + 16*calcs.q-2*(calcs.q)^2+(1/6)*(calcs.q)^3)
+  tcLow: (81 + 16*calcs.qLow-2*(calcs.qLow)^2+(1/6)*(calcs.qLow)^3)
+  mc: (16 - 4*calcs.q + 0.5*calcs.q*calcs.q)
+  vc: (calcs.tc - 81)
+  ac: (calcs.tc/calcs.q)
+  avc: (calcs.vc/calcs.q)
+  tr: (calcs.q * params.p)
+  profit: (calcs.tr - calcs.tc)
+  profitLow: (params.p*calcs.qLow - calcs.tcLow)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      yAxis:
+        title: Dollars
+        max: 150
+        min: -150
+      xAxis:
+        max: 12
+        ticks: 0
+      objects:
+
+        # Variable Cost
+        - Curve:
+            fn: 16*(x)-2*(x)*(x)+(x)*(x)*(x)/6
+            color: variableCost
+            label:
+              text: VC
+              x: 10.8
+              position: bl
+              bgcolor: none
+
+        - Point:
+            coordinates: [ calcs.q, calcs.vc ]
+            color: variableCost
+            r: 4
+            droplines:
+              vertical:
+
+        # Total Revenue
+        - Line:
+            slope: params.p
+            color: green
+            label:
+              text: TR
+              x: 11
+              position: tl
+
+        - Point:
+            coordinates: [ calcs.q, calcs.tr ]
+            color: green
+            r: 4
+            droplines:
+              vertical:
+
+        - Label:
+            coordinates: [(125/params.p), 125]
+            text: TR
+            color: green
+            position: br
+            show: (params.p >= 14)
+
+        # Profit
+
+        - Curve:
+            fn: params.p*(x) - (81 + 16*(x)-2*(x)*(x)+(x)*(x)*(x)/6)
+            color: purple
+            label:
+              text: \text{Profit/Loss}
+              x: max(9.5, calcs.q + 2)
+              position: bl
+              bgcolor: none
+
+        - Point:
+            coordinates: [12, -81]
+            color: purple
+            r: 0
+            droplines:
+              horizontal: -F
+            label:
+              text: \text{Loss if shut down}
+              position: r
+
+        - Point:
+            coordinates: [ calcs.q, calcs.profit ]
+            color: purple
+            r: 4
+            droplines:
+              vertical:
+              horizontal:
+
+
+    bottomGraph:
+      yAxis:
+        title: Dollars per Unit
+        max: 25
+      xAxis:
+        title: Output ($q$)
+        max: 12
+        ticks: 12
+      objects:
+
+        # Average variable cost
+        - Curve:
+            fn: 16-2*(x)+(1/6)*(x)*(x)
+            color: variableCost
+            label:
+              text: AVC
+              x: 2
+              position: bl
+              bgcolor: none
+
+        # Marginal cost
+        - Curve:
+            fn: 16 - 4*(x)+0.5*(x)*(x)
+            color: marginalCost
+            label:
+              text: MC
+              x: 9.83
+              position: bl
+              bgcolor: none
+
+        # Average revenue
+        - Line:
+            yIntercept: params.p
+            color: demand
+            drag:
+              - vertical: p
+            label:
+              text: MR = AR
+              x: 12
+              position: tr
+              bgcolor: none
+
+        - Point:
+            coordinates: [ calcs.q, params.p ]
+            color: demand
+            r: 4
+            drag:
+              - vertical: p
+            droplines:
+              vertical:
+              horizontal: "`p = ${params.p.toFixed(1)}`"
+
+
+
+    sidebar:
+      controls:
+        - title: Variable cost and the shutdown condition
+          sliders:
+            - param: p
+              label: p

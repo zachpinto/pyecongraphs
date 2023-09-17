@@ -1,0 +1,139 @@
+schema: EconSchema
+params:
+- {name: L, min: 0, max: 99, round: 1, value: 75}
+calcs:
+  L2: (100-params.L)
+  x2: (10*(sqrt(calcs.L2)))
+  x1: params.L
+  mrt: (5*(calcs.L2)^(-0.5))
+  mrs: (0.25)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 240
+        ticks: 12
+        title: Fish ($x_1$)
+      yAxis:
+        max: 120
+        title: Coconuts ($x_2$)
+
+      objects:
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            PerfectSubstitutes:
+              coefficients: [1,4]
+          levels: [100,200,300,400,500]
+          yMin: -10
+          yMax: 130
+          xMin: 0
+          xMax: 130
+
+      # PPF
+      - Curve:
+          fn: 10*sqrt(100-(x))
+          max: 100
+          samplePoints: 500
+          color: red
+          strokeWidth: 2
+          areaBelow: true
+          label:
+            text: PPF
+            x: 98
+            position: r
+
+
+      # Bundle
+      - EconBundle:
+          name: X
+          utilityFunction:
+            PerfectSubstitutes:
+              coefficients: [1,4]
+          coordinates: [calcs.x1, calcs.x2]
+          color: blue
+          drag:
+          - horizontal: L
+          droplines:
+            vertical: calcs.x1.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: -calcs.mrt
+          min: calcs.x1 - 20
+          max: calcs.x1 + 20
+          strokeWidth: 5
+          label:
+            text: MRT
+            x: calcs.x1 + 18
+            position: tr
+            bgcolor: 
+
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: -calcs.mrs
+          color: colors.demand
+          min: calcs.x1 - 20
+          max: calcs.x1 + 20
+          strokeWidth: 5
+          label:
+            text: MRS
+            x: calcs.x1 + 18
+            position: bl
+            bgcolor: 
+
+    bottomGraph:
+      xAxis:
+        max: 100
+        title: Labor Devoted to Fish Production ($L_1$)
+      yAxis:
+        max: 5
+        title: Coconuts per Fish
+      objects:
+      - Point:
+         coordinates: [params.L, calcs.mrs]
+         droplines:
+           vertical: params.L
+         drag:
+           - horizontal: L
+      - Point:
+         coordinates: [params.L, calcs.mrt]
+         color: orange
+         droplines:
+           vertical: params.L
+           horizontal: calcs.mrt.toFixed(2)
+         drag:
+           - horizontal: L
+      - Curve:
+         fn: (5*(100 - (x))^(-0.5))
+         color: supply
+         samplePoints: 200
+         label:
+           text: MRT
+           x: 90
+      - Line:
+         yIntercept: 0.25
+         color: demand
+         label:
+           text: MRS
+           x: 90
+           position: b
+
+
+    sidebar:
+      controls:
+      - title: "MRS vs MRT: Perfect Substitutes"
+        sliders:
+        - param: L
+          label: L_1
+        divs:
+        - html: <h4>Utility Function:</h4>$$u(x_1,x_2) = x_1 + 4x_2$$ $$MRS = \tfrac{1}{4}$$
+        - html: "`<h4>Production Functions:</h4> $$x_1 = f_1(L_1) = L_1$$ $$x_2 =f_2(L_2) = 10(\\\\sqrt{L_2})$$ <h4>Produciton Possibilities Frontier:</h4> $$x_1 + {x_2^2 \\\\over 100} = 100$$ $$MRT = {50 \\\\over x_2}$$ $$MRT(${calcs.x1.toFixed(0)},${calcs.x2.toFixed(0)}) = \\\\frac{50}{${calcs.x2.toFixed(0)}} = ${calcs.mrt.toFixed(2)}$$`"
+
+    

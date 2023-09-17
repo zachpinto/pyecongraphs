@@ -1,0 +1,154 @@
+schema: EconSchema
+colors:
+  ppf: colors.red
+params:
+- {name: R, min: 5, max: 95, round: 1, value: 55}
+- {name: L, min: 5, max: 95, round: 1, value: 64}
+- {name: showSlopes, value: true}
+calcs:
+  x1: (10*sqrt(params.L))
+  x2: (6*sqrt(100-params.L))
+  L2: (100-params.L)
+  mrt: (0.6*sqrt(params.L/calcs.L2))
+  x1R1: (2*params.R)
+  x1R2: (20 + params.R)
+  x2R: (100 - params.R)
+  leftOfKinkL: (params.L < 36)
+  rightOfKinkL: (params.L > 36)
+  atKinkL: (params.L == 36)
+  leftOfKinkR: (params.R < 20)
+  rightOfKinkR: (params.R > 20)
+  atKinkR: (params.R == 20)
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+        title: Fish ($x_1$)
+      yAxis:
+        max: 120
+        title: Coconuts ($x_2$)
+        ticks: 0
+
+      objects:
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            PerfectComplements:
+              coefficients: [1/5,1/4]
+          levels: [3, 6, 9, 12, 15, 18, 21]
+
+      # PPF
+      - Ellipse:
+          c: [0,0]
+          rx: 100
+          ry: 60
+          color: red
+          strokeWidth: 2
+          label:
+            text: PPF
+            coordinates: [101,5]
+            position: l
+
+
+      # Bundle
+      - EconBundle:
+          name: X
+          utilityFunction:
+            PerfectComplements:
+              coefficients: [1/5,1/4]
+          coordinates: [calcs.x1, calcs.x2]
+          color: blue
+          drag:
+          - horizontal: L
+          droplines:
+            vertical: calcs.x1.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+          indifferenceCurve:
+            showPreferred: true
+            label:
+              text:
+
+    rightGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+        title: Fish ($x_1$)
+      yAxis:
+        max: 120
+        title: Coconuts ($x_2$)
+        ticks: 0
+      objects:
+      
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.25
+          levels: [17,34,51,68,85,102]
+
+      # Kinked PPF
+      - Line:
+          yIntercept: 100
+          slope: -0.5
+          areaBelow: true
+          color: ppf
+          max: 40
+            
+      - Line:
+          yIntercept: 120
+          slope: -1
+          areaBelow: true
+          color: ppf
+          min: 40
+          label:
+            text: PPF
+            x: 105
+            position: tr
+            bgcolor: 
+            
+      # Bundle
+      - EconBundle:
+          name: Y
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.25
+          coordinates: [calcs.x1R1, calcs.x2R]
+          color: blue
+          drag:
+          - horizontal: R
+          show: (params.R < 20)
+          droplines:
+            vertical: calcs.x1R1.toFixed(0)
+            horizontal: calcs.x2R.toFixed(0)
+          indifferenceCurve:
+            show: (params.R < 20)
+            showPreferred: (params.R < 20)
+            label:
+              text:
+       
+      - EconBundle:
+          name: Z
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.25
+          coordinates: [calcs.x1R2, calcs.x2R]
+          color: blue
+          drag:
+          - horizontal: R
+          show: (params.R >= 20)
+          droplines:
+            vertical: calcs.x1R2.toFixed(0)
+            horizontal: calcs.x2R.toFixed(0)
+          indifferenceCurve:
+            show: (params.R >= 20)
+            showPreferred: (params.R >= 20)
+            label:
+              text:
+      
+    sidebar:
+      controls:
+      - title: Potential Kink Solutions
+        description: If either the indifference curves have a kink (left) or the constraint has a kink (right), the optimal choice may not be characterized by the tangency condition MRS = MRT.

@@ -1,0 +1,118 @@
+schema: EconSchema
+params:
+- {name: m, min: 100, max: 200, round: 20, value: 160}
+- {name: c, min: 20, max: 100, value: 60}
+- {name: pH, min: 0.5, max: 1, round: 0.05, value: 0.8}
+- {name: pL, min: 0, max: 0.45, round: 0.05, value: 0.4}
+- {name: p, value: 0}
+calcs:
+  breakeven: (params.c/(params.pH - params.pL))
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 300
+        title: Ounces of Maple Syrup
+      yAxis:
+        max: 200
+        ticks: 10
+        title: Dollars Spent on Other Things
+      objects:
+        - Line:
+           yIntercept: params.m
+           slope: -params.pH
+           color: lightGrey
+           lineStyle: dotted
+        - Line:
+           yIntercept: params.m - params.c
+           slope: -params.pL
+           color: lightGrey
+           lineStyle: dotted
+        - EconBudgetLine:
+            p1: params.pH
+            p2: 1
+            m: params.m
+            label:
+              text:
+            set: (params.p == 0)
+            show: (params.p == 0)
+        - EconBudgetLine:
+            p1: params.pL
+            p2: 1
+            m: params.m - params.c
+            label:
+              text: 
+            set: (params.p == 1)
+            show: (params.p == 1)
+        - Line:
+            yIntercept: params.m - params.c
+            color: budget
+            show: ((params.p == 1) && (params.pL == 0))
+        - Area:
+            fn: params.m - params.c
+            color: budget
+            show: ((params.p == 1) && (params.pL == 0))
+        - Line:
+            yIntercept: params.m
+            slope: -params.pH
+            max: calcs.breakeven
+            label:
+              text: 
+            show: (params.p == 2)
+            color: budget
+        - Line:
+            yIntercept: params.m - params.c
+            slope: -1*params.pL
+            min: calcs.breakeven
+            label:
+              text: 
+            show: (params.p == 2)
+            color: budget
+        - Area:
+            fn: params.m - params.pH*(x)
+            color: green
+            show: (params.p == 2)
+            max: calcs.breakeven
+        - Area:
+            fn: (params.m - params.c - params.pL*(x))
+            color: green
+            show: (params.p == 2)
+            min: calcs.breakeven
+        - Line:
+           xIntercept: calcs.breakeven
+           lineStyle: dotted
+           ind: y
+           label:
+             text: \text{Breakeven}
+             y: 190
+           color: grey
+           show: (params.p == 2)
+        - Label:
+           coordinates: [0, params.m]
+           text: m
+           position: l
+           fontSize: 10
+        - Label:
+           coordinates: [0, params.m - params.c]
+           text: m - c
+           position: l
+           fontSize: 10
+    sidebar:
+      controls:
+      - title: "Kinked Budget Constraint Example: Bulk Discount"
+        description: "You have to pay full price up to a threshold; if you buy more than the threshold, you pay a lower price (on all units)."
+        sliders:
+        - param: pH
+          label: p_\text{W}
+        - param: pL
+          label: p_\text{C}
+        - param: m
+          label: m
+        - param: c
+          label: c
+        radioGroup:
+          param: p
+          options:
+          - No membership, Walmart price
+          - Costco membership, Costco price
+          - Implied budget set

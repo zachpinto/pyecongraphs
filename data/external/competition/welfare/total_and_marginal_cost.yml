@@ -1,0 +1,97 @@
+params:
+  - {name: x, value: 4, min: 2, max: 10, round: 0.1}
+calcs:
+  c: (params.x + 0.25*(params.x)^2)
+  mc: (1 + 0.5*params.x)
+
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 11
+      yAxis:
+        max: 55
+        title: Dollars
+      objects:
+
+      - Curve:
+          fn: (x) + ((x)^2)/4
+          min: 0
+          samplePoints: 500
+          color: red
+          label:
+            text: \text{Total Cost }(c(q))
+            x: 10
+            position: br
+
+      - Point:
+          r: 4
+          coordinates: [params.x, calcs.c]
+          color: red
+          drag:
+            - horizontal: x
+
+
+      - Segment:
+          a: [params.x, calcs.c - 1]
+          b: [params.x, 0.5]
+          drag:
+            - horizontal: x
+          startArrow: true
+          endArrow: true
+          color: red
+          label:
+            text: "`TC(${params.x.toFixed(1)}) = ${calcs.c.toFixed(2)}`"
+            align: left
+            xPixelOffset: 5
+            fontSize: 9
+
+    bottomGraph:
+      xAxis:
+        max: 11
+        title: Quantity Produced ($q$)
+      yAxis:
+        max: 11
+        title: Dollars Per Unit
+      objects:
+
+      - Area:
+          fn: 1 + 0.5*(x)
+          max: params.x
+          color: red
+
+      - Line:
+          yIntercept: 1
+          slope: 0.5
+          color: orange
+          label:
+            text: \text{Marginal Cost }(c'(q))
+            x: 10
+            position: br
+            bgcolor: none
+
+      - Label:
+          coordinates: [(0.5*params.x), (0.25*calcs.mc)]
+          text: "`TC = ${calcs.c.toFixed(2)}`"
+          color: red
+          bgcolor: none
+          fontSize: 9
+
+      - Point:
+          r: 4
+          coordinates: [params.x, calcs.mc]
+          drag:
+            - horizontal: x
+          color: orange
+          droplines:
+            vertical: "`q = ${params.x.toFixed(2)}`"
+
+    sidebar:
+      controls:
+        - title: Total and Marginal Cost
+          description: The total variable cost of producing q units of a good is the integral of the marginal cost from 0 to q.
+          sliders:
+              - param: x
+                label: q
+          divs:
+            - html: "`$$\\\\begin{aligned}TC(${params.x.toFixed(1)}) &= ${params.x.toFixed(1)} + \\\\tfrac{1}{4}(${params.x.toFixed(1)})^2 \\\\\\\\ &= ${calcs.c.toFixed(2)} \\\\\\\\ \\\\\\\\ MC(${params.x.toFixed(1)}) &= 1 + \\\\tfrac{1}{2}\\\\times ${params.x.toFixed(1)} \\\\\\\\ &= ${calcs.mc.toFixed(2)}\\\\end{aligned}$$`"

@@ -1,0 +1,308 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: "0.5"
+    min: "0"
+    max: "1"
+    round: "0.01"
+  - name: p
+    value: "3"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: q
+    value: "4"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: m
+    value: "120"
+    min: "0"
+    max: "400"
+    round: "1"
+  - name: showIOC
+    value: false
+  - name: showPOC
+    value: false
+calcs:
+  demand: (1 - params.a)*(params.q)/(params.a)
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - type: EconOptimalBundle
+          def:
+            name: optimum2
+            utilityFunction:
+              type: Complements
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: 2
+              p2: params.q
+              m: params.m
+              inMap: true
+            indifferenceCurve:
+              inMap: true
+            label: null
+            droplines: {}
+            r: 4
+            color: colors.offer
+            show: params.showPOC
+        - type: EconOptimalBundle
+          def:
+            name: optimum4
+            utilityFunction:
+              type: Complements
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: 4
+              p2: params.q
+              m: params.m
+              inMap: true
+            indifferenceCurve:
+              inMap: true
+            label: null
+            droplines: {}
+            r: 4
+            color: colors.offer
+            show: params.showPOC
+        - type: EconOptimalBundle
+          def:
+            name: optimum6
+            utilityFunction:
+              type: Complements
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: 6
+              p2: params.q
+              m: params.m
+              inMap: true
+            indifferenceCurve:
+              inMap: true
+            label: null
+            droplines: {}
+            r: 4
+            color: colors.offer
+            show: params.showPOC
+        - type: EconOptimalBundle
+          def:
+            name: optimum8
+            utilityFunction:
+              type: Complements
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: 8
+              p2: params.q
+              m: params.m
+              inMap: true
+            indifferenceCurve:
+              inMap: true
+            label: null
+            droplines: {}
+            r: 4
+            color: colors.offer
+            show: params.showPOC
+        - type: EconOptimalBundle
+          def:
+            name: optimum
+            utilityFunction:
+              type: Complements
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+              handles: true
+              draggable: true
+            showBudgetLine: true
+            showIndifferenceCurve: true
+        - type: EconPriceOfferCurve
+          def:
+            utilityFunction:
+              type: Complements
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+            label:
+              text: POC
+              t: 0.5
+            good: 1
+            min: 0.5
+            max: 30
+            show: params.showPOC
+    bottomGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Price of Good 1
+        orient: left
+        min: 0
+        max: 10
+      objects:
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: (params.m)/((y) + calcs.demand)
+              ind: "y"
+            color: colors.demand
+            label:
+              text: \text{Demand}
+              "y": 1
+        - type: Point
+          def:
+            coordinates:
+              - calcs.optimum2.x
+              - 2
+            r: 4
+            color: colors.demand
+            show: params.showPOC
+        - type: Point
+          def:
+            coordinates:
+              - calcs.optimum4.x
+              - 4
+            r: 4
+            color: colors.demand
+            show: params.showPOC
+        - type: Point
+          def:
+            coordinates:
+              - calcs.optimum6.x
+              - 6
+            r: 4
+            color: colors.demand
+            show: params.showPOC
+        - type: Point
+          def:
+            coordinates:
+              - calcs.optimum8.x
+              - 8
+            r: 4
+            color: colors.demand
+            show: params.showPOC
+        - type: Segment
+          def:
+            a:
+              - 0
+              - params.p
+            b:
+              - 100
+              - params.p
+            stroke: green
+            drag:
+              - directions: "y"
+                param: p
+                expression: params.p + drag.dy
+            label:
+              text: p_1
+              location: 0.05
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 2
+            b:
+              - 100
+              - 2
+            color: colors.budget
+            strokeWidth: 1
+            lineStyle: dotted
+            show: params.showPOC
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 4
+            b:
+              - 100
+              - 4
+            color: colors.budget
+            strokeWidth: 1
+            lineStyle: dotted
+            show: params.showPOC
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 6
+            b:
+              - 100
+              - 6
+            color: colors.budget
+            strokeWidth: 1
+            lineStyle: dotted
+            show: params.showPOC
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 8
+            b:
+              - 100
+              - 8
+            color: colors.budget
+            strokeWidth: 1
+            lineStyle: dotted
+            show: params.showPOC
+        - type: Point
+          def:
+            coordinates:
+              - calcs.optimum.x
+              - params.p
+            label:
+              text: d_1(p_1|p_2,m)
+            color: colors.demand
+            droplines:
+              vertical: x_1^*
+            drag:
+              - directions: "y"
+                param: p
+                expression: params.p + drag.dy
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: \alpha
+          divs:
+            - html: '`$$u(x_1,x_2) = \\min\\left\\{\\frac{x_1}{\\alpha},\\frac{x_2}{1 - \\alpha}\\right\\}$$`'
+        - title: Budget Parameters
+          sliders:
+            - param: p
+              label: p_1
+            - param: q
+              label: p_2
+            - param: m
+              label: m
+        - title: Price Offer Curve
+          checkboxes:
+            - param: showPOC
+              label: \text{Show POC}
+          divs:
+            - html: '`<table align=''center''><tr><td>$p_1$</td><td>$x_1^*$</td><td>$x_2^*$</td></tr><tr><td>2</td><td>${(calcs.optimum2.x).toFixed(1)}</td><td>${(calcs.optimum2.y).toFixed(1)}</td></tr><tr><td>4</td><td>${(calcs.optimum4.x).toFixed(1)}</td><td>${(calcs.optimum4.y).toFixed(1)}</td></tr><tr><td>6</td><td>${(calcs.optimum6.x).toFixed(1)}</td><td>${(calcs.optimum6.y).toFixed(1)}</td></tr><tr><td>8</td><td>${(calcs.optimum8.x).toFixed(1)}</td><td>${(calcs.optimum8.y).toFixed(1)}</td></tr><table>`'

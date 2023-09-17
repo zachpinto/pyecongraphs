@@ -1,0 +1,128 @@
+---
+params:
+- name: theta
+  value: 1
+  min: 0.143
+  max: 3.8
+  round: 0.001
+- name: DQ
+  value: 10
+  min: 0
+  max: 30
+- name: DP
+  value: 10
+  min: 0
+  max: 30
+- name: showRegions
+  value: false
+calcs:
+  Q: (120/(params.theta + 1))
+  P: (120 - calcs.Q)
+  MQ: calcs.Q - 0.5*params.DQ
+  MP: calcs.P + 0.5*params.DP
+  BQ: calcs.Q - params.DQ
+  BP: calcs.P + params.DP
+  showHorizontalArrow: "(params.DQ > 0)"
+  showVerticalArrow: "(params.DP > 0)"
+  pctDQ: "(round(100*params.DQ/(calcs.Q - 0.5*params.DQ)))"
+  pctDP: "(round(100*params.DP/(calcs.P + 0.5*params.DP)))"
+  e: "(calcs.pctDQ/calcs.pctDP)"
+  unitElastic: "(calcs.e - 1 == 0)"
+  elastic: "(calcs.e > 1)"
+  inelastic: "(calcs.e < 1)"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Quantity
+        min: 0
+        max: 140
+        ticks: 0
+      yAxis:
+        title: Price
+        min: 0
+        max: 140
+        ticks: 0
+      objects:
+      - Point:
+          color: colors.blue
+          coordinates:
+          - calcs.Q
+          - calcs.P
+          label:
+            text: A
+          droplines:
+            vertical: 
+            horizontal: 
+          drag:
+          - directions: xy
+            param: theta
+            expression: drag.y/drag.x
+      - Point:
+          color: colors.blue
+          coordinates:
+          - calcs.BQ
+          - calcs.BP
+          r: 4
+          droplines:
+            vertical: 
+            horizontal: 
+      - Segment:
+          color: colors.red
+          a:
+          - calcs.Q
+          - 3
+          b:
+          - calcs.BQ
+          - 3
+          endArrow: true
+          show: calcs.showHorizontalArrow
+          label:
+            text: "`-${calcs.pctDQ}\\\\%`"
+            position: b
+            fontSize: 10
+      - Segment:
+          color: colors.green
+          a:
+          - 3
+          - calcs.P
+          b:
+          - 3
+          - calcs.BP
+          endArrow: true
+          show: calcs.showVerticalArrow
+          label:
+            text: "`+${calcs.pctDP}\\\\%`"
+            position: r
+            fontSize: 10
+      - Line:
+          color: colors.blue
+          point:
+          - calcs.Q
+          - calcs.P
+          slope: -1
+          endArrow: true
+          label:
+            text: D
+            x: 110
+    sidebar:
+      controls:
+      - title: 'Changing Elasticity along a Linear Demand Curve'
+        description: Drag point A along the curve to see how the same absolute changes in P and Q correspond to different percentage changes, and therefore different elasticities.
+    explanation:    
+        divs:
+        - html: "`<p>At this point along the demand curve, a price increase of $\\\\color{${colors.green}}+${calcs.pctDP}\\\\%$ results in a demand decrease of $\\\\color{${colors.red}}-${calcs.pctDQ}\\\\%$.<p><p>The price elasticity of demand is the ratio of these two percentages:</p>
+            $$\\\\epsilon_{Q,P} = \\\\frac{\\\\color{${colors.red}}\\\\%\\\\Delta
+            Q}{\\\\color{${colors.green}}\\\\%\\\\Delta P}=\\\\frac{\\\\color{${colors.red}}-${calcs.pctDQ}\\\\%}{\\\\color{${colors.green}}+${calcs.pctDP}\\\\%}
+            = -${calcs.perfectlyElastic ? '\\\\infty' : calcs.e.toFixed(2)}$$`"
+        - html: <p>Since $|\epsilon| < 1$, we say that demand is <strong>inelastic</strong>
+            in this region. Intuitively, since $P$ is relatively low, the price increase is a relatively high percentage of the price; likewise, since $Q$ is relatively high, the quantity decrease is a relatively low percentage of the quantity.</p>
+          show: "(calcs.inelastic)"
+        - html: <p>Since $|\epsilon| = 1$, we say that demand is <strong>unit elastic</strong>
+            in this region. At this point, the absolute changes in $P$ and $Q$ represent the same percentage change in price and quantity.</p>
+          show: "(calcs.unitElastic)"
+        - html: <p>Since $|\epsilon| > 1$, we say that demand is <strong>elastic</strong>
+            in this region. Intuitively, since $P$ is relatively high, the price increase is a relatively low percentage of the price; likewise, since $Q$ is relatively low, the quantity decrease is a relatively high percentage of the quantity.</p>
+          show: "(calcs.elastic)"
+        

@@ -1,0 +1,253 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: w1
+  value: 12
+  min: 0
+  max: 20
+  round: 0.01
+- name: w2
+  value: 2
+  min: 0
+  max: 10
+  round: 0.01
+- name: x1
+  value: 10
+  min: 0
+  max: 20
+  round: 0.01
+- name: x2
+  value: 3
+  min: 0
+  max: 10
+  round: 0.01
+- name: a1
+  value: 0.5
+  min: 0.01
+  max: 1
+  round: 0.01
+- name: a2
+  value: 0.5
+  min: 0.01
+  max: 1
+  round: 0.01
+- name: showPreferred
+  value: true
+- name: showIndifferenceCurves
+  value: true
+- name: showPotentialTrade
+  value: true
+- name: showContractCurve
+  value: false
+layout:
+  EdgeworthBoxPlusTwoGraphsPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+      - EconContractCurve:
+          totalGood1: 20
+          totalGood2: 10
+          a: params.a1
+          b: params.a2
+          show: params.showContractCurve
+          label:
+            text: "\\text{Contract Curve}"
+            x: 18
+      - EconBundle:
+          color: colors.blue
+          coordinates:
+          - params.w1
+          - params.w2
+          label: {}
+          droplines:
+            vertical: "e_1^A"
+            horizontal: "e_2^A"
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a1
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: 
+      - EconBundle:
+          coordinates:
+          - params.x1
+          - params.x2
+          label: {}
+          droplines:
+            vertical: x_1^A
+            horizontal: x_2^A
+          show: params.showPotentialTrade
+      - EconBundle:
+          coordinates:
+          - params.w1
+          - params.w2
+          label:
+            text: "\\text{Endowment}"
+          droplines: {}
+          drag:
+          - horizontal: w1
+          - vertical: w2
+          color: colors.endowment
+      - EconBundle:
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+          droplines: {}
+          drag:
+          - directions: x
+            param: x1
+            expression: params.x1 + drag.dx
+          - directions: y
+            param: x2
+            expression: params.x2 + drag.dy
+          color: colors.endowment
+          show: params.showPotentialTrade
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          coordinates:
+          - (20 - params.w1)
+          - (10 - params.w2)
+          label: {}
+          droplines:
+            vertical: "e_1^B"
+            horizontal: "e_2^B"
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              coefficients: [1,1]
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: 
+            color: colors.orange
+          color: colors.orange
+      - EconBundle:
+          coordinates:
+          - (20-params.x1)
+          - (10-params.x2)
+          label:
+            text: X
+          droplines:
+            vertical: x_1^B
+            horizontal: x_2^B
+          color: colors.orange
+          show: params.showPotentialTrade
+    graph1:
+      xAxis:
+        title: A's Units of Good 1
+        max: 15
+      yAxis:
+        title: A's Units of Good 2
+        max: 15
+      objects:
+      - EconBundle:
+          name: EA
+          color: colors.blue
+          coordinates:
+          - params.w1
+          - params.w2
+          label:
+            text: "\\text{Endowment}"
+          droplines:
+            vertical: "e_1^A"
+            horizontal: "e_2^A"
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1,1]
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: 
+      - EconBundle:
+          name: XA
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [ 1,1 ]
+          color: colors.blue
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+          droplines:
+            vertical: x_1^A
+            horizontal: x_2^A
+          show: params.showPotentialTrade
+    graph2:
+      xAxis:
+        title: B's Units of Good 1
+        max: 15
+      yAxis:
+        title: B's Units of Good 2
+        max: 15
+      objects:
+      - EconBundle:
+          name: EB
+          coordinates:
+          - "(20 - params.w1)"
+          - "(10 - params.w2)"
+          label:
+            text: "`E`"
+          droplines:
+            vertical: "e_1^B"
+            horizontal: "e_2^B"
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1,1]
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: 
+            color: colors.orange
+          color: colors.orange
+      - EconBundle:
+          name: XB
+          coordinates:
+          - "(20-params.x1)"
+          - "(10-params.x2)"
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [ 1,1 ]
+          label:
+            text: X
+          droplines:
+            vertical: x_1^B
+            horizontal: x_2^B
+          color: colors.orange
+          show: params.showPotentialTrade
+    sidebar:
+      controls:
+      - title: Gains from Trade in the Edgeworth Box
+        divs:
+        - html: In this diagram, both A (origin bottom-left) and B (origin top-right) have the utility function $u(x_1,x_2) = x_1x_2$.
+        - table:
+            columns: ["Allocation", "$u^A$", "$u^B$"]
+            rows:
+              - ["`$E$ (${params.w1.toFixed(1)}, ${params.w2.toFixed(1)})`", calcs.EA.level.toFixed(2) , calcs.EB.level.toFixed(2)]
+              - ["`$X$ (${params.x1.toFixed(1)}, ${params.x2.toFixed(1)})`", calcs.XA.level.toFixed(2) , calcs.XB.level.toFixed(2)]
+
+

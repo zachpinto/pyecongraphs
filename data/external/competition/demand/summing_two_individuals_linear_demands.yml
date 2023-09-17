@@ -1,0 +1,208 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: n1
+  value: 80
+  min: 0
+  max: 100
+- name: n2
+  value: 40
+  min: 0
+  max: 100
+- name: xIntercept1
+  value: 100
+  min: 20
+  max: 400
+  round: 1
+- name: invSlope1
+  value: -2
+  min: -10
+  max: -0.5
+  round: 0.05
+- name: xIntercept2
+  value: 200
+  min: 20
+  max: 400
+  round: 1
+- name: invSlope2
+  value: -2
+  min: -10
+  max: -0.5
+  round: 0.05
+layout:
+  type: ThreeHorizontalGraphs
+  def:
+    leftGraph:
+      xAxis:
+        title: Quantity Demanded by Consumer 1
+        orient: bottom
+        min: 0
+        max: 400
+      yAxis:
+        title: Price
+        orient: left
+        min: 0
+        max: 200
+      objects:
+      - type: EconLinearDemand
+        def:
+          name: demand1
+          xIntercept: params.xIntercept1
+          invSlope: params.invSlope1
+          label:
+            text: D_1(p)
+            x: "(0.7*params.xIntercept1)"
+          handles: true
+          draggable: true
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - 0
+          - calcs.demand1.yIntercept
+          b:
+          - 0
+          - 200
+          strokeWidth: 6
+      - type: Line
+        def:
+          color: lightgray
+          yIntercept: calcs.demand1.yIntercept
+          lineStyle: dotted
+    middleGraph:
+      xAxis:
+        title: Quantity Demanded by Consumer 2
+        orient: bottom
+        min: 0
+        max: 400
+      yAxis:
+        orient: left
+        min: 0
+        max: 200
+      objects:
+      - type: EconLinearDemand
+        def:
+          name: demand2
+          xIntercept: params.xIntercept2
+          invSlope: params.invSlope2
+          label:
+            text: D_2(p)
+            x: "(0.7*params.xIntercept2)"
+          handles: true
+          draggable: true
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - 0
+          - calcs.demand2.yIntercept
+          b:
+          - 0
+          - 200
+          strokeWidth: 6
+      - type: Line
+        def:
+          color: lightgray
+          yIntercept: calcs.demand1.yIntercept
+          lineStyle: dotted
+      - type: Line
+        def:
+          color: lightgray
+          yIntercept: calcs.demand2.yIntercept
+          lineStyle: dotted
+    rightGraph:
+      xAxis:
+        title: Total Quantity Demanded
+        orient: bottom
+        min: 0
+        max: 400
+      yAxis:
+        orient: left
+        min: 0
+        max: 200
+      objects:
+      - type: Segment
+        def:
+          color: lightgray
+          lineStyle: dotted
+          a:
+          - 0
+          - calcs.demand2.yIntercept
+          b:
+          - "(params.xIntercept1 + params.invSlope1*calcs.demand2.yIntercept)"
+          - calcs.demand2.yIntercept
+          show: "(calcs.demand1.yIntercept > calcs.demand2.yIntercept)"
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - "(params.xIntercept1 + params.xIntercept2)"
+          - 0
+          b:
+          - "(params.xIntercept1 + params.invSlope1*calcs.demand2.yIntercept)"
+          - calcs.demand2.yIntercept
+          show: "(calcs.demand1.yIntercept > calcs.demand2.yIntercept)"
+          label:
+            text: D(p)
+            location: 0.7
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - 0
+          - calcs.demand1.yIntercept
+          b:
+          - "(params.xIntercept1 + params.invSlope1*calcs.demand2.yIntercept)"
+          - calcs.demand2.yIntercept
+          show: "(calcs.demand1.yIntercept > calcs.demand2.yIntercept)"
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: lightgray
+          lineStyle: dotted
+          a:
+          - 0
+          - calcs.demand1.yIntercept
+          b:
+          - "(params.xIntercept2 + params.invSlope2*calcs.demand1.yIntercept)"
+          - calcs.demand1.yIntercept
+          show: "(calcs.demand1.yIntercept < calcs.demand2.yIntercept)"
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - "(params.xIntercept1 + params.xIntercept2)"
+          - 0
+          b:
+          - "(params.xIntercept2 + params.invSlope2*calcs.demand1.yIntercept)"
+          - calcs.demand1.yIntercept
+          show: "(calcs.demand1.yIntercept <= calcs.demand2.yIntercept)"
+          label:
+            text: D(p)
+            location: 0.7
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - 0
+          - calcs.demand2.yIntercept
+          b:
+          - "(params.xIntercept2 + params.invSlope2*calcs.demand1.yIntercept)"
+          - calcs.demand1.yIntercept
+          show: "(calcs.demand1.yIntercept < calcs.demand2.yIntercept)"
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - 0
+          - "(Math.max(calcs.demand1.yIntercept,calcs.demand2.yIntercept))"
+          b:
+          - 0
+          - 200
+          strokeWidth: 6

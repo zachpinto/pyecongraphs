@@ -1,0 +1,138 @@
+schema: EconSchema
+params:
+- name: p1
+  value: 1
+  min: 0.01
+  max: 5
+  round: 0.01
+- name: p2
+  value: 1
+  min: 0.01
+  max: 5
+  round: 0.01
+- name: m
+  value: 8
+  min: 0
+  max: 18
+  round: 0.01
+- name: f
+  value: 0
+calcs:
+  slope: ((4*params.p1*params.p2)^(-0.5))
+  U: (3+3)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        title: Good 1 ($x_1$)
+        ticks: 0
+        max: 20
+      yAxis:
+        title: Good 2 ($x_2$)
+        ticks: 0
+      objects:
+        - EconOptimalBundle:
+            name: X
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              m: params.m
+              handles: true
+              draggable: true
+              label:
+                text: "`m = ${params.m.toFixed(2)}`"
+              strokeWidth: (3 - 2*params.f)
+            indifferenceCurve:
+              strokeWidth: (1 + 2*params.f)
+              label:
+                x: 8
+                text: "`U = ${calcs.X.level.toFixed(2)}`"
+            droplines:
+              vertical: calcs.X.x.toFixed(2)
+              horizontal: calcs.X.y.toFixed(2)
+    bottomGraph:
+      xAxis:
+        title: Money ($m$)
+        max: 20
+        ticks: 0
+      yAxis:
+        title: Utility ($U$)
+        max: 10
+        ticks: 0
+      objects:
+      - Line:
+          slope: calcs.slope
+          color: utility
+          show: (1 - params.f)
+          label:
+            text: V(m)
+            x: 20
+      - Line:
+          slope: calcs.slope
+          color: budget
+          show: (params.f)
+          label:
+            text: E(U)
+            x: 20
+
+
+      # Red point object at coordinates (3,3)
+      - Point:
+          coordinates: [params.m, calcs.X.level]
+          color: demand
+          drag:
+          - directions: xy
+            param: m
+            expression: params.m + drag.dx
+      - Arrow:
+          begin: [params.m, 0.1]
+          end: [params.m, calcs.X.level - 0.25]
+          color: budget
+          show: (1 - params.f)
+      - Arrow:
+          end: [params.m, 0.1]
+          begin: [params.m, calcs.X.level - 0.25]
+          color: budget
+          show: (params.f)
+      - Arrow:
+          end: [0.1, calcs.X.level]
+          begin: [params.m - 0.25, calcs.X.level]
+          color: utility
+          show: (1 - params.f)
+      - Arrow:
+          begin: [0.1, calcs.X.level]
+          end: [params.m - 0.25, calcs.X.level]
+          color: utility
+          show: (params.f)
+      - Label:
+          coordinates: [params.m, AXIS]
+          text: params.m.toFixed(2)
+          color: budget
+      - Label:
+          coordinates: [AXIS, calcs.X.level]
+          text: calcs.X.level.toFixed(2)
+          color: utility
+
+
+    sidebar:
+      controls:
+      - title: Indirect Utility and Expenditure Functions
+        sliders:
+        - param: p1
+          label: p_1
+        - param: p2
+          label: p_2
+        radioGroup:
+          param: f
+          options:
+            - Show indirect utility function perspective
+            - Show expenditure function perspective
+        divs:
+          - html: <br/>
+          - html: "`From the indirect utility function, we can see that the maximum possible utility given income $m = ${params.m.toFixed(2)}$ and facing prices $p_1 = ${params.p1.toFixed(2)}$ and $p_2 = ${params.p2.toFixed(2)}$ is $U = ${calcs.X.level.toFixed(2)}$.`"
+            show: (1 - params.f)
+          - html: "`From the expenditure function, we can see that given prices $p_1 = ${params.p1.toFixed(2)}$ and $p_2 = ${params.p2.toFixed(2)}$, achieving $U = ${calcs.X.level.toFixed(2)}$ requires at least $m = ${params.m.toFixed(2)}$.`"
+            show: (params.f)

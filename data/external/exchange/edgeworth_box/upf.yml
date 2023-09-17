@@ -1,0 +1,158 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: 12
+  min: 0
+  max: 20
+  round: 0.01
+- name: x2
+  value: 6
+  min: 0
+  max: 10
+  round: 0.01
+- name: showPreferred
+  value: true
+- name: showIndifferenceCurves
+  value: true
+- name: showContractCurve
+  value: false
+- name: showUPF
+  value: false
+layout:
+  EdgeworthBoxAboveOneGraphPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          name: A
+          color: colors.blue
+          coordinates:
+          - params.x1
+          - params.x2
+          label: {}
+          droplines:
+            vertical: x_1^A
+            horizontal: x_2^A
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [0.5,0.25]
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            color: colors.blue
+            label:
+              text: "`u^A = ${calcs.A.level.toFixed(2)}`"
+              position: bl
+              x: 17
+
+      - EconBundle:
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+          droplines: {}
+          drag:
+          - horizontal: x1
+          - vertical: x2
+          color: colors.endowment
+
+      - EconContractCurve:
+          show: params.showContractCurve
+          a: 0.66
+          b: 0.33
+          totalGood1: 20
+          totalGood2: 10
+          label:
+            text: \text{Contract Curve}
+            x: 6
+            position: br
+            bgcolor: none
+
+
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          name: B
+          coordinates:
+          - (20 - params.x1)
+          - (10 - params.x2)
+          label: {}
+          droplines:
+            vertical: x_1^B
+            horizontal: x_2^B
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [0.25, 0.5]
+          r: 0
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: "`u^B = ${calcs.B.level.toFixed(2)}`"
+              x: 17
+              position: tr
+            color: colors.orange
+          color: colors.orange
+
+    graph:
+      xAxis:
+        max: 16
+        ticks: 8
+        title: A's Utility
+      yAxis:
+        max: 8
+        ticks: 4
+        title: B's Utility
+      objects:
+
+      - Point:
+          coordinates: [calcs.A.level, calcs.B.level]
+          label:
+            text: U(X)
+            position: tr
+          droplines:
+            vertical: calcs.A.level.toFixed(2)
+            horizontal: calcs.B.level.toFixed(2)
+
+      - Curve:
+          show: params.showUPF
+          parametricFunction:
+            xFunction: ((t)^0.5)*(10*(t)/(80-3*(t)))^0.25
+            yFunction: ((20-(t))^0.25)*(10 - 10*(t)/(80-3*(t)))^0.5
+            min: 0
+            max: 20
+          color: utility
+          label:
+            t: 18
+            text: \text{Utility Possibilities Frontier }(UPF)
+            position: bl
+
+
+    sidebar:
+      controls:
+      - title: The Utility Possibilities Frontier
+        description: Drag bundle X around the Edgeworth Box, and see how much utility each agent gets from that bundle. What is the relationship between the Contract Curve and the UPF?
+        checkboxes:
+          - param: showContractCurve
+            label: \text{Show contract curve}
+          - param: showUPF
+            label: \text{Show UPF}
+        divs:
+        - html: "`$$\\\\begin{aligned}u^A(${params.x1.toFixed(2)}, ${params.x2.toFixed(2)}) &= ${calcs.A.level.toFixed(2)}\\\\\\\\u^B(${calcs.B.x.toFixed(2)}, ${calcs.B.y.toFixed(2)}) &= ${calcs.B.level.toFixed(2)}\\\\end{aligned}$$`"

@@ -1,0 +1,109 @@
+schema: EconSchema
+params:
+  - name: w
+    value: 8
+    min: 6
+    max: 15
+    round: 0.1
+  - name: p
+    value: 12
+    min: 5
+    max: 15
+    round: 0.1
+calcs:
+  L: (8*params.p*params.p/(params.w*params.w))
+  q: (16*params.p/params.w)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    bottomGraph:
+      xAxis:
+        title: Labor ($L$)
+        max: 50
+        ticks: 0
+      yAxis:
+        title: Wage Rate ($w$)
+        max: 18
+        ticks: 0
+      objects:
+        - Curve:
+            fn: 8*params.p*params.p/((y)^2)
+            ind: y
+            color: blue
+            label:
+              text: "`LD_{p = ${params.p.toFixed(1)}}`"
+              y: 16
+              position: bl
+              bgColor: none
+        - Line:
+            yIntercept: params.w
+            drag:
+              - vertical: w
+            color: green
+            label:
+              text: w
+              x: 48
+        - Point:
+            coordinates: [ calcs.L, params.w ]
+            droplines:
+              vertical: calcs.L.toFixed(1)
+        - Point:
+            coordinates: [ 0, params.w ]
+            color: green
+            r: 0
+            droplines:
+              horizontal: params.w.toFixed(1)
+    topGraph:
+      xAxis:
+        title: Quantity of Output ($q$)
+        max: 50
+        ticks: 0
+      yAxis:
+        title: Price ($p$)
+        max: 18
+        ticks: 0
+      objects:
+        # Marginal cost
+        - Line:
+            point: [calcs.q, params.p]
+            ind: y
+            color: supply
+            label:
+              text: "`S_{w = ${params.w.toFixed(1)}}`"
+              y: 16
+              position: bl
+
+        - Point:
+            coordinates: [ calcs.q, params.p ]
+            color: marginalCost
+            droplines:
+              vertical: calcs.q.toFixed(1)
+
+        # Price
+        - Line:
+            yIntercept: params.p
+            drag:
+              - vertical: p
+            color: green
+            label:
+              text: p
+              x: 48
+
+        - Point:
+            coordinates: [ 0, params.p ]
+            color: green
+            r: 0
+            droplines:
+              horizontal: params.p.toFixed(1)
+
+    sidebar:
+      controls:
+        - title: Output Supply and Labor Demand
+          description: Change the market price and wage rate to see how the firm responds in its choice of output produced and labor hired.
+          sliders:
+            - param: p
+              label: p
+            - param: w
+              label: w
+          divs:
+            - html: "`$$q^* = {16p \\\\over w} = {16 \\\\times ${params.p.toFixed(1)} \\\\over ${params.w.toFixed(1)}} = ${calcs.q.toFixed(1)}$$`"
+            - html: "`$$L^* = {8p^2 \\\\over w^2} = {8 \\\\times ${params.p.toFixed(1)}^2 \\\\over ${params.w.toFixed(1)}^2} = ${calcs.L.toFixed(1)}$$`"

@@ -1,0 +1,114 @@
+schema: EconSchema
+colors:
+  type1: colors.blue
+  type2: colors.blue
+params:
+  - {name: q1, value: 20, min: 0, max: 20}
+  - {name: q2, value: 30, min: 0, max: 30}
+  - {name: element, value: 0}
+calcs:
+  tb11: (20*params.q1 - 0.5*params.q1*params.q1)
+  tb22: (30*params.q2 - 0.5*params.q2*params.q2)
+  tb21: (30*params.q1 - 0.5*params.q1*params.q1)
+  cs21: (calcs.tb21 - calcs.tb11)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 30
+        title: Quality of Budget Offering
+      yAxis:
+        max: 30
+        title: Dollars per unit of quality
+      objects:
+
+        - Line:
+            yIntercept: 20
+            slope: -1
+            color: colors.type1
+            areaBelow:
+              max: params.q1
+              color: red
+              show: (params.element != 1)
+            label:
+              x: 18
+              text: MB_1(q_1)
+              position: tr
+              bgcolor: none
+            show: (params.element != 1)
+
+        - Area:
+            fn1: 30 - x
+            fn2: 20 - x
+            max: params.q1
+            color: colors.type2
+            show: (params.element == 2)
+
+        - Point:
+            coordinates: [params.q1, (20-params.q1)]
+            color: colors.type1
+            draggable: true
+            droplines:
+              vertical: q_1
+            show: (params.element == 0)
+
+        - Point:
+            coordinates: [params.q1, (30-params.q1)]
+            color: colors.type2
+            draggable: true
+            droplines:
+              vertical: q_1
+            show: (params.element > 0)
+
+        - Label:
+            coordinates: [(0.4*params.q1), (10-0.2*params.q1)]
+            text: p_1(q_1)
+            bgcolor: none
+            color: red
+            show: ((params.q1 > 0) && (params.element != 1))
+
+        - Line:
+            yIntercept: 30
+            slope: -1
+            color: colors.type2
+            show: (params.element > 0)
+            areaBelow:
+              max: params.q1
+              show: (params.element == 1)
+            label:
+              x: 15
+              text: MB_2(q_2)
+              position: bl
+
+        - Label:
+            coordinates: [ (0.4*params.q1), (15-0.2*params.q1) ]
+            text: TB_2(q_1)
+            show: ((params.q1 > 0) && (params.element == 1))
+            bgcolor: none
+            color: colors.type2
+
+        - Label:
+            coordinates: [(0.5*params.q1), (25-0.5*params.q1)]
+            text: TB_2(q_1)-p_1(q_1)
+            show: ((params.q2 > 0) && (params.element == 2))
+            bgcolor: none
+            color: colors.type2
+
+    sidebar:
+      controls:
+        - title: Value of Budget Offering to High Types
+          description: "If a firm cannot observe each consumer's type, it must offer the same menu of options to each consumer. This means high-valuation consumers might be tempted to buy the budget offering at the lower price. Assume the price of the budget offering is the most low-valuation consumers will pay for it."
+          radioGroup:
+            param: element
+            options:
+              - \text{Value to low types/price = $p_1(q_1)$}
+              - \text{Value to high types = $TB_2(q_1)$}
+              - \text{Surplus to high types from budget offering}
+          divs:
+            - html: <hr/>
+            - html: "`The firm charges the type-1 consumers their total benefit for the budget offering: that is, $$\\\\textcolor{${colors.red}}{p_1(q_1) = TB_1(q_1) = ${calcs.tb11}}$$`"
+              show: (params.element == 0)
+            - html: "`If a type-2 consumer were to buy the budget offering, their total benefit would be $$\\\\textcolor{${colors.type2}}{TB_2(q_1) ={${calcs.tb21}}}$$`"
+              show: (params.element == 1)
+            - html: "`The surplus a type-2 consumer would receive from buying the budget offering is their own valuation minus the price (as determined by the valuation of the type-1 consumers):$$\\\\begin{aligned}\\\\textcolor{${colors.type2}}{\\\\text{Surplus}} &= \\\\textcolor{${colors.type2}}{TB_2(q_1)} - \\\\color{${colors.red}}{p_1(q_1)}\\\\\\\\&= \\\\textcolor{${colors.type2}}{${calcs.tb21}} - \\\\color{${colors.red}}{${calcs.tb11}}\\\\\\\\&= \\\\color{${colors.type2}}${(calcs.tb21-calcs.tb11)}\\\\end{aligned}$$`"
+              show: (params.element == 2)

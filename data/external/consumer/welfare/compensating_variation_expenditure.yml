@@ -1,0 +1,77 @@
+schema: EconSchema
+params:
+- name: p1
+  value: 1
+  min: 0.01
+  max: 5
+  round: 0.01
+- name: p12
+  value: 4
+  min: 0.01
+  max: 5
+  round: 0.01
+- name: p2
+  value: 1
+  min: 0.01
+  max: 5
+  round: 0.01
+- name: U
+  value: 4
+  min: 0
+  max: 10
+  round: 0.01
+calcs:
+  slope: ((4*params.p1*params.p2)^(-0.5))
+  U: (3+3)
+layout:
+  OneWideGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Money ($m$)
+        max: 20
+        ticks: 0
+      yAxis:
+        title: Utility ($U$)
+        max: 10
+        ticks: 0
+      objects:
+      - Line:
+          slope: calcs.slope
+          color: budget
+          label:
+            text: E(U\ |\ p_1=p_2=1)
+            x: 16
+      - Line:
+          slope: calcs.slope/2
+          color: budget
+          label:
+            text: E(U\ |\ p_1=4,p_2=1)
+            x: 20
+
+
+      # Red point object at coordinates (3,3)
+      - Point:
+          coordinates: [params.U*2, params.U]
+          color: demand
+          droplines:
+            vertical: 8
+      - Point:
+          coordinates: [params.U*4, params.U]
+          color: demand
+          droplines:
+            vertical: 16
+            horizontal: 4
+      - Arrow:
+          begin: [8.1,1]
+          end: [15.9,1]
+          color: orange
+          label:
+            text: CV
+
+
+
+    sidebar:
+      controls:
+      - title: Compensating Variation of a Price Change
+        divs:
+        - html: When $p_1$ increases from 1 to 4, every level of utility (on the vertical axis) costs more money to achieve. shifting the expenditure function to the right. Specifically, achieving $U = 4$ increases in cost from $\$8$ to $\$16$; so the <b>compensating variation</b> of this price change is $\$16 - \$8 = \$8$.

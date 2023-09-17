@@ -1,0 +1,78 @@
+schema: EconSchema
+params:
+  - name: p1
+    value: 1
+    max: 10
+    min: 1
+    round: 0.01
+  - name: p2
+    value: 1
+    max: 10
+    min: 1
+    round: 0.01
+  - name: m
+    value: 8
+    max: 10
+    min: 1
+    round: 0.01
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Good 1 ($x_1$)
+        ticks: 0
+      yAxis:
+        title: Good 2 ($x_2$)
+        ticks: 0
+      objects:
+
+        - EconIndifferenceMap:
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            levels: [ 1,2,3,4,5,6,7,8,9 ]
+
+        - EconOptimalBundle:
+            name: X
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            indifferenceCurve:
+              label:
+                text: \text{Objective Fn.}
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              m: params.m
+              handles: true
+              draggable: true
+              strokeWidth: 5
+              label:
+                text: \text{Constraint}
+
+        - Arrow:
+            color: grey
+            begin: [ 6.5, 6.5 ]
+            end: [ 8.5, 8.5 ]
+            label:
+              text: \text{Higher utility}
+
+        - Arrow:
+            color: grey
+            begin: [ 0.5, 0.5 ]
+            end: [ 2.5, 2.5 ]
+            label:
+              text: \text{Higher Utility}
+
+
+    sidebar:
+      controls:
+        - title: Utility Maximization Subject to a Budget Constraint
+          description: The gray contour lines show the level sets of the objective function (in this case, the utility function). The solution to this problem is the highest achievable level set along the constraint (in this case, the budget line for income m).
+          sliders:
+            - param: p1
+              label: p_1
+            - param: p2
+              label: p_2
+            - param: m
+              label: m

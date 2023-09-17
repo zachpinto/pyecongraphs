@@ -1,0 +1,81 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: 10
+    min: 5
+    max: 20
+  - name: p
+    value: 2
+    min: 1
+    max: 10
+  - name: m
+    value: 18
+    min: 0
+    max: 30
+  - name: showTC
+    value: false
+calcs:
+  L1: (params.a/params.p)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1 ($x_1$)
+        orient: bottom
+        min: 0
+        max: 20
+        ticks: 10
+      yAxis:
+        title: Dollars Spent on Other Goods $(x_2)$
+        orient: left
+        min: 0
+        max: 20
+        ticks: 10
+      objects:
+        - EconIndifferenceMap:
+            utilityFunction:
+              Quasilinear:
+                coefficients: [params.a]
+            levels: [(params.a*log(2)+2), (params.a*log(4)+4), (params.a*log(6)+6), (params.a*log(8)+8), (params.a*log(10)+10), (params.a*log(12)+12), (params.a*log(14)+14), (params.a*log(16)+16)]
+        - EconOptimalBundle:
+            name: optimum
+            color: demand
+            utilityFunction:
+              Quasilinear:
+                coefficients: [params.a]
+            budgetLine:
+              p1: params.p
+              p2: 1
+              m: params.m
+              handles: true
+              draggable: true
+              color: budget
+            indifferenceCurve:
+              label:
+                text: \text{Ind. curve through }X^*
+                x: calcs.optimum.x*0.5
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: a
+        - title: Budget Parameters
+          sliders:
+            - param: p
+              label: p_1
+            - param: m
+              label: m
+          divs:
+            - html: "`With the utility function $$u(x_1,x_2) = a \\\\ln x_1 + x_2 = ${params.a} \\\\ln x_1 + x_2$$the Lagrange method would find a candidate optimum at $x_1^\\\\mathcal{L} = ${calcs.L1.toFixed(2)}$. At a price of $p_1 = ${params.p}$, this would cost $p_1x_1^\\\\mathcal{L} = ${params.a}$.`"
+            - html: "`Since the consumer only has $m = ${params.m}$, this is not affordable; so the optimal bundle is the corner solution in which she spends all her money on good 1.`"
+              show: (params.m < params.a)
+            - html: "`Since the consumer has $m = ${params.m}$, this is affordable; so she will buy $x_1^* = ${calcs.L1.toFixed(2)}$ units of good 1, and spend her remaining $x_2^* = ${(params.m - params.a)}$ dollars on other goods.`"
+              show: (params.m > params.a)
+            - html: "`Since the consumer has exactly $m = ${params.m}$, this is affordable, but uses her entire budget; so she'll buy $x_1^* = ${calcs.L1.toFixed(2)}$ units of good 1, but not have any money left over to spend on other goods. In this case her optimal bundle is actually a corner solution that's <em>also</em> a point of tangency.`"
+              show: (params.m == params.a)
+

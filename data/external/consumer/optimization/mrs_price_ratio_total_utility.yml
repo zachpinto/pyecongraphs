@@ -1,0 +1,159 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: theta
+    value: 0.5
+    min: 0
+    max: 1
+    round: 0.01
+  - name: p1
+    value: 4
+    min: 1
+    max: 6
+  - name: p2
+    value: 2
+    min: 1
+    max: 6
+  - name: m
+    value: 48
+    min: 12
+    max: 60
+    round: 6
+  - name: a
+    value: 0.75
+    min: 0.01
+    max: 0.99
+    round: 0.01
+calcs:
+  max: (10*round(max((params.m/params.p1),(params.m/params.p2)),0)*0.1)
+  maxU: (1.2*((params.a*params.m/params.p1)^params.a)*((1-params.a)*params.m/params.p2)^(1-params.a))
+  x1: (params.theta*params.m/params.p1)
+  x2: ((1-params.theta)*params.m/params.p2)
+  u: ((calcs.x1^(params.a))*(calcs.x2^(1-params.a)))
+layout:
+  SquarePlusTwoVerticalGraphs:
+    bigGraph:
+      xAxis:
+        max: 24
+        ticks: 8
+        title: Good 1
+      yAxis:
+        max: 24
+        ticks: 8
+        title: Good 2
+      objects:
+        - EconBundle:
+            name: X
+            color: demand
+            coordinates: [calcs.x1, calcs.x2]
+            utilityFunction:
+              CobbDouglas:
+                alpha: params.a
+            droplines:
+              vertical: calcs.x1.toFixed(2)
+              horizontal: calcs.x2.toFixed(2)
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              m: params.m
+              color: budget
+              label: none
+              set: ture
+            indifferenceCurve:
+              label:
+                text: "`u = ${calcs.u.toFixed(3)}`"
+                x: 24
+                position: br
+              showPreferred: true
+            drag:
+              - directions: xy
+                param: theta
+                expression: (params.p1*drag.x)/(params.p1*drag.x+params.p2*drag.y)
+        - Label:
+            coordinates: [1, 22]
+            text: BL \text{ (|slope| = $p_1/p_2$ = 2)}
+            color: budget
+            position: bl
+        - Line:
+            point: [calcs.x1, calcs.x2]
+            slope: -calcs.X.mrs
+            color: blue
+            ind: y
+            label:
+              y: 2
+              text: "`MRS = ${calcs.X.mrs.toFixed(1)}`"
+              position: tr
+            
+    topGraph:
+      xAxis:
+        max: (params.m/params.p1)
+        ticks: 0
+        title: Utility Along Budget Line
+      yAxis:
+        max: calcs.maxU
+      objects:
+        - Point:
+            coordinates: [calcs.x1, calcs.u]
+            droplines:
+              vertical: "`(${calcs.x1.toFixed(2)},${calcs.x2.toFixed(2)})`"
+              horizontal: calcs.u.toFixed(3)
+            r: 4
+            drag:
+              - directions: x
+                param: theta
+                expression: (drag.x*params.p1/params.m)
+        - Curve:
+            fn: ((x)^(params.a))*(((params.m - params.p1*(x))/params.p2)^(1-params.a))
+            color: utility
+            label:
+              text: u(x_1,x_2)
+              x: 2
+    bottomGraph:
+      xAxis:
+        max: (params.m/params.p1)
+        ticks: 0
+        title: MRS and Price Ratio
+      yAxis:
+        max: 10
+      objects:
+      
+        - Point:
+            color: budget
+            coordinates: [calcs.x1, params.p1/params.p2]
+            r: 4
+            droplines:
+              horizontal: (params.p1/params.p2).toFixed(1)
+              vertical: 
+        - Point:
+            coordinates: [calcs.x1, calcs.X.mrs]
+            r: 4
+            droplines:
+              vertical: "`(${calcs.x1.toFixed(2)},${calcs.x2.toFixed(2)})`"
+              horizontal: calcs.X.mrs.toFixed(1)
+            drag:
+              - directions: x
+                param: theta
+                expression: (drag.x*params.p1/params.m)
+        - Curve:
+            fn: (params.a/(1-params.a))*((params.m/params.p2 - params.p1*(x)/params.p2)/(x))
+            color: demand
+            label:
+              x: 5
+              text: MRS (x_1,x_2)
+        - Line:
+            yIntercept: params.p1/params.p2
+            color: budget
+            label:
+              x: (0.9*params.m/params.p1)
+              text: \frac{p_1}{p_2}
+
+
+
+    sidebar:
+      controls:
+        - title: Highest Utility along a Budget Line
+          description: Drag the point in the right-hand graph to find the bundle with the highest utility.
+          divs:
+            - html: "`$$\\\\begin{aligned}x_1 &= ${calcs.x1.toFixed(2)}\\\\\\\\x_2 &= ${calcs.x2.toFixed(2)}\\\\\\\\u(x_1,x_2) &= ${calcs.u.toFixed(2)}\\\\end{aligned}$$`"

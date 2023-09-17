@@ -1,0 +1,69 @@
+schema: EconSchema
+version: 1
+params:
+  - name: A
+    value: "5"
+    min: "1"
+    max: "10"
+    round: "0.01"
+  - name: a
+    value: "0.5"
+    min: "0"
+    max: "2"
+    round: "0.01"
+  - name: L
+    value: "50"
+    min: "0"
+    max: "100"
+    round: "1"
+calcs:
+  "y": ((params.A)*(params.L)^(params.a))
+  MPL: ((params.a)*(params.A)*(params.L)^(params.a - 1))
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Labor ($L$)
+        orient: bottom
+        min: 0
+        max: 100
+      yAxis:
+        title: Output ($q$)
+        orient: left
+        min: 0
+        max: (20*100^(0.7*params.a))
+      objects:
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: (params.A)*(x)^(params.a)
+              samplePoints: 200
+            stroke: colors.production
+            strokeWidth: 2
+            label:
+              text: f(L)
+              x: 90
+        - type: Point
+          def:
+            coordinates:
+              - params.L
+              - calcs.y
+            fill: colors.production
+            drag:
+              - directions: x
+                param: L
+                expression: params.L + drag.dx
+            droplines:
+              vertical: '`L = ${params.L.toFixed(0)}`'
+              horizontal: '`q = f(\\textcolor{${colors.production}}{L}) = ${(calcs.y).toFixed(0)}`'
+    sidebar:
+      controls:
+        - title: Production Function with One Input
+          sliders:
+            - param: A
+              label: A
+            - param: a
+              label: a
+          divs:
+            - html: '`$$q = f(L) = AL^a$$`'

@@ -1,0 +1,70 @@
+schema: EconSchema
+params:
+  - { name: alpha, min: 0.09, max: 0.91, value: 0.64, round: 0.01 }
+calcs:
+  x1: (100*sqrt(params.alpha))
+  x2: (100*sqrt(1 - params.alpha))
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 200
+        ticks: 2
+        title: Good 1
+      yAxis:
+        max: 200
+        title: Good 2
+        ticks: 2
+
+      objects:
+
+
+        # PPF
+        - Circle:
+            c: [ 0,0 ]
+            r: 100
+            stroke: red
+            fill: none
+            strokeWidth: 2
+
+        - Label:
+            text: PPF
+            coordinates: [ 100,5 ]
+            align: left
+            color: red
+            fontSize: 9
+            bgcolor: none
+
+        # Bundle
+        - EconBundle:
+            r: 4
+            name: X
+            color: demand
+            coordinates: [ calcs.x1, calcs.x2 ]
+            utilityFunction:
+              CobbDouglas:
+                alpha: params.alpha
+            label:
+              text: X^*
+            indifferenceCurve:
+              color: utility
+              label:
+                text: \text{Ind. curve}
+                x: 190
+            droplines:
+              vertical: calcs.x1.toFixed(0)
+              horizontal: calcs.x2.toFixed(0)
+
+
+
+
+
+    sidebar:
+      controls:
+        - title: Optimization in Autarky
+          description: For a single agent optimizing their utility subject to a PPF, the optimal point occurs at the bundle along the PPF where MRS = MRT.
+          sliders:
+            - param: alpha
+              label: \alpha
+          divs:
+            - html: "`$$\\\\begin{aligned} u(x_1,x_2) &= \\\\alpha \\\\ln x_1 + (1 - \\\\alpha) \\\\ln x_2\\\\\\\\ &= ${params.alpha.toFixed(2)}\\\\ln x_1 + ${(1 - params.alpha).toFixed(2)}\\\\ln x_2\\\\end{aligned}$$`"

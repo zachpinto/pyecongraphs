@@ -1,0 +1,171 @@
+schema: EconSchema
+params:
+- {name: a, value: 0.25, min: 0.1, max: 0.9, round: 0.01}
+- {name: m, value: 100, min: 10, max: 200, round: 10}
+- {name: NC, value: 64, min: 10, max: 100}
+- {name: w, value: 4, min: 1, max: 10}
+- {name: r, value: 4, min: 1, max: 10}
+- {name: K, value: 2, min: 1, max: 10}
+- {name: NF, value: 16, min: 1, max: 25}
+- {name: p, value: 10, min: 10, max: 30, round: 0.25}
+calcs:
+  p: (sqrt(2*(params.NC/params.NF)*params.a*params.m*params.w/params.K))
+  x: (params.a*params.m/calcs.p)
+  Q: (calcs.x*params.NC)
+  q: (0.5*params.K*calcs.p/params.w)
+layout:
+  ThreeHorizontalGraphs:
+    leftGraph:
+      xAxis:
+        ticks: 0
+        max: 10
+      yAxis:
+        max: 40
+        ticks: 0
+      objects:
+
+      - Label:
+          coordinates: [AXIS, 40]
+          text: p
+
+      - Label:
+          coordinates: [10, AXIS]
+          text: x^i
+
+      - Curve:
+          fn: (params.a*params.m/(y))
+          color: demand
+          ind: y
+          label:
+            y: 36
+            text: d(p)
+            position: tl
+            bgcolor: none
+
+
+      - Label:
+          coordinates: [AXIS, calcs.p]
+          color: budget
+          text: calcs.p.toFixed(2)
+
+      - Line:
+          yIntercept: calcs.p
+          color: budget
+          lineStyle: dotted
+
+      - Point:
+          coordinates: [calcs.x, calcs.p]
+          droplines:
+            vertical: calcs.x.toFixed(2)
+
+    leftControls:
+      title: Individual Consumer Demand
+      sliders:
+        - param: a
+          label: \alpha
+        - param: m
+          label: m
+      divs:
+      - html: "`$$\\\\begin{aligned}d(p^*) &= {\\\\alpha m \\\\over p^*}\\\\\\\\ &= {${params.a.toFixed(2)} \\\\times ${params.m.toFixed(0)} \\\\over ${calcs.p.toFixed(2)}} \\\\\\\\ &=${calcs.x.toFixed(2)}\\\\end{aligned}$$`"
+
+    rightGraph:
+      xAxis:
+        max: 200
+        ticks: 0
+      yAxis:
+        max: 40
+        ticks: 0
+      objects:
+
+      - Label:
+          coordinates: [AXIS, 40]
+          text: p
+
+      - Label:
+          coordinates: [200, AXIS]
+          text: Q
+
+      - Curve:
+          fn: (params.NC*params.a*params.m/(x))
+          color: demand
+          label:
+            x: 190
+            text: D(p)
+            position: bl
+            bgcolor: none
+
+      - Line:
+          color: supply
+          point: [calcs.Q, calcs.p]
+          ind: y
+          label:
+            y: 36
+            text: S(p)
+            position: tl
+            bgcolor: none
+
+      - Point:
+          coordinates: [calcs.Q, calcs.p]
+          color: budget
+          droplines:
+            vertical: calcs.Q.toFixed(2)
+            horizontal:
+
+    rightControls:
+      title: Market Supply and Demand
+      sliders:
+        - param: NC
+          label: N_C
+        - param: NF
+          label: N_F
+
+      divs:
+        - html: "`$$\\\\begin{aligned}S(p^*) &= N_F \\\\times q(p^*) = ${params.NF} \\\\times ${calcs.q.toFixed(2)} = ${calcs.Q.toFixed(2)}\\\\\\\\\\\\\\\\D(p^*) &= N_C \\\\times d(p^*)= ${params.NC} \\\\times ${calcs.x.toFixed(2)} = ${calcs.Q.toFixed(2)}\\\\end{aligned}$$`"
+
+
+    middleGraph:
+      xAxis:
+        ticks: 0
+        max: 10
+      yAxis:
+        max: 40
+        ticks: 0
+      objects:
+
+      - Label:
+          coordinates: [AXIS, 40]
+          text: p
+
+      - Label:
+          coordinates: [10, AXIS]
+          text: q^j
+
+      - Line:
+          color: supply
+          point: [calcs.q, calcs.p]
+          label:
+            y: 36
+            text: s(p)
+            position: tl
+            bgcolor: none
+
+      - Line:
+          yIntercept: calcs.p
+          color: budget
+          lineStyle: dotted
+
+      - Point:
+          coordinates: [calcs.q, calcs.p]
+          color: supply
+          droplines:
+            vertical: calcs.q.toFixed(2)
+
+    middleControls:
+      title: Individual Firm Supply
+      sliders:
+        - param: w
+          label: w
+        - param: K
+          label: \overline K
+      divs:
+      - html: "`$$\\\\begin{aligned}s(p^*) &= {\\\\overline K p^* \\\\over 2w}\\\\\\\\ &= {${params.K.toFixed(0)} \\\\times ${calcs.p.toFixed(2)} \\\\over 2 \\\\times ${params.w.toFixed(0)}} \\\\\\\\ &=${calcs.q.toFixed(2)}\\\\end{aligned}$$`"

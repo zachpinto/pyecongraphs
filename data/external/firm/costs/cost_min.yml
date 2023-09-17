@@ -1,0 +1,85 @@
+schema: EconSchema
+params:
+  - name: p1
+    value: 5
+    max: 10
+    min: 1
+    round: 0.01
+  - name: p2
+    value: 5
+    max: 10
+    min: 1
+    round: 0.01
+  - name: U
+    value: 4
+    max: 7
+    min: 3
+    round: 0.01
+calcs:
+  slope: (params.p1/(params.p1 + params.p2))
+  arrowScale: (sqrt(params.p1*params.p1 + params.p2*params.p2))
+  arrowDX: (2*params.p1/calcs.arrowScale)
+  arrowDY: (2*params.p2/calcs.arrowScale)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Labor ($L$)
+        ticks: 0
+      yAxis:
+        title: Capital ($K$)
+        ticks: 0
+      objects:
+
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectSubstitutes:
+                alpha: calcs.slope
+            levels: [ 1,2,3,4,5,6,7,8,9 ]
+
+        - LowestCostBundle:
+            name: X
+            label:
+              text: \text{Cost-minimizing input combination}
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            prices: [params.p1, params.p2]
+            indifferenceCurve:
+              strokeWidth: 5
+              label:
+                text: "`f(L,K) = q`"
+            level: params.U
+            budgetLine:
+              label:
+                text: "`c = wL^* + rK^*`"
+            droplines:
+              vertical: L^*
+              horizontal: K^*
+
+        - Arrow:
+            color: grey
+            begin: [ 8.5,8.5 ]
+            end: [ (8.5-calcs.arrowDX),(8.5-calcs.arrowDY) ]
+            label:
+              text: \text{Isocost lines}
+
+        - Arrow:
+            color: grey
+            begin: [ 2.5,2.5 ]
+            end: [ (2.5-calcs.arrowDX),(2.5-calcs.arrowDY) ]
+            label:
+              text: \text{Isocost lines}
+
+
+    sidebar:
+      controls:
+        - title: Firm Cost Minimization
+          description: The gray contour lines show the level sets of the objective function (in this case, the cost function). The solution to this problem is the lowest achievable level set along the constraint (in this case, the isoquant for output q).
+          sliders:
+            - param: p1
+              label: w
+            - param: p2
+              label: r
+            - param: U
+              label: q

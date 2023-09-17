@@ -1,0 +1,153 @@
+schema: EconSchema
+colors:
+  fixedCost: colors.green
+  variableCost: colors.grey
+  totalCost: colors.red
+params:
+  - {name: w, value: 16, min: 10, max: 20}
+  - {name: r, value: 2, min: 1, max: 5}
+  - {name: K, value: 32, min: 24, max: 48}
+  - {name: q, value: 8, min: 0, max: 40}
+calcs:
+  L: (params.q*params.q/params.K)
+  VC: (params.w*calcs.L)
+  F: (params.r*params.K)
+  TC: (calcs.VC + calcs.F)
+  TClabelX: (min(38, sqrt((400 - params.r*params.K)*params.K/params.w)))
+  AVC: (calcs.VC/params.q)
+  AFC: (calcs.F/params.q)
+  ATC: (calcs.AVC + calcs.AFC)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      yAxis:
+        title: Dollars
+        max: 500
+        ticks: 0
+      xAxis:
+        title: Output ($q$)
+        max: 40
+        ticks: 0
+      objects:
+
+      # Total Cost
+      - Curve:
+          fn: calcs.F + (params.w/params.K)*(x)^2
+          color: colors.totalCost
+          label:
+            text: TC
+            x: calcs.TClabelX
+
+      - Point:
+          coordinates: [ params.q, calcs.TC ]
+          color: totalCost
+          drag:
+            - horizontal: q
+          droplines:
+            vertical: params.q.toFixed(0)
+            horizontal: calcs.TC.toFixed(0)
+
+      # Variable Cost
+
+      - Curve:
+          fn: (params.w/params.K)*(x)^2
+          color: colors.variableCost
+          label:
+            text: VC
+            x: calcs.TClabelX
+
+      - Point:
+          coordinates: [ params.q, calcs.VC ]
+          color: colors.variableCost
+          drag:
+            - horizontal: q
+          droplines:
+            horizontal: calcs.VC.toFixed(0)
+
+      # Fixed Cost
+
+      - Line:
+          yIntercept: calcs.F
+          color: colors.fixedCost
+
+      - Label:
+          coordinates: [AXIS, calcs.F]
+          color: colors.fixedCost
+          text: calcs.F
+
+    bottomGraph:
+      yAxis:
+        title: Dollars per Unit
+        max: 40
+        ticks: 0
+      xAxis:
+        title: Output ($q$)
+        max: 40
+        ticks: 0
+      objects:
+
+        # Average Total Cost
+        - Curve:
+            fn: calcs.F/(x) + (params.w/params.K)*(x)
+            color: colors.totalCost
+            label:
+              text: ATC
+              x: calcs.TClabelX
+
+        - Point:
+            coordinates: [ params.q, calcs.ATC ]
+            color: totalCost
+            drag:
+              - horizontal: q
+            droplines:
+              vertical: params.q.toFixed(0)
+              horizontal: calcs.ATC.toFixed(2)
+
+        # Variable Cost
+
+        - Curve:
+            fn: (params.w/params.K)*(x)
+            color: colors.variableCost
+            label:
+              text: AVC
+              x: calcs.TClabelX
+
+        - Point:
+            coordinates: [ params.q, calcs.AVC ]
+            color: colors.variableCost
+            drag:
+              - horizontal: q
+            droplines:
+              horizontal: calcs.AVC.toFixed(2)
+
+        # Fixed Cost
+
+        - Curve:
+            fn: calcs.F/(x)
+            color: colors.fixedCost
+            label:
+              text: AFC
+              x: calcs.TClabelX
+
+        - Point:
+            coordinates: [ params.q, calcs.AFC ]
+            color: colors.fixedCost
+            drag:
+              - horizontal: q
+            droplines:
+              horizontal: calcs.AFC.toFixed(2)
+
+    sidebar:
+      controls:
+        - title: Total and Average Costs
+          sliders:
+          - param: w
+            label: w
+          - param: r
+            label: r
+          - param: K
+            label: \overline K
+          divs:
+            - html: "`$$\\\\textcolor{${colors.red}}{TC(${params.q}) = ${calcs.TC.toFixed(0)} \\\\Rightarrow ATC(${params.q}) = {${calcs.TC.toFixed(0)} \\\\over ${params.q}} = ${calcs.ATC.toFixed(2)}}$$`"
+            - html: "`$$\\\\textcolor{${colors.grey}}{VC(${params.q}) = ${calcs.VC.toFixed(0)} \\\\Rightarrow AVC(${params.q}) = {${calcs.VC.toFixed(0)} \\\\over ${params.q}} = ${calcs.AVC.toFixed(2)}}$$`"
+            - html: "`$$\\\\textcolor{${colors.green}}{F = ${calcs.F.toFixed(0)} \\\\Rightarrow AFC(${params.q}) = {${calcs.F.toFixed(0)} \\\\over ${params.q}} = ${calcs.AFC.toFixed(2)}}$$`"

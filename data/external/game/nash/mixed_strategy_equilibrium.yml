@@ -1,0 +1,236 @@
+schema: EconSchema
+version: 1
+params:
+  - name: p
+    value: 0.8
+    min: 0
+    max: 1
+    round: 0.05
+  - name: q
+    value: 0.8
+    min: 0
+    max: 1
+    round: 0.05
+calcs:
+  p1: (2*params.p-1)
+  p2: (1-2*params.p)
+  q1: (1-2*params.q)
+  q2: (2*params.q-1)
+layout:
+  TwoHorizontalGraphs:
+    leftGraph:
+      xAxis:
+        min: -2
+        max: 2
+        title: Payoff if Column player plays Heads
+      yAxis:
+        min: -2
+        max: 2
+        title: Payoff if Column player plays Tails
+      objects:
+
+      - Line:
+          point: [1, -1]
+          slope: -params.q/(1-params.q)
+          color: utility
+
+      - Line:
+          point: [1, -1]
+          invSlope: 0
+          color: utility
+          show: (params.q == 1)
+
+      - Line:
+          point: [ -1, 1 ]
+          slope: -params.q/(1-params.q)
+          color: utility
+
+      - Line:
+          point: [ -1, 1 ]
+          invSlope: 0
+          color: utility
+          show: (params.q == 1)
+
+      - Line:
+          point: [calcs.p1, calcs.p2]
+          slope: -params.q/(1-params.q)
+          color: utility
+
+      - Line:
+          point: [calcs.p1, calcs.p2]
+          invSlope: 0
+          color: utility
+          show: (params.q == 1)
+
+      - Point:
+          coordinates: [1,-1]
+          color: blue
+          r: 3
+          label:
+            text: \text{HEADS}
+            position: tr
+
+      - Point:
+          coordinates: [-1,1]
+          r: 3
+          label:
+            text: \text{TAILS}
+            position: tr
+
+      - Point:
+          coordinates: [calcs.p1, calcs.p2]
+          label:
+            text: "`p = ${params.p.toFixed(2)}`"
+          drag:
+            - directions: xy
+              param: p
+              expression: (0.5*drag.x + 0.5)
+
+      - Segment:
+          a: [-1,1]
+          b: [1,-1]
+          lineStyle: dotted
+          color: blue
+
+
+    leftControls:
+      title: Row Player
+      description: The row player wins (and gets a payoff of 1) if the pennies match, and loses (and gets a payoff of -1) if the pennies don't.
+      sliders:
+          - param: p
+            label: p
+      divs:
+        - html: "`Expected payoffs when $q = ${params.q.toFixed(2)}$: $$\\\\begin{aligned}u_1(H) &= ${params.q.toFixed(2)} \\\\times 1 + ${(1-params.q).toFixed(2)} \\\\times -1 = ${calcs.q2.toFixed(2)}\\\\\\\\u_1(T) &= ${params.q.toFixed(2)} \\\\times -1 + ${(1-params.q).toFixed(2)} \\\\times 1 =  ${calcs.q1.toFixed(2)}\\\\end{aligned}$$`"
+        - html: Therefore, their best response is to play Heads ($p = 1$).
+          show: (params.q > 0.5)
+        - html: Therefore, their best response is to play Tails ($p = 0$).
+          show: (params.q < 0.5)
+        - html: Therefore, all possible strategies yield the same expected payoff, so they might as well mix.
+          show: (params.q == 0.5)
+
+    middleGraph:
+      xAxis:
+        min: 0
+        max: 1
+        title: Probability Row Plays H (p)
+      yAxis:
+        min: 0
+        max: 1
+        title: Probability Column Plays H (q)
+      objects:
+
+        - Segment:
+            a: [ 0,1 ]
+            b: [ 0.5,1 ]
+            color: red
+
+        - Segment:
+            a: [ 0.5,0 ]
+            b: [ 1,0 ]
+            color: red
+
+        - Segment:
+            a: [ 0.5, 0 ]
+            b: [ 0.5, 1 ]
+            color: red
+            lineStyle: dotted
+
+    middleControls:
+      title: Best Responses
+      divs:
+        - html: The blue curve shows the row player's best response to q, while the red curve shows the column player's best response as a function of p.
+
+    rightGraph:
+      xAxis:
+        min: -2
+        max: 2
+        title: Payoff if Row player plays Heads
+      yAxis:
+        min: -2
+        max: 2
+        title: Payoff if Row player plays Tails
+      objects:
+
+        # Indifference Curves
+
+        - Line:
+            point: [ 1, -1 ]
+            slope: -params.p/(1-params.p)
+            color: utility
+
+        - Line:
+            point: [ 1, -1 ]
+            invSlope: 0
+            color: utility
+            show: (params.p == 1)
+
+        - Line:
+            point: [ -1, 1 ]
+            slope: -params.p/(1-params.p)
+            color: utility
+
+        - Line:
+            point: [ -1, 1 ]
+            invSlope: 0
+            color: utility
+            show: (params.p == 1)
+
+        - Line:
+            point: [ calcs.q1, calcs.q2 ]
+            slope: -params.p/(1-params.p)
+            color: utility
+
+        - Line:
+            point: [ calcs.q1, calcs.q2 ]
+            invSlope: 0
+            color: utility
+            show: (params.p == 1)
+
+        - Point:
+            coordinates: [ 1,-1 ]
+            color: red
+            r: 3
+            label:
+              text: \text{TAILS}
+              position: tr
+
+        - Point:
+            coordinates: [ -1,1 ]
+            color: red
+            r: 3
+            label:
+              text: \text{HEADS}
+              position: tr
+
+        - Point:
+            coordinates: [ calcs.q1, calcs.q2 ]
+            color: red
+            label:
+              text: "`q = ${params.q.toFixed(2)}`"
+            drag:
+              - directions: xy
+                param: q
+                expression: (0.5 - 0.5*drag.x)
+
+        - Segment:
+            a: [ -1,1 ]
+            b: [ 1,-1 ]
+            lineStyle: dotted
+            color: red
+
+    rightControls:
+      title: Column Player
+      description: The column player loses (and gets a payoff of -1) if the pennies match, and wins (and gets a payoff of 1) if the pennies don't.
+      sliders:
+        - param: q
+          label: q
+      divs:
+        - html: "`Expected payoffs when $p = ${params.p.toFixed(2)}$: $$\\\\begin{aligned}u_2(H) &= ${params.p.toFixed(2)} \\\\times -1 + ${(1-params.p).toFixed(2)} \\\\times 1 = ${calcs.p2.toFixed(2)}\\\\\\\\u_2(T) &= ${params.p.toFixed(2)} \\\\times 1 + ${(1-params.p).toFixed(2)} \\\\times -1 =  ${calcs.p1.toFixed(2)}\\\\end{aligned}$$`"
+        - html: Therefore, their best response is to play Heads ($q = 1$).
+          show: (params.p < 0.5)
+        - html: Therefore, their best response is to play Tails ($q = 0$).
+          show: (params.p > 0.5)
+        - html: Therefore, all possible strategies yield the same expected payoff, so they might as well mix.
+          show: (params.p == 0.5)
+
+              

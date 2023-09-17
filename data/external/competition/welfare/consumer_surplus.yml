@@ -1,0 +1,219 @@
+params:
+  - {name: x, value: 4, min: 2, max: 10, round: 0.1}
+  - {name: p, value: 4, min: 2, max: 5, round: 0.1}
+calcs:
+  v: (10*(params.x) - 0.5*(params.x)^2)
+  mv: (10 - params.x)
+  exp: (params.p*params.x)
+  cs: (calcs.v - calcs.exp)
+  xStar: (10 - params.p)
+  csStar: (0.5*(10-params.p)^2)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 11
+      yAxis:
+        max: 55
+        title: Dollars
+      objects:
+
+        - Line:
+            slope: params.p
+            drag:
+              - directions: y
+                param: p
+                expression: drag.y/drag.x
+            color: green
+            label:
+              text: \text{Total Exp. }(p_1x_1)
+              x: 10
+              position: tl
+              bgcolor: none
+
+
+        - Curve:
+            fn: 10*(x) - 0.5*(x)^2
+            min: 0
+            samplePoints: 500
+            color: blue
+            label:
+              text: \text{Total Benefit }(v(x_1))
+              x: 11
+              position: b
+              bgcolor: none
+
+        - Point:
+            coordinates: [params.x, calcs.v]
+            r: 4
+            drag:
+              - horizontal: x
+            color: blue
+
+        - Point:
+            coordinates: [params.x, calcs.exp]
+            r: 4
+            drag:
+              - horizontal: x
+            color: green
+
+        - Segment:
+            a: [params.x + 0.2, 1]
+            b: [params.x + 0.2, calcs.v - 1.5]
+            drag:
+              - horizontal: x
+            startArrow: true
+            endArrow: true
+            color: blue
+            label:
+              text: "`TB = ${calcs.v.toFixed(2)}`"
+              location: 0.6
+              align: left
+              xPixelOffset: 5
+              fontSize: 9
+
+        - Segment:
+            a: [params.x, calcs.exp + 1]
+            b: [params.x, calcs.v - 1.5]
+            drag:
+              - horizontal: x
+            startArrow: true
+            endArrow: true
+            color: blue
+            label:
+              text: "`CS = ${calcs.cs.toFixed(2)}`"
+              align: right
+              xPixelOffset: -5
+              fontSize: 9
+
+        - Segment:
+            a: [params.x, 1]
+            b: [params.x, calcs.exp - 1.5]
+            drag:
+              - horizontal: x
+            startArrow: true
+            endArrow: true
+            color: green
+            label:
+              text: "`TE = ${calcs.exp.toFixed(2)}`"
+              align: right
+              xPixelOffset: -5
+              fontSize: 9
+
+    bottomGraph:
+      xAxis:
+        max: 11
+        title: Quantity of Good 1
+      yAxis:
+        max: 11
+        title: Dollars Per Unit of Good 1
+      objects:
+
+        - Line:
+            yIntercept: 10
+            slope: -1
+            color: blue
+            label:
+              text: \text{Marginal Benefit }(v'(x_1))
+              x: 2
+              position: bl
+              bgcolor: none
+              
+        - Area:
+            fn1: 10 - x
+            fn2: params.p
+            max: params.x
+
+        - Line:
+            yIntercept: params.p
+            color: green
+            drag:
+              - vertical: p
+            label:
+              text: \text{Price }(p_1)
+              x: 10.5
+              position: br
+              bgcolor: none
+
+        - Rectangle:
+            x1: 0.05
+            x2: params.x
+            y1: 0.05
+            y2: params.p
+            fill: none
+            strokeWidth: 4
+            stroke: green
+
+
+        - Point:
+            coordinates: [params.x, params.p]
+            r: 4
+            drag:
+              - horizontal: x
+            color: green
+            droplines:
+              horizontal: params.p.toFixed(1)
+              vertical:
+
+        - Point:
+            coordinates: [params.x, calcs.mv]
+            r: 4
+            drag:
+              - horizontal: x
+            color: blue
+            droplines:
+              vertical: "`x_1 = ${params.x.toFixed(1)}`"
+              
+        - Label:
+            coordinates: [(0.5*params.x), (0.5*(10+params.p-0.5*params.x))]
+            text: calcs.cs.toFixed(2)
+            color: blue
+            bgcolor: none
+            fontSize: 9
+            show: params.x < calcs.xStar
+
+        - Label:
+            coordinates: [(0.5*calcs.xStar), (0.5*(10+params.p-0.5*calcs.xStar))]
+            text: calcs.csStar.toFixed(2)
+            color: blue
+            bgcolor: none
+            fontSize: 9
+            show: params.x >= calcs.xStar
+
+        - Label:
+            coordinates: [(0.3*calcs.xStar + 0.7*params.x), (0.7*params.p+0.3*calcs.mv)]
+            text: (calcs.cs-calcs.csStar).toFixed(2)
+            color: black
+            bgcolor: none
+            fontSize: 9
+            show: params.x > calcs.xStar
+
+        - Label:
+            coordinates: [(0.5*params.x), (0.5*params.p)]
+            text: calcs.exp.toFixed(2)
+            color: green
+            bgcolor: none
+            fontSize: 9
+
+
+
+    sidebar:
+      controls:
+        - title: (Net) Consumer's Surplus
+          description: The net consumer's surplus is the total benefit minus the total expenditure. It's maximized when MB = P.
+          sliders:
+            - param: p
+              label: p
+            - param: x
+              label: x_1
+          divs:
+            - html: "`$$\\\\begin{aligned}TB(${params.x.toFixed(1)}) &= 10\\\\times${params.x.toFixed(1)} - \\\\tfrac{1}{2}(${params.x.toFixed(1)})^2 \\\\\\\\ &= ${calcs.v.toFixed(2)} \\\\\\\\ \\\\\\\\ CS(${params.x.toFixed(1)}) &= ${calcs.v.toFixed(2)} - ${params.p.toFixed(1)} \\\\times ${params.x.toFixed(1)} = ${calcs.cs.toFixed(2)}\\\\end{aligned}$$`"
+
+    explanation:
+      divs:
+        - html: 'Because $MB > p_1$ at this quantity, CS could be increased by increasing $x_1$.'
+          show: params.x < calcs.xStar
+        - html: 'Because $MB < p_1$ at this quantity, CS could be increased by decreasing $x_1$.'
+          show: params.x > calcs.xStar
+        - html: 'Because $MB = p_1$ at this quantity, CS is maximized.'
+          show: params.x == calcs.xStar

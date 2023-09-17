@@ -1,0 +1,78 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 40
+    min: 1
+    max: 80
+    round: 1
+  - name: x2
+    value: 20
+    min: 1
+    max: 80
+    round: 1
+calcs:
+  u: (sqrt(params.x1*params.x2))
+  mu1: (0.5*sqrt(params.x2/params.x1))
+  mu2: (0.5*sqrt(params.x1/params.x2))
+  u1: (calcs.u + 10*calcs.mu1)
+  u2: (calcs.u + 10*calcs.mu2)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 80
+        ticks: 0
+        title: Pizza
+      yAxis:
+        max: 80
+        ticks: 0
+        title: Soda
+      objects:
+        - EconBundle:
+            coordinates: [ params.x1, params.x2 ]
+            color: blue
+            r: 4
+            label:
+              text: X
+              position: tr
+            droplines:
+              vertical:
+              horizontal:
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            drag:
+              - horizontal: x1
+              - vertical: x2
+            indifferenceCurve:
+              label:
+                text:
+              showPreferred: true
+              showDispreferred: true
+        - Label:
+            text: "`\\\\succ X`"
+            coordinates: [ (0.5*(params.x1 + 80)), (0.5*(params.x2 + 80))]
+            color: green
+            bgcolor: none
+        - Label:
+            text: "`\\\\prec X`"
+            coordinates: [ (0.5*params.x1), (0.5*params.x2) ]
+            color: red
+            bgcolor: none
+        - Arrow:
+            begin: [ params.x1, params.x2 ]
+            end: [params.x1, params.x2 + 10]
+            color: green
+        - Arrow:
+            begin: [params.x1, params.x2 ]
+            end: [params.x1 + 10, params.x2 ]
+            color: green
+
+
+    sidebar:
+      controls:
+        - title: "Monotonic Preferences: Lifetime Pizza and Soda"
+          description: "No matter where you drag the point in the right-hand graph, you prefer gaining more of either good."

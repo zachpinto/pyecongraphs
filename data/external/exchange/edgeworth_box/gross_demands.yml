@@ -1,0 +1,217 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: w1
+  value: 12
+  min: 0
+  max: 20
+  round: 0.01
+- name: w2
+  value: 2
+  min: 0
+  max: 10
+  round: 0.01
+- name: a1
+  value: 0.5
+  min: 0.01
+  max: 1
+  round: 0.01
+- name: a2
+  value: 0.5
+  min: 0.01
+  max: 1
+  round: 0.01
+- name: showPreferred
+  value: false
+- name: showIndifferenceCurves
+  value: false
+- name: showPotentialTrade
+  value: false
+- name: showContractCurve
+  value: false
+- name: logp
+  value: -0.25
+  min: -3
+  max: 3
+  round: 0.05
+calcs:
+  p: (exp(params.logp).toFixed(2))
+layout:
+  EdgeworthBoxPlusTwoGraphsPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          color: colors.blue
+          coordinates:
+          - params.w1
+          - params.w2
+          label: {}
+          droplines:
+            vertical: "e_1^A"
+            horizontal: "e_2^A"
+      - EconOptimalBundle:
+          label:
+            text: A^*
+            position: bl
+          droplines:
+            vertical: x_1^A
+            horizontal: x_2^A
+          utilityFunction:
+            CobbDouglas:
+              alpha: params.a1
+          budgetLine:
+            p1: calcs.p
+            p2: 1
+            x: params.w1
+            y: params.w2
+            color: colors.budget
+          indifferenceCurve:
+            color: blue
+            label:
+              text: ''
+      - EconBundle:
+          coordinates:
+          - params.w1
+          - params.w2
+          label:
+            text: "`E`"
+          droplines: {}
+          drag:
+          - horizontal: w1
+          - vertical: w2
+          color: colors.endowment
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+      - Point:
+          coordinates:
+          - (20 - params.w1)
+          - (10 - params.w2)
+          droplines:
+            vertical: "e_1^B"
+            horizontal: "e_2^B"
+          color: orange
+      - EconOptimalBundle:
+          label:
+            text: B^*
+            position: tr
+          droplines:
+            vertical: x_1^B
+            horizontal: x_2^B
+          color: colors.orange
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a1
+          budgetLine:
+            p1: calcs.p
+            p2: 1
+            x: (20-params.w1)
+            y: (10-params.w2)
+            color: colors.budget
+          indifferenceCurve:
+            color: orange
+            label:
+              text:
+    graph1:
+      xAxis:
+        title: A's Units of Good 1
+        max: 15
+      yAxis:
+        title: A's Units of Good 2
+        max: 15
+      objects:
+      - Point:
+          color: colors.endowment
+          coordinates:
+          - params.w1
+          - params.w2
+          label:
+            text: "`E`"
+          droplines:
+            vertical: "e_1^A"
+            horizontal: "e_2^A"
+      - EconOptimalBundle:
+          label:
+            text: A^*
+          droplines:
+            vertical: x_1^A
+            horizontal: x_2^A
+          utilityFunction:
+            CobbDouglas:
+              alpha: params.a1
+          budgetLine:
+            p1: calcs.p
+            p2: 1
+            x: params.w1
+            y: params.w2
+            color: colors.budget
+          indifferenceCurve:
+            color: blue
+            label:
+              text: ''
+    graph2:
+      xAxis:
+        title: B's Units of Good 1
+        max: 15
+      yAxis:
+        title: B's Units of Good 2
+        max: 15
+      objects:
+      - Point:
+          color: colors.endowment
+          coordinates:
+          - "(20 - params.w1)"
+          - "(10 - params.w2)"
+          label:
+            text: "`E`"
+          droplines:
+            vertical: "e_1^B"
+            horizontal: "e_2^B"
+      - EconOptimalBundle:
+          label:
+            text: B^*
+          droplines:
+            vertical: x_1^B
+            horizontal: x_2^B
+          color: colors.orange
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a1
+          budgetLine:
+            p1: calcs.p
+            p2: 1
+            x: (20-params.w1)
+            y: (10-params.w2)
+            color: colors.budget
+          indifferenceCurve:
+            color: orange
+            label:
+              text:
+    sidebar:
+      controls:
+      - title: Gross Demands in the Edgeworth Box
+        description: For a given price ratio p, each agent faces a budget line passing through their endowment with an identical slope. Based on their preferences, they will have an ideal point they would like to trade to along this line this represents their gross demands.
+        sliders:
+        - param: logp
+          label: p
+          showNumber: false
+        divs:
+          - html: "`$$p = {p_1 \\\\over p_2} = ${calcs.p}$$`"
+

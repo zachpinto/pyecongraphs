@@ -1,0 +1,120 @@
+schema: EconSchema
+colors:
+  marginalCost: colors.orange
+  averageCost: colors.purple
+  variableCost: colors.gray
+  totalCost: colors.red
+params:
+  - name: p
+    value: 18
+    min: 1
+    max: 25
+    round: 0.5
+  - name: s
+    value: 0
+calcs:
+  q: (4 + sqrt(2*params.p - 16))
+  qLow: (4 - sqrt(2*params.p - 16))
+  tc: (81 + 16*calcs.q-2*(calcs.q)^2+(1/6)*(calcs.q)^3)
+  tcLow: (81 + 16*calcs.qLow-2*(calcs.qLow)^2+(1/6)*(calcs.qLow)^3)
+  mc: (16 - 4*calcs.q + 0.5*calcs.q*calcs.q)
+  vc: (calcs.tc - 81)
+  ac: (calcs.tc/calcs.q)
+  avc: (calcs.vc/calcs.q)
+  tr: (calcs.q * params.p)
+  profit: (calcs.tr - calcs.tc)
+  profitLow: (params.p*calcs.qLow - calcs.tcLow)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      yAxis:
+        title: Dollars per unit / Price
+        max: 25
+      xAxis:
+        title: Output ($q$)
+        max: 12
+        ticks: 12
+      objects:
+        # Supply
+        - Curve:
+            fn: 16 - 4*(x)+0.5*(x)*(x)
+            color: marginalCost
+            strokeWidth: 4
+            min: 6
+            label:
+              text: \text{Supply}
+              x: 9.83
+              position: bl
+              bgcolor: none
+
+        - Segment:
+            a: [0, 0]
+            b: [0, 10]
+            strokeWidth: 6
+            color: supply
+
+        - Segment:
+            a: [ 6, 10 ]
+            b: [ 0, 10 ]
+            lineStyle: dashed
+            color: supply
+
+        # Average variable cost
+        - Curve:
+            fn: 16-2*(x)+(1/6)*(x)*(x)
+            color: variableCost
+            show: params.s
+            lineStyle: dotted
+            label:
+              text: AVC
+              x: 2
+              position: bl
+              bgcolor: none
+
+        # Marginal cost
+        - Curve:
+            fn: 16 - 4*(x)+0.5*(x)*(x)
+            color: marginalCost
+            show: params.s
+            lineStyle: dotted
+            label:
+              text: MC
+              x: 3
+              position: tr
+              bgcolor: none
+
+        # Average revenue
+        - Line:
+            yIntercept: params.p
+            color: green
+            drag:
+              - vertical: p
+            label:
+              text: \text{Price}
+              x: 12
+              position: tr
+              bgcolor: none
+
+        # Supply curve
+
+        - Point:
+            coordinates:
+            x: "((params.p < 10) ? 0 : calcs.q)"
+            y: params.p
+            color: supply
+            drag:
+              - vertical: p
+            droplines:
+              vertical:
+
+
+
+    sidebar:
+      controls:
+        - title: Supply and Cost Curves
+          sliders:
+            - param: p
+              label: p
+          checkboxes:
+            - param: s
+              label: \text{Show cost curves}

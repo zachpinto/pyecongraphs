@@ -1,0 +1,187 @@
+schema: EconSchema
+params:
+- name: a
+  value: 1
+  min: 0.5
+  max: 2
+  round: 0.01
+- name: a2
+  value: 1
+  min: 0.375
+  max: 3
+  round: 0.125
+- name: b
+  value: 1
+  min: 0.5
+  max: 2
+  round: 0.01
+- name: m
+  value: 72
+  min: 10
+  max: 1000
+  round: 10
+calcs:
+  xe: (sqrt(params.m/(params.a+params.b)))
+  p1e1: (params.a*calcs.xe)
+  p2e1: (params.b*calcs.xe)
+  xe2: (sqrt(params.m/(params.a2+params.b)))
+  p1e2: (params.a2*calcs.xe2)
+  p2e2: (params.b*calcs.xe2)
+  increaseSupply: (params.a > params.a2)
+  decreaseSupply: (params.a < params.a2)
+  noChange: (params.a == params.a2)
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        max: 16
+        ticks: 0
+        title: Grape Jelly (Good 1)
+      yAxis:
+        max: 16
+        ticks: 0
+      objects:
+
+	  # Initial Demand
+      - Curve:
+          fn: params.m/((y)+calcs.p2e1)
+          ind: y
+          color: demand
+          lineStyle: dotted
+          label:
+            y: 1
+            text: D_1
+          show: (!calcs.noChange)
+
+      # Initial Demand
+      - Curve:
+          fn: params.m/((y)+calcs.p2e2)
+          ind: y
+          color: demand
+          label:
+            y: 1
+            text: D_1^\prime
+
+      # Initial Supply
+      - Line:
+          slope: params.a
+          color: supply
+          lineStyle: '((calcs.noChange) ? "solid" : "dotted")'
+          label:
+            x: 15
+            text: S_1
+
+      # Supply
+      - Line:
+          slope: params.a2
+          drag:
+          - directions: xy
+            param: a2
+            expression: drag.y/drag.x
+          label:
+            text: S_1^\prime
+            y: 15
+          show: (calcs.decreaseSupply)
+
+      # Supply
+      - Line:
+          slope: params.a2
+          drag:
+          - directions: xy
+            param: a2
+            expression: drag.y/drag.x
+          label:
+            text: S_1^\prime
+            x: 15
+          show: (calcs.increaseSupply)
+
+      # Equilibrium:
+      - Point:
+          coordinates: [calcs.xe, calcs.p1e1]
+          r: 4
+          color: "((calcs.noChange) ? colors.green : colors.grey)"
+          droplines:
+            vertical: Q_1
+            horizontal: p_1
+
+      # Equilibrium:
+      - Point:
+          coordinates: [calcs.xe2, calcs.p1e2]
+          r: 4
+          color: green
+          droplines:
+            vertical: Q_1^\prime
+            horizontal: p_1^\prime
+          show: (!calcs.noChange)
+
+    rightGraph:
+      xAxis:
+        max: 16
+        ticks: 0
+        title: Peanut Butter (Good 2)
+      yAxis:
+        max: 16
+        ticks: 0
+      objects:
+
+      # Supply
+      - Line:
+          slope: params.b
+          color: supply
+          label:
+            x: 15
+            text: S_2
+
+      # Initial Demand
+      - Curve:
+          fn: params.m/((y)+calcs.p1e1)
+          ind: y
+          color: demand
+          lineStyle: dotted
+          show: (!calcs.noChange)
+          label:
+            text: D_2
+            y: 1
+
+      # Demand
+      - Curve:
+          fn: params.m/((y)+calcs.p1e2)
+          ind: y
+          color: demand
+          label:
+            text: '((calcs.noChange) ? "D_2" : "D_2^\\prime")'
+            y: 2
+
+      # Equilibrium:
+      - Point:
+          coordinates: [calcs.xe, calcs.p2e1]
+          r: 4
+          color: "((calcs.noChange) ? colors.green : colors.grey)"
+          droplines:
+            vertical: Q_2
+            horizontal: p_2
+
+      # Equilibrium:
+      - Point:
+          coordinates: [calcs.xe2, calcs.p2e2]
+          r: 4
+          color: green
+          droplines:
+            vertical: Q_2^\prime
+            horizontal: p_2^\prime
+          show: (!calcs.noChange)
+
+
+    sidebar:
+      controls:
+      - title: Equilibrium Effects of a Supply Shift in One Market
+        description: A change in the supply curve for grape jelly causes a cascading effect on the demand curves for both peanut butter and grape jelly, until the system converges to a new equilibrium.
+        sliders:
+        - param: a2
+          label: \text{Cost of Grapes}
+          showNumber: false
+        divs:
+        - html: $$\begin{aligned}\leftarrow S_1 & \text{ causes } \uparrow p_1 \text{ (shortage of jelly)} \\ \uparrow p_1 & \text{ causes } \leftarrow D_2 \text{ (complements)}\\ \leftarrow D_2 & \text{ causes } \downarrow p_2 \text{ (surplus of PB)}\\ \downarrow p_2 & \text{ causes } \rightarrow D_1 \text{ (complements)}\end{aligned}$$
+          show: calcs.decreaseSupply
+        - html: $$\begin{aligned}\rightarrow S_1 & \text{ causes } \downarrow p_1 \text{ (surplus of jelly)}\\ \downarrow p_1 & \text{ causes } \rightarrow D_2 \text{ (complements)}\\ \rightarrow D_2 & \text{ causes } \uparrow p_2 \text{ (shortage of PB)}\\ \uparrow p_2 & \text{ causes } \leftarrow D_1 \text{ (complements)}\end{aligned}$$
+          show: calcs.increaseSupply

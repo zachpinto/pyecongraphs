@@ -1,0 +1,146 @@
+schema: EconSchema
+params:
+  - {name: a, value: 25, min: 0, max: 100}
+  - {name: p1, value: 1, min: 1, max: 10, round: 0.01}
+  - {name: p2, value: 1, min: 1, max: 10, round: 0.01}
+  - {name: m, value: 8, min: 1, max: 1000}
+calcs:
+  x1: (0.01*params.a*params.m/params.p1)
+  x2: (0.01*(100-params.a)*params.m/params.p2)
+  u: calcs.utilityCurve.utility.y
+  pr: (params.p1/params.p2)
+  mrs: calcs.mrsCurve.mrsX.y
+layout:
+  SquarePlusTwoVerticalGraphs:
+    bigGraph:
+      xAxis:
+        title: Fish
+        max: 10
+      yAxis:
+        title: Coconuts
+        max: 10
+      objects:
+
+      - EconBudgetLine:
+          p1: params.p1
+          p2: params.p2
+          m: params.m
+          handles: true
+          draggable: true
+          color: colors.red
+          label:
+            text: "`PPF (MRT = ${calcs.pr.toFixed(1)})`"
+
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: -calcs.mrs
+          color: blue
+          min: calcs.x1 - 0.02*params.a
+          max: calcs.x1 + 0.02*params.a
+          label:
+            text: "`MRS(X) = ${calcs.mrs.toFixed(2)}`"
+            x: calcs.x1 + 0.02*params.a
+            fontSize: 9
+            yPixelOffset: -10
+
+
+      - EconBundle:
+          color: colors.blue
+          coordinates: [calcs.x1, calcs.x2]
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          indifferenceCurve: {}
+          droplines:
+            horizontal: calcs.x2.toFixed(1)
+            vertical: calcs.x1.toFixed(1)
+          drag:
+          - directions: x
+            param: a
+            expression: (100*drag.x*params.p1/params.m)
+
+
+    topGraph:
+      xAxis:
+        title: \% Labor devoted to fish
+        max: 100
+        ticks: 1
+      yAxis:
+        title: Utility
+        max: 5
+      objects:
+
+      # Title
+      - Label:
+          text: u(x_1,x_2) = \sqrt{x_1x_2}
+          fontSize: 14
+          coordinates: [90,1]
+          align: right
+
+      # Point corresponding to bundle X
+      - Point:
+          coordinates: [params.a, calcs.u]
+          droplines:
+            vertical: "`${params.a}\\\\%`"
+            horizontal: calcs.u.toFixed(2)
+          drag:
+            - horizontal: a
+          color: utility
+          label:
+            text: u(X)
+            position: b
+
+      # Curve showing utility
+      - Curve:
+          name: utilityCurve
+          fn: (0.01*(x)*(params.m/params.p1)*0.01*(100-(x))*(params.m/params.p2))^0.5
+          pts: [{name: utility, x: params.a}]
+          color: utility
+
+    bottomGraph:
+      xAxis:
+        title: \% Labor producing fish
+        max: 100
+        ticks: 1
+      yAxis:
+        title: Coconuts per fish
+        max: 4
+      objects:
+
+      # Title
+      - Label:
+          text: MRS(x_1,x_2) = \frac{x_2}{x_1}
+          fontSize: 14
+          coordinates: [90,2]
+          align: right
+
+      # Line at price ratio
+      - Line:
+          yIntercept: calcs.pr
+          color: supply
+          label:
+            text: MRT
+            x: 100
+
+      # Curve showing MRS
+      - Curve:
+          name: mrsCurve
+          fn: (100-(x))*params.p1/((x)*params.p2)
+          pts: [{name: mrsX, x: params.a}]
+          color: blue
+          label:
+            text: MRS
+            x: 90
+            position: bl
+
+      # Point corresponding to bundle X
+      - Point:
+          coordinates: [params.a, calcs.mrs]
+          droplines:
+            vertical: "`${params.a}\\\\%`"
+            horizontal:
+          drag:
+            - horizontal: a
+          color: blue
+          label:
+            text: "`MRS(X) = ${calcs.mrs.toFixed(2)}`"

@@ -1,0 +1,108 @@
+schema: EconSchema
+params:
+  - name: c
+    value: 0
+    min: 0
+    max: 12
+    round: 0.1
+    precision: 2
+calcs:
+  slope: ((4*params.p1*params.p2)^(-0.5))
+  U: (3+3)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Good 1 ($x_1$)
+        max: 12
+        ticks: 12
+      yAxis:
+        title: Good 2 ($x_2$)
+        max: 12
+        ticks: 12
+      objects:
+        - Arrow:
+            end: [1.5,2]
+            begin: [(1.5+params.c/4),(2+params.c/16)]
+            trim: 0.9
+            color: orange
+            show: (params.c > 2)
+            strokeWidth: 3
+        - EconOptimalBundle:
+            name: A
+            label:
+              text: A
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            budgetLine:
+              p1: 1
+              p2: 1
+              m: 8
+              handles: false
+              draggable: false
+              label:
+                text: BL
+            indifferenceCurve:
+              label:
+                x: 8
+                text: "`U = 4`"
+            droplines:
+              vertical:
+              horizontal:
+        - EconOptimalBundle:
+            label:
+              text: C
+              position: tr
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            budgetLine:
+              p1: 4
+              p2: 1
+              m: 8
+              handles: false
+              draggable: false
+              label:
+                text: BL^\prime
+            indifferenceCurve:
+              label:
+                x: 8
+                text: "`U^\\\\prime = 2`"
+            droplines:
+              vertical:
+        - EconOptimalBundle:
+            name: B
+            label:
+              text: B
+            show: (params.c > 0)
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            budgetLine:
+              p1: 4
+              p2: 1
+              m: (8 + params.c)
+              handles: false
+              draggable: false
+              color: orange
+              strokeWidth: 3
+              label:
+                text: \text{Compensated }BL
+            indifferenceCurve:
+              label:
+                x: 6
+                text: "`U^c = ${calcs.B.level.toFixed(2)}`"
+              strokeWidth: 3
+            droplines:
+              vertical:
+              horizontal:
+
+
+    sidebar:
+      controls:
+        - title: Compensate the Consumer!
+          description: Increase compensation until the consumer can achieve their initial utility of 4. Do you need to give them enough to buy their initial bundle A...?
+          sliders:
+            - param: c
+              label: \text{Compensation}

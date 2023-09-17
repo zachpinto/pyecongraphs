@@ -1,0 +1,124 @@
+schema: EconSchema
+params:
+- {name: w, value: 8, min: 1, max: 10, round: 0.01}
+- {name: r, value: 2, min: 1, max: 10, round: 0.01}
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 100
+        ticks: 0
+        title: Labor ($L$)
+      yAxis:
+        max: 100
+        ticks: 0
+        title: Capital ($K$)
+      objects:
+      
+      - Line:
+          slope: params.w/params.r
+          label:
+            y: 100
+            text: \text{Long-Run Expansion Path}
+            
+      - Line:
+          slope: params.w/params.r
+          label:
+            x: 100
+            text: \text{Long-Run Expansion Path}
+
+      - LowestCostBundle:
+          name: X3
+          color: orange
+          r: 4
+          label: 
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          level: 16
+          droplines:
+            vertical: calcs.X3.x.toFixed(0)
+            horizontal: calcs.X3.y.toFixed(0)
+          prices: [params.w, params.r]
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`q = 16`"
+              x: 100
+              position: r
+          budgetLine:
+            color: green
+            label:
+              text: "`c = ${calcs.X3.cost.toFixed(0)}`"
+              
+      - LowestCostBundle:
+          name: X4
+          color: orange
+          r: 4
+          label: 
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          level: 32
+          droplines:
+            vertical: calcs.X4.x.toFixed(0)
+            horizontal: calcs.X4.y.toFixed(0)
+          prices: [params.w, params.r]
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`q = 32`"
+              x: 100
+              position: r
+          budgetLine:
+            color: green
+            label:
+              text: "`c = ${calcs.X4.cost.toFixed(0)}`"
+              
+      - LowestCostBundle:
+          name: X5
+          color: orange
+          r: 4
+          label: 
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          level: 48
+          droplines:
+            vertical: calcs.X5.x.toFixed(0)
+            horizontal: calcs.X5.y.toFixed(0)
+          prices: [params.w, params.r]
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`q = 48`"
+              x: 100
+              position: r
+          budgetLine:
+            color: green
+            label:
+              text: "`c = ${calcs.X5.cost.toFixed(0)}`"
+            
+
+    sidebar:
+      controls:
+      - title: Long-Run Expansion Path
+        description: This shows the cost-minimizing combinations of labor and capital for output levels q = 16, 5, and 6. Adjust the wage rate and the rental rate of capital to see how these change. All numbers are rounded to the nearest integer.
+        sliders:
+        - param: w
+          label: w
+        - param: r
+          label: r
+        divs:
+        - table:
+            columns: [$q$,$L^\star(q)$,$K^\star(q)$,$c(q)$]
+            rows:
+            - [4, calcs.X3.x.toFixed(0), calcs.X3.y.toFixed(0), calcs.X3.cost.toFixed(0)]
+            - [6, calcs.X4.x.toFixed(0), calcs.X4.y.toFixed(0), calcs.X4.cost.toFixed(0)]
+            - [8, calcs.X5.x.toFixed(0), calcs.X5.y.toFixed(0), calcs.X5.cost.toFixed(0)]

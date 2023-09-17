@@ -1,0 +1,50 @@
+params:
+  - name: w
+    value: 8
+    min: 6
+    max: 16
+    round: 0.1
+calcs:
+  L: (8*12*12/(params.w*params.w))
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Labor ($L$)
+        max: 36
+      yAxis:
+        title: Wage Rate ($w$)
+        max: 18
+      objects:
+        - Curve:
+            fn: 12*sqrt(8/(x))
+            color: blue
+            label:
+              text: \text{Labor Demand when }p = 12
+              x: 6
+              position: bl
+              bgColor: none
+        - Line:
+            yIntercept: params.w
+            drag:
+              - vertical: w
+            color: green
+            label:
+              text: \text{Market wage, }w
+              x: 35
+              position: tr
+        - Point:
+            coordinates: [ calcs.L, params.w ]
+            droplines:
+              vertical: "`L^*(${params.w.toFixed(1)}) = ${calcs.L.toFixed(1)}`"
+              horizontal: params.w.toFixed(1)
+
+    sidebar:
+      controls:
+        - title: Demand for Labor
+          description: The firm's profit-maximizing labor demand shows the quantity of labor it hires at each wage rate.
+          sliders:
+            - param: w
+              label: w
+          divs:
+            - html: "`At a wage rate of $w = ${params.w.toFixed(1)}$, the firm's labor demand is$$L^*(${params.w.toFixed(1)}) = {8 \\\\times 12^2 \\\\over ${params.w.toFixed(1)}^2} = ${calcs.L.toFixed(1)}$$`"

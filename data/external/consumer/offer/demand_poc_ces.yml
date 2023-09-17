@@ -1,0 +1,191 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: "0.5"
+    min: "0.05"
+    max: "0.95"
+    round: "0.01"
+  - name: p
+    value: "4"
+    min: "1"
+    max: "10"
+    round: "0.01"
+  - name: q
+    value: "4"
+    min: "1"
+    max: "10"
+    round: "0.01"
+  - name: m
+    value: "160"
+    min: "0"
+    max: "400"
+    round: "1"
+  - name: r
+    value: 0.25
+    min: -4
+    max: 0.8
+    round: "0.05"
+  - name: showPOC
+    value: false
+restrictions:
+  - expression: params.a*params.m/params.p
+    min: "1"
+    max: "100"
+  - expression: params.m/params.q
+    min: "1"
+    max: "50"
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+      objects:
+        - EconPriceOfferCurve:
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+            label:
+              text: POC
+              t: 1.1
+            good: 1
+            min: 0.5
+            max: 30
+            show: params.showPOC
+        - EconOptimalBundle:
+            show: (calcs.r != 0)
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+            label:
+              text: X^*
+            droplines:
+              vertical: x_1^*
+              horizontal: x_2^*
+        - EconOptimalBundle:
+            color: demand
+            show: (params.r == 0)
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+              color: budget
+            label:
+              text: X^*
+            droplines:
+              vertical: x_1^*
+              horizontal: x_2^*
+        - type: EconBudgetLine
+          def:
+            p1: params.p
+            p2: params.q
+            m: params.m
+            label: BL
+            draggable: true
+            handles: true
+            set: false
+    bottomGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Price of Good 1
+        orient: left
+        min: 0
+        max: 10
+      objects:
+        - type: EconDemandCurve
+          def:
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+            good: 1
+            label:
+              text: \text{Demand}
+              "y": 2
+        - type: EconDemandPoint
+          def:
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+            good: 1
+        - type: Segment
+          def:
+            a:
+              - 0
+              - params.p
+            b:
+              - 100
+              - params.p
+            stroke: green
+            drag:
+              - directions: "y"
+                param: p
+                expression: params.p + drag.dy
+            label:
+              text: p_1
+              location: 0.05
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: \alpha
+            - param: r
+              label: r
+          divs:
+            - html: '`$$u(x_1,x_2) = (\\alpha x_1^r + (1 - \\alpha) x_2^r)^{1/r}$$`'
+        - title: Budget Parameters
+          sliders:
+            - param: p
+              label: p_1
+            - param: q
+              label: p_2
+            - param: m
+              label: m
+          checkboxes:
+            - param: showPOC
+              label: \text{Show Price Offer Curve}

@@ -1,0 +1,241 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: a
+  value: '0.5'
+  min: '0'
+  max: '1'
+  round: '0.01'
+- name: theta
+  value: '0.2'
+  min: 0.05
+  max: 0.95
+  round: '0.01'
+- name: p1
+  value: '1'
+  min: '0.1'
+  max: '10'
+  round: '0.01'
+- name: p2
+  value: '1'
+  min: '0.1'
+  max: '10'
+  round: '0.01'
+- name: p22
+  value: '4'
+  min: '0.1'
+  max: '10'
+  round: '0.01'
+- name: m
+  value: '12'
+  min: '0'
+  max: '40'
+  round: '1'
+- name: d
+  value: '4'
+  min: '0'
+  max: '10'
+  round: '1'
+layout:
+  type: TwoHorizontalGraphsPlusSidebar
+  def:
+    leftGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 15
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 15
+      objects:
+      - type: Segment
+        def:
+          a:
+          - params.m/params.p1
+          - 0
+          b:
+          - "(params.m - params.d*params.p2)/params.p1"
+          - params.d
+          color: colors.budget
+      - type: Segment
+        def:
+          a:
+          - "(params.m - params.d*params.p2)/params.p1"
+          - params.d
+          b:
+          - 0
+          - params.d + (params.m - params.d*params.p2)/params.p22
+          color: colors.budget
+      - type: EconBundle
+        def:
+          name: bundle
+          coordinates:
+          - params.theta*params.m/params.p1
+          - "(params.theta >= (1 - params.d*params.p2/params.m) ? (1-params.theta)*params.m/params.p2
+            : params.d + ((1-params.theta)*params.m-params.d*params.p2)/params.p22)"
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a
+          label:
+            text: X
+          drag:
+          - directions: x
+            param: theta
+            expression: drag.x*params.p1/params.m
+          droplines:
+            vertical: "(calcs.bundle.x).toFixed(0)"
+            horizontal: "(calcs.bundle.y).toFixed(0)"
+          indifferenceCurve:
+            showPreferred: true
+      - type: Segment
+        def:
+          a:
+          - "(params.theta*params.m/params.p1)-params.theta*0.5*(params.m/params.p1)"
+          - "((1-params.theta)*params.m/params.p2)+params.theta*0.5*(params.m/params.p1)*(((1-params.a)*params.theta*params.m/params.p1)^(-1)*params.a*(params.m
+            - params.theta*params.m)/params.p2)"
+          b:
+          - "(params.theta*params.m/params.p1)+params.theta*0.5*(params.m/params.p1)"
+          - "((1-params.theta)*params.m/params.p2)-params.theta*0.5*(params.m/params.p1)*(((1-params.a)*params.theta*params.m/params.p1)^(-1)*params.a*(params.m
+            - params.theta*params.m)/params.p2)"
+          color: colors.mrs
+          show: "(params.theta > 1 - params.d*params.p2/params.m)"
+      - type: Segment
+        def:
+          a:
+          - "(params.theta*params.m/params.p1)-params.theta*0.5*(params.m/params.p1)"
+          - params.d + ((1-params.theta)*params.m-params.d*params.p2)/params.p22+params.theta*0.5*(params.m/params.p1)*(((1-params.a)*params.theta*params.m/params.p1)^(-1)*params.a*(params.d
+            + ((1-params.theta)*params.m-params.d*params.p2)/params.p22))
+          b:
+          - "(params.theta*params.m/params.p1)+params.theta*0.5*(params.m/params.p1)"
+          - params.d + ((1-params.theta)*params.m-params.d*params.p2)/params.p22-params.theta*0.5*(params.m/params.p1)*(((1-params.a)*params.theta*params.m/params.p1)^(-1)*params.a*(params.d
+            + ((1-params.theta)*params.m-params.d*params.p2)/params.p22))
+          color: colors.mrs
+          show: "(params.theta <= 1 - params.d*params.p2/params.m)"
+      - type: Label
+        def:
+          coordinates:
+          - "(params.theta*params.m/params.p1)+params.theta*0.5*(params.m/params.p1)"
+          - params.d + ((1-params.theta)*params.m-params.d*params.p2)/params.p22-params.theta*0.5*(params.m/params.p1)*(((1-params.a)*params.theta*params.m/params.p1)^(-1)*params.a*(params.d
+            + ((1-params.theta)*params.m-params.d*params.p2)/params.p22))
+          color: colors.mrs
+          text: MRS
+          align: left
+          show: "(params.theta <= 1 - params.d*params.p2/params.m)"
+          yPixelOffset: -10
+      - type: Label
+        def:
+          coordinates:
+          - "(params.theta*params.m/params.p1)+params.theta*0.5*(params.m/params.p1)"
+          - "((1-params.theta)*params.m/params.p2)-params.theta*0.5*(params.m/params.p1)*(((1-params.a)*params.theta*params.m/params.p1)^(-1)*params.a*(params.m
+            - params.theta*params.m)/params.p2)"
+          color: colors.mrs
+          text: MRS
+          align: left
+          show: "(params.theta > 1 - params.d*params.p2/params.m)"
+          yPixelOffset: -10
+    rightGraph:
+      xAxis:
+        title: Fraction of Income Spent on Good 1
+        orient: bottom
+        min: 0
+        max: 1
+      yAxis:
+        title: Units of Good 2 per Units of Good 1
+        orient: left
+        min: 0
+        max: 5
+      objects:
+      - type: Segment
+        def:
+          a:
+          - "(1 - params.d*params.p2/params.m)"
+          - params.p1/params.p22
+          b:
+          - 0
+          - params.p1/params.p22
+          color: colors.budget
+      - type: Segment
+        def:
+          a:
+          - "(1 - params.d*params.p2/params.m)"
+          - params.p1/params.p2
+          b:
+          - 0.97
+          - params.p1/params.p2
+          color: colors.budget
+      - type: Segment
+        def:
+          a:
+          - "(1 - params.d*params.p2/params.m)"
+          - params.p1/params.p2
+          b:
+          - "(1 - params.d*params.p2/params.m)"
+          - params.p1/params.p22
+          color: colors.budget
+          lineStyle: dotted
+      - type: Label
+        def:
+          coordinates:
+          - 0.97
+          - params.p1/params.p2
+          text: "\\color{green}{\\frac{p_1}{p_2}}"
+          align: left
+      - type: Curve
+        def:
+          univariateFunction:
+            fn: "((1-params.a)*x*params.m/params.p1)^(-1)*params.a*(params.d + ((1-x)*params.m-params.d*params.p2)/params.p22)"
+            min: 0.01
+            max: "(1 - params.d*params.p2/params.m)"
+          color: colors.mrs
+      - type: Curve
+        def:
+          univariateFunction:
+            fn: "((1-params.a)*(x)*params.p2)^(-1)*params.a*(1-(x))*params.p1"
+            min: "(1 - params.d*params.p2/params.m)"
+            max: 1
+          color: colors.mrs
+          label:
+            text: MRS
+            x: 0.9
+            position: b
+            bgcolor: none
+      - type: Point
+        def:
+          coordinates:
+          - params.theta
+          - 'params.theta > 1 - params.d*params.p2/params.m ? params.p1/params.p2
+            : params.p1/params.p22'
+          color: colors.budget
+          drag:
+          - directions: x
+            param: theta
+            expression: params.theta+drag.dx
+    sidebar:
+      controls:
+      - title: Utility Function
+        sliders:
+        - param: a
+          label: "\\alpha"
+        divs:
+        - html: "`$$u(x_1,x_2) = x_1^\\\\alpha x_2^{1 - \\\\alpha} = x_1^{${params.a.toFixed(2)}}x_2^{${(1-params.a).toFixed(2)}}$$`"
+      - title: Budget Parameters
+        sliders:
+        - param: p1
+          label: p_1
+        - param: p2
+          label: p_2
+        - param: p22
+          label: p'_2
+        - param: m
+          label: m
+        - param: d
+          label: d
+    explanation:
+      divs:
+        - html: "`This budget line illustrates the case of a discount on a limited quantity of good 2: in particular, for the first $d = ${params.d}$ units of good 2, each unit costs $p_2 = ${params.p2.toFixed(2)}$; after that, each unit costs $p_2'=${params.p22.toFixed(2)}$. This creates a 'kink' in the budget line: for a range of utility functions, it may be worth it to buy all the discounted units, but none of the full-price ones.`"

@@ -1,0 +1,88 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: 20
+  min: 10
+  max: 60
+  round: 10
+- name: y2
+  value: 10
+  min: 10
+  max: 60
+  round: 10
+- name: t
+  value: 0.8
+  min: 0.1
+  max: 0.9
+  round: 0.05
+calcs:
+  x2: (600/params.x1)
+  y1: (600/params.y2)
+  c1: (params.t*params.x1 + (1-params.t)*calcs.y1)
+  c2: (params.t*calcs.x2 + (1-params.t)*params.y2)
+  uc: (calcs.c1*calcs.c2)
+layout:
+  type: OneWideGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        max: 80
+        ticks: 8
+      yAxis:
+        title: Units of Good 2
+        max: 40
+        ticks: 4
+      objects:
+      - Curve:
+          fn: 600/(x)
+          color: utility
+          areaAbove: green
+          label:
+            text: "`U = 600`"
+            x: 80
+            position: r
+      - Label:
+          text: \text{Preferred to $A$ and $B$}
+          coordinates: [78, 38]
+          position: tr
+          color: green
+          bgcolor: none
+      - Point:
+          coordinates:
+          - params.x1
+          - calcs.x2
+          label:
+            text: "`A = (${params.x1.toFixed(0)}, ${calcs.x2.toFixed(0)})`"
+      - Point:
+          coordinates:
+          - calcs.y1
+          - params.y2
+          label:
+            text: "`B = (${calcs.y1.toFixed(0)}, ${params.y2.toFixed(0)})`"
+      - Segment:
+          a: [params.x1, calcs.x2]
+          b: [calcs.y1, params.y2]
+          lineStyle: dotted
+          color: green
+      - Point:
+          coordinates: [calcs.c1, calcs.c2]
+          color: green
+          drag:
+          - directions: xy
+            param: t
+            expression: ((drag.x - calcs.y1)/(params.x1 - calcs.y1))
+          label:
+            text: "`C = (${calcs.c1.toFixed(0)}, ${calcs.c2.toFixed(0)})`"
+    sidebar:
+      controls:
+      - title: Convex preferences
+        description: If you're indifferent between A and B, you prefer any convex combination of A and B to both A and B.
+        sliders:
+        - param: t
+          label: t
+        #divs:
+          #- html: "`$$\\\\begin{aligned}u(x_1,x_2) &= x_1 \\\\times x_2\\\\\\\\ u(A) &= ${params.x1.toFixed(0)}\\\\times ${calcs.x2.toFixed(0)}=600\\\\\\\\ u(B) &= ${calcs.y1.toFixed(0)}\\\\times ${params.y2.toFixed(0)}=600\\\\\\\\ u(C) &= ${calcs.c1.toFixed(0)}\\\\times ${calcs.c2.toFixed(0)}=${calcs.uc.toFixed(0)}\\\\end{aligned}$$`"

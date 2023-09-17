@@ -1,0 +1,131 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: xIntercept
+  value: 20
+  min: 10
+  max: 20
+  round: 1
+- name: invSlope
+  value: -1
+  min: -10
+  max: 0.05
+  round: 0.05
+- name: theta
+  value: 0.375
+  min: 0
+  max: 0.75
+  round: 0.01
+calcs:
+  q: "(params.theta*params.xIntercept)"
+layout:
+  type: TwoVerticalGraphsPlusSidebar
+  def:
+    topGraph:
+      xAxis:
+        title: Output ($q$)
+        orient: bottom
+        min: 0
+        max: 20
+      yAxis:
+        title: Dollars
+        orient: left
+        min: 0
+        max: 120
+        ticks: 4
+      objects:
+      - type: Curve
+        def:
+          univariateFunction:
+            fn: "((calcs.demand.yIntercept + calcs.demand.slope*(x))*(x))"
+            max: calcs.demand.xIntercept
+          color: colors.profit
+          label:
+            text: TR
+            x: "(0.85*params.xIntercept)"
+      - type: Line
+        def:
+          point:
+          - calcs.q
+          - "((calcs.demand.yIntercept + calcs.demand.slope*calcs.q)*calcs.q)"
+          slope: "(calcs.demand.yIntercept + 2*calcs.demand.slope*calcs.q)"
+          min: "(calcs.q - 2)"
+          max: "(calcs.q + 2)"
+          color: colors.marginalRevenue
+          label:
+            text: "`MR = ${(calcs.demand.yIntercept + 2*calcs.demand.slope*calcs.q).toFixed(2)}`"
+            x: "((params.theta > 0.6 ? calcs.q - 2 : calcs.q + 2))"
+            yPixelOffset: 10
+            align: "(params.theta > 0.6 ? 'right' : 'left')"
+      - type: Point
+        def:
+          coordinates:
+          - calcs.q
+          - "((calcs.demand.yIntercept + calcs.demand.slope*calcs.q)*calcs.q)"
+          drag:
+          - directions: x
+            param: theta
+            expression: "(drag.x/params.xIntercept)"
+          color: colors.demand
+          droplines:
+            vertical: calcs.q.toFixed(2)
+            horizontal: "((calcs.demand.yIntercept + calcs.demand.slope*calcs.q)*calcs.q).toFixed(2)"
+    bottomGraph:
+      xAxis:
+        orient: bottom
+        min: 0
+        max: 20
+        ticks: 0
+      yAxis:
+        title: Dollars per Unit
+        orient: left
+        min: -10
+        max: 20
+        ticks: 2
+      objects:
+      - type: EconLinearDemand
+        def:
+          name: demand
+          xIntercept: params.xIntercept
+          invSlope: params.invSlope
+          label:
+            text: D = AR
+            x: "(0.9*params.xIntercept)"
+          handles: true
+          draggable: true
+          marginalRevenue: {}
+      - type: Point
+        def:
+          coordinates:
+          - calcs.q
+          - "(calcs.demand.yIntercept + 2*calcs.demand.slope*calcs.q)"
+          drag:
+          - directions: x
+            param: theta
+            expression: "(drag.x/params.xIntercept)"
+          color: colors.marginalRevenue
+          droplines:
+            horizontal: "(calcs.demand.yIntercept + 2*calcs.demand.slope*calcs.q).toFixed(2)"
+            vertical: calcs.q.toFixed(2)
+      - type: Point
+        def:
+          coordinates:
+          - calcs.q
+          - "(calcs.demand.yIntercept + calcs.demand.slope*calcs.q)"
+          drag:
+          - directions: x
+            param: theta
+            expression: "(drag.x/params.xIntercept)"
+          color: colors.demand
+          droplines:
+            vertical: calcs.q.toFixed(2)
+            horizontal: "(calcs.demand.yIntercept + calcs.demand.slope*calcs.q).toFixed(2)"
+    sidebar:
+      controls:
+      - title: Total, Marginal, and Average Revenue
+        divs:
+        - html: "`If the market demand is$$\\\\color{${colors.demand}}{D(p) = ${params.xIntercept.toFixed(2)}${params.invSlope.toFixed(2)}p}$$`"
+        - html: "`Then the inverse demand is given by $$\\\\color{${colors.demand}}{p(q) = ${calcs.demand.yIntercept.toFixed(2)}${calcs.demand.slope.toFixed(2)}q}$$`"
+        - html: "`Therefore total revenue is $$\\\\color{${colors.demand}}{TR(q) = p(q)q = ${calcs.demand.yIntercept.toFixed(2)}q${calcs.demand.slope.toFixed(2)}q^2}$$`"
+        - html: "`and marginal revenue is $$\\\\color{${colors.marginalRevenue}}{MR(q) = ${calcs.demand.yIntercept.toFixed(2)}${(2*calcs.demand.slope).toFixed(2)}q}$$`"

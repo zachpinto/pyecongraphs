@@ -1,0 +1,104 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: y
+  value: 4
+  min: 4
+  max: 14
+  round: 0.01
+- name: dy
+  value: 2
+  min: 0.01
+  max: 2
+  round: 0.01
+calcs:
+  y2: "(params.y+params.dy)"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Output ($q$)
+        orient: bottom
+        min: 0
+        max: 20
+        ticks: 1
+      yAxis:
+        title: Price (Dollars per unit)
+        orient: left
+        min: 0
+        max: 20
+        ticks: 1
+      objects:
+      - type: EconLinearDemand
+        def:
+          name: demand
+          xIntercept: 20
+          invSlope: -1
+          label:
+            text: D = AR
+            x: 19
+          handles: false
+          draggable: false
+      - type: Rectangle
+        def:
+          a:
+          - 0
+          - 0
+          b:
+          - params.y
+          - "(calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)"
+          color: gray
+          label:
+            text: "\\text{unchanged}\\\\ \\text{revenue}"
+      - type: Rectangle
+        def:
+          a:
+          - 0
+          - "(calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)"
+          b:
+          - params.y
+          - "(calcs.demand.yIntercept + calcs.demand.slope*params.y)"
+          color: colors.loss
+          label:
+            text: "\\text{lost revenue}"
+      - type: Rectangle
+        def:
+          a:
+          - params.y
+          - 0
+          b:
+          - calcs.y2
+          - "(calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)"
+          color: colors.profit
+          label:
+            text: "\\text{new revenue}"
+            rotate: 90
+      - type: Point
+        def:
+          coordinates:
+          - params.y
+          - "(calcs.demand.yIntercept + calcs.demand.slope*params.y)"
+          drag:
+          - directions: x
+            param: y
+            expression: params.y + drag.dx
+          color: colors.demand
+          droplines:
+            vertical: q
+            horizontal: p
+      - type: Point
+        def:
+          coordinates:
+          - calcs.y2
+          - "(calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)"
+          color: colors.demand
+          droplines:
+            vertical: q + dq
+            horizontal: p - dp
+    sidebar:
+      controls:
+      - title: Decomposing Marginal Revenue
+        divs:
+          - html: Increasing quantity from $q$ to $q + dq$ results in a lost revenue of $dp \times q$ from dropping the price, and new revenue of approximately $dq \times p$ from new sales.

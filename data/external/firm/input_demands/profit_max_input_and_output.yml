@@ -1,0 +1,409 @@
+schema: EconSchema
+version: 1
+params:
+  - name: A
+    value: "1"
+    min: "1"
+    max: "10"
+    round: "0.01"
+  - name: a
+    value: "0.25"
+    min: "0.25"
+    max: "2"
+    round: "0.01"
+  - name: b
+    value: "0.25"
+    min: "0.25"
+    max: "2"
+    round: "0.01"
+  - name: "y"
+    value: "5"
+    min: "1"
+    max: "20"
+    round: "0.1"
+  - name: w
+    value: "10"
+    min: "1"
+    max: "20"
+    round: "0.01"
+  - name: r
+    value: "10"
+    min: "1"
+    max: "20"
+    round: "0.01"
+  - name: p
+    value: "200"
+    min: "1"
+    max: "300"
+    round: "1"
+  - name: k
+    value: "25"
+    min: "1"
+    max: "100"
+    round: "1"
+  - name: showSR
+    value: false
+  - name: showExplanation
+    value: false
+calcs:
+  L: ((params.y)/(params.A))^(1/(params.a))
+  c: ((params.w)*((params.y)/(params.A))^(1/(params.a)))
+  MPL: ((params.a)*(params.A)*(params.L)^(params.a - 1))
+  theta: (((params.a/params.b)^(params.b/(params.a+params.b)))+((params.b/params.a)^(params.a/(params.a+params.b))))*((params.w)^(params.a/(params.a+params.b)))*((params.r)^(params.b/(params.a+params.b)))
+  xMaxTop: (25/(params.a+params.b)^2)
+  yMaxBottom: (40*10^(1/(params.a+params.b)))
+  fixedCost: (params.r*params.k)
+  ySR: ((0.25*params.k*params.p/params.w)^(1/3))
+  yLR: (0.25*params.p*(params.w*params.r)^(-0.5))
+layout:
+  type: ThreeHorizontalGraphs
+  def:
+    leftGraph:
+      xAxis:
+        title: Output ($y$)
+        orient: bottom
+        min: 0
+        max: 10
+      yAxis:
+        title: Price ($p$)
+        orient: left
+        min: 0
+        max: 300
+      objects:
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: 40*(x)
+              samplePoints: 200
+            stroke: colors.grey
+            strokeWidth: 1
+            show: '!params.showSR'
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: 40*((x)^3)/25
+              samplePoints: 200
+            stroke: colors.grey
+            strokeWidth: 1
+            show: params.showSR
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 200
+            b:
+              - 20
+              - 200
+            color: colors.grey
+            strokeWidth: 1
+        - type: Point
+          def:
+            coordinates:
+              - 5
+              - 200
+            color: colors.grey
+            droplines:
+              vertical: "5"
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: 4*(params.w*params.r)^0.5*(x)
+              samplePoints: 200
+            stroke: colors.longRun
+            strokeWidth: 2
+            show: '!params.showSR'
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: 4*params.w*((x)^3)/params.k
+              samplePoints: 200
+            stroke: colors.shortRun
+            strokeWidth: 2
+            label:
+              text: MC_{SR}
+              x: 2
+            show: params.showSR
+        - type: Segment
+          def:
+            a:
+              - 0
+              - params.p
+            b:
+              - 20
+              - params.p
+            color: colors.budget
+            drag:
+              - directions: "y"
+                param: p
+                expression: params.p + drag.dy
+            label:
+              text: p
+              location: 0.05
+        - type: Point
+          def:
+            coordinates:
+              - '(params.showSR ? calcs.ySR : calcs.yLR)'
+              - params.p
+            color: colors.production
+            droplines:
+              vertical: '(params.showSR ? calcs.ySR : calcs.yLR).toFixed(2)'
+    leftControls:
+      title: Supply Curve
+    middleGraph:
+      xAxis:
+        title: Labor ($L$)
+        orient: bottom
+        min: 0
+        max: 60
+      yAxis:
+        title: Capital ($K$)
+        orient: left
+        min: 0
+        max: 60
+      objects:
+        - type: LowestCostBundle
+          def:
+            name: initialLR
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - params.A
+                exponents:
+                  - params.a
+                  - params.b
+            prices:
+              - 10
+              - 10
+            level: 5
+            label:
+              text: ""
+            indifferenceCurve:
+              color: colors.grey
+              strokeWidth: 1
+              label:
+                text: '''f(L,K) = 5'''
+            budgetLine:
+              color: colors.grey
+              strokeWidth: 1
+              label:
+                text: ""
+            droplines:
+              horizontal: "25"
+              vertical: "25"
+        - type: LowestCostBundle
+          def:
+            name: longRunBundle
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - params.A
+                exponents:
+                  - params.a
+                  - params.b
+            prices:
+              - params.w
+              - params.r
+            level: (calcs.yLR)
+            label:
+              text: ""
+            indifferenceCurve:
+              color: colors.production
+              label:
+                text: '`f(L,K) = ${calcs.yLR.toFixed(2)}`'
+            budgetLine:
+              color: colors.longRun
+              label:
+                text: ""
+            droplines:
+              horizontal: calcs.longRunBundle.y.toFixed(0)
+              vertical: calcs.longRunBundle.x.toFixed(0)
+            show: '!params.showSR'
+        - type: Line
+          def:
+            point:
+              - 0
+              - params.k
+            slope: 0
+            color: colors.shortRun
+            drag:
+              - directions: "y"
+                param: k
+                expression: params.k + drag.dy
+            lineStyle: dotted
+            label:
+              text: \text{SR exp. path}
+              align: right
+              x: 90
+            show: params.showSR
+        - type: Line
+          def:
+            point:
+              - 0
+              - 25
+            slope: 0
+            color: colors.grey
+            strokeWidth: 1
+            lineStyle: dotted
+            show: params.showSR
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 0
+            b:
+              - 60
+              - 60
+            color: colors.grey
+            lineStyle: dotted
+            show: '!params.showSR'
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 0
+            b:
+              - (0.5*params.a*params.r*calcs.xMaxTop)/(params.b*params.w)
+              - (0.5*calcs.xMaxTop)
+            color: colors.longRun
+            lineStyle: dotted
+            label:
+              text: \text{LR exp. path}
+              location: 0.05
+            show: '!params.showSR'
+        - type: EconShortRunProductionBundle
+          def:
+            name: shortRunBundle
+            level: calcs.ySR
+            capital: params.k
+            color: colors.shortRun
+            prices:
+              - params.w
+              - params.r
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - params.A
+                exponents:
+                  - params.a
+                  - params.b
+            indifferenceCurve:
+              color: colors.production
+              label:
+                text: '`f(L,K) = ${calcs.ySR.toFixed(2)}`'
+            budgetLine:
+              label:
+                text: ""
+            droplines:
+              horizontal: '`\\overline K = ${params.k.toFixed(0)}`'
+              vertical: calcs.shortRunBundle.x.toFixed(0)
+            label:
+              text: ""
+            show: params.showSR
+    middleControls:
+      title: Input Choice
+      checkboxes:
+        - param: showSR
+          label: \text{Show short run}
+    rightGraph:
+      xAxis:
+        title: Labor ($L$)
+        orient: bottom
+        min: 0
+        max: 60
+      yAxis:
+        title: Wage Rate ($w$)
+        orient: left
+        min: 0
+        max: 20
+      objects:
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: ((1/16)*((y)^(-1.5))*(10^(-0.5))*(200^2))
+              ind: "y"
+              samplePoints: 200
+            stroke: colors.grey
+            strokeWidth: 2
+            show: '!params.showSR'
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: ((1/16)*((y)^(-1.5))*(params.r^(-0.5))*(params.p^2))
+              ind: "y"
+              samplePoints: 200
+            stroke: colors.longRun
+            strokeWidth: 2
+            show: '!params.showSR'
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: 0.25*((x)^(-0.75))*(25^0.25)*200
+              samplePoints: 200
+            stroke: colors.grey
+            strokeWidth: 2
+            show: params.showSR
+        - type: Curve
+          def:
+            univariateFunction:
+              fn: 0.25*((x)^(-0.75))*(params.k^0.25)*params.p
+              samplePoints: 200
+            stroke: colors.shortRun
+            strokeWidth: 2
+            show: params.showSR
+        - type: Segment
+          def:
+            a:
+              - 0
+              - 10
+            b:
+              - 60
+              - 10
+            color: colors.grey
+            strokeWidth: 1
+        - type: Segment
+          def:
+            a:
+              - 0
+              - params.w
+            b:
+              - 100
+              - params.w
+            color: colors.budget
+            drag:
+              - directions: "y"
+                param: w
+                expression: params.w + drag.dy
+            label:
+              text: w
+              location: 0.05
+        - type: Point
+          def:
+            coordinates:
+              - 25
+              - 10
+            color: colors.grey
+            droplines:
+              vertical: "25"
+        - type: Point
+          def:
+            coordinates:
+              - calcs.longRunBundle.x
+              - params.w
+            color: colors.longRun
+            droplines:
+              vertical: calcs.longRunBundle.x.toFixed(0)
+            show: '!params.showSR'
+        - type: Point
+          def:
+            coordinates:
+              - calcs.shortRunBundle.x
+              - params.w
+            color: colors.shortRun
+            droplines:
+              vertical: calcs.shortRunBundle.x.toFixed(0)
+            show: params.showSR
+    rightControls:
+      title: Profit-Maximizing Labor Demand

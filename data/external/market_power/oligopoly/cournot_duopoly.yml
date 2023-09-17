@@ -1,0 +1,307 @@
+schema: EconSchema
+params:
+- name: a
+  value: 14
+  min: 10
+  max: 20
+- name: c1
+  value: 2
+  min: 0
+  max: 4
+  round: 0.1
+- name: c2
+  value: 2
+  min: 0
+  max: 4
+  round: 0.1
+- name: q1
+  value: 5
+  min: 0
+  max: 20
+  round: 0.25
+- name: q2
+  value: 4
+  min: 0
+  max: 20
+  round: 0.25
+- name: showMR1
+  value: false
+- name: showMR2
+  value: false
+- name: showqs
+  value: true
+- name: draggableCost
+  value: true
+calcs:
+  Q: (params.q1 + params.q2)
+  P: (max(params.a - calcs.Q,0))
+  profit1: ((calcs.P - params.c1)*params.q1)
+  profit2: ((calcs.P - params.c2)*params.q2)
+layout:
+  ThreeHorizontalGraphs:
+    leftGraph:
+      xAxis:
+        max: 20
+        ticks: 0
+      yAxis:
+        max: 20
+        ticks: 0
+      objects:
+      - EconLinearMonopoly:
+          demand:
+            xIntercept: params.a - params.q2
+            invSlope: -1
+            label:
+              x: 0.5
+              position: bl
+              text: P(q_1 | q_2)
+            marginalRevenue: 
+              show: params.showMR1
+              label:
+                y: 1
+                text: MR_1
+          cost:
+            yIntercept: params.c1
+            label:
+              x: 18
+              text: MC_1
+            draggable: (params.draggableCost)
+      - Rectangle:
+          a: [0, params.c1]
+          b: [params.q1, calcs.P]
+          fill: green
+          show: (calcs.profit1 > 0)
+          label: 
+            text: calcs.profit1.toFixed(2)
+      - Rectangle:
+          a: [0, params.c1]
+          b: [params.q1, calcs.P]
+          fill: red
+          show: (calcs.profit1 < 0)
+          label:
+            text: calcs.profit1.toFixed(2)
+      - Point:
+          coordinates: [ params.q1, calcs.P ]
+          color: green
+          r: 0
+          droplines:
+            horizontal: calcs.P.toFixed(2)
+      - Point:
+          coordinates: [params.q1, calcs.P]
+          droplines:
+            vertical: params.q1.toFixed(2)
+          drag:
+          - horizontal: q1
+      - Label:
+          coordinates: [AXIS, params.c1]
+          text: params.c1.toFixed(2)
+          color: marginalCost
+          fontSize: 10
+      - Label:
+          coordinates: [(params.a-params.q2), AXIS]
+          text: (params.a-params.q2).toFixed(2)
+          fontSize: 9
+          color: blue
+      - Label:
+          coordinates: [AXIS, (params.a-params.q2)]
+          text: (params.a-params.q2).toFixed(2)
+          fontSize: 9
+          color: blue
+      - Label:
+          coordinates: [20, AXIS]
+          text: q_1
+      - Label:
+          coordinates: [AXIS, 20]
+          text: P
+      - Segment:
+          a: [params.q1, calcs.P]
+          b: [20, calcs.P]
+          color: green
+          lineStyle: dotted
+
+    leftControls:
+      title: Firm 1
+      description: This graph shows firm 1's <em>residual demand curve</em> given the market demand and firm 2's choice of quantity.
+      checkboxes:
+      - param: showMR1
+        label: \text{Show marginal revenue}
+      divs:
+        - html: "`$$\\\\color{${colors.blue}}\\\\begin{aligned}P(q_1 | q_2) &= (${params.a} - q_2) - q_1\\\\\\\\P(q_1 | q_2 = ${params.q2.toFixed(2)}) &= ${(params.a - params.q2).toFixed(2)} - q_1\\\\end{aligned}$$`"
+          show: (params.q2 < params.a)
+        - html: "`$$\\\\color{${colors.blue}}\\\\begin{aligned}P(q_1 | q_2) &= (${params.a} - q_2) - q_2\\\\\\\\P(q_1 | q_2 = ${params.q2.toFixed(2)}) &= 0\\\\end{aligned}$$(In this case firm 2 is flooding the market, so firm 1 faces no residual demand.)`"
+          show: (params.q2 >= params.a)
+    middleGraph:
+      xAxis:
+        max: 20
+        ticks: 0
+      yAxis:
+        ticks: 0
+        max: 20
+      objects:
+      - EconLinearMonopoly:
+          demand:
+            xIntercept: params.a - params.q1
+            invSlope: -1
+            label:
+              x: 0.5
+              position: bl
+              text: P(q_2 | q_1)
+            marginalRevenue: 
+              show: params.showMR2
+              label:
+                y: 1
+                text: MR_2
+          cost:
+            yIntercept: params.c2
+            label:
+              x: 18
+              text: MC_2
+            draggable: (params.draggableCost)
+      - Rectangle:
+          a: [0, params.c2]
+          b: [params.q2, calcs.P]
+          fill: green
+          show: (calcs.profit2 > 0)
+          label: 
+            text: calcs.profit2.toFixed(2)
+      - Rectangle:
+          a: [0, params.c2]
+          b: [params.q2, calcs.P]
+          fill: red
+          show: (calcs.profit2 < 0)
+          label:
+            text: calcs.profit2.toFixed(2)
+      - Point:
+          coordinates: [ params.q2, calcs.P ]
+          color: green
+          droplines:
+            horizontal: calcs.P.toFixed(2)
+      - Point:
+          coordinates: [params.q2, calcs.P]
+          droplines:
+            vertical: params.q2.toFixed(2)
+          drag:
+          - horizontal: q2
+      - Label:
+          coordinates: [AXIS, params.c2]
+          text: params.c2.toFixed(2)
+          color: marginalCost
+          fontSize: 10
+      - Label:
+          coordinates: [(params.a-params.q1), AXIS]
+          text: (params.a-params.q1).toFixed(2)
+          fontSize: 9
+          color: blue
+      - Label:
+          coordinates: [AXIS, (params.a-params.q1)]
+          text: (params.a-params.q1).toFixed(2)
+          fontSize: 9
+          color: blue
+      - Label:
+          coordinates: [20, AXIS]
+          text: q_2
+      - Label:
+          coordinates: [AXIS, 20]
+          text: P
+      - Segment:
+          a: [params.q2, calcs.P]
+          b: [20, calcs.P]
+          color: green
+          lineStyle: dotted
+          label:
+            text: \text{MARKET PRICE}
+            position: b
+            fontSize: 8
+    middleControls:
+      title: Firm 2
+      description: This graph shows firm 2's <em>residual demand curve</em> given the market demand and firm 1's choice of quantity.
+      checkboxes:
+      - param: showMR2
+        label: \text{Show marginal revenue}
+      divs:
+      - html: "`$$\\\\color{${colors.blue}}\\\\begin{aligned}P(q_2 | q_1) &= (${params.a} - q_1) - q_2\\\\\\\\P(q_2 | q_1 = ${params.q1.toFixed(2)}) &= ${(params.a - params.q1).toFixed(2)} - q_2\\\\end{aligned}$$`"
+        show: (params.q1 < params.a)
+      - html: "`$$\\\\color{${colors.blue}}\\\\begin{aligned}P(q_2 | q_1) &= (${params.a} - q_1) - q_2\\\\\\\\P(q_2 | q_1 = ${params.q1.toFixed(2)}) &= 0\\\\end{aligned}$$(In this case firm 1 is flooding the market, so firm 2 faces no residual demand.)`"
+        show: (params.q1 >= params.a)
+
+    rightGraph:
+      xAxis:
+        max: 20
+        ticks: 0
+      yAxis:
+        max: 20
+        ticks: 0
+      objects:
+       - EconLinearDemand:
+          xIntercept: params.a
+          invSlope: -1
+          label:
+            x: params.a - 1
+            text: \text{Market Demand}
+            position: bl
+       - Label:
+           coordinates: [0.5, params.a - 0.5]
+           text: P(Q)
+           color: demand
+           position: bl
+       - Point:
+           coordinates: [calcs.Q, calcs.P]
+           color: green
+           r: 0
+           droplines:
+             horizontal: calcs.P.toFixed(2)
+       - Point:
+          coordinates: [calcs.Q, calcs.P]
+          droplines:
+            vertical: calcs.Q.toFixed(2)
+       - Point:
+          show: params.showqs
+          coordinates: [params.q1, calcs.P]
+          r: 0
+          droplines:
+            vertical:
+       - Point:
+          coordinates: [params.a, 0]
+          r: 2
+          draggable: true
+          label:
+            text: params.a
+            fontSize: 9
+            color: blue
+            position: t
+       - Label:
+          coordinates: [AXIS, params.a]
+          text: params.a
+          fontSize: 9
+          color: blue
+            
+       - Arrow:
+          show: (params.showqs && (params.q1 > 0))
+          begin: [0, (0.5*calcs.P)]
+          end: [params.q1, (0.5*calcs.P)]
+          color: blue
+          label:
+            text: q_1
+       - Arrow:
+          show: (params.showqs && (params.q2 > 0))
+          begin: [params.q1, (0.5*calcs.P)]
+          end: [calcs.Q, (0.5*calcs.P)]
+          color: blue
+          label:
+            text: q_2
+       - Label:
+          coordinates: [20, AXIS]
+          text: Q
+       - Label:
+          coordinates: [AXIS, 20]
+          text: P
+    rightControls:
+      title: Market
+      description: This graph shows the <em>market demand curve</em> for the good, and the total amount produced by both firms.
+      checkboxes:
+      - param: showqs
+        label: \text{Show individual firm quantities}
+      divs:
+        - html: "`$$\\\\color{${colors.blue}}\\\\begin{aligned}P(Q) &= ${params.a} - Q\\\\\\\\P(${(params.q1 + params.q2).toFixed(2)}) &= ${calcs.P.toFixed(2)}\\\\end{aligned}$$`"
+        - html: (In this case the firms are producing so much that the price is driven down to zero.)
+          show: (calcs.P == 0)

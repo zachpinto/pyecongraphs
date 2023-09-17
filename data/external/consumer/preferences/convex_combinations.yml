@@ -1,0 +1,114 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: '10'
+  min: '0'
+  max: '100'
+  round: 10
+- name: x2
+  value: '40'
+  min: '0'
+  max: '100'
+  round: 10
+- name: y1
+  value: '50'
+  min: '0'
+  max: '100'
+  round: 10
+- name: y2
+  value: '20'
+  min: '0'
+  max: '100'
+  round: 10
+- name: t
+  value: 0.8
+  min: 0
+  max: 1
+  round: 0.1
+calcs:
+  c1: (params.t*params.x1 + (1-params.t)*params.y1)
+  c2: (params.t*params.x2 + (1-params.t)*params.y2)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      position:
+        x: 0.25
+        y: 0
+        width: 0.5
+        height: 1
+      xAxis:
+        title: Units of Good 1
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        max: 100
+        ticks: 10
+      objects:
+      - Point:
+          coordinates:
+          - params.x1
+          - params.x2
+          droplines:
+            horizontal:
+            vertical:
+          label:
+            text: "`A = (${params.x1.toFixed(0)}, ${params.x2.toFixed(0)})`"
+          drag:
+          - directions: x
+            param: x1
+            expression: params.x1 + drag.dx
+          - directions: y
+            param: x2
+            expression: params.x2 + drag.dy
+      - Point:
+          color: red
+          coordinates:
+          - params.y1
+          - params.y2
+          droplines:
+            horizontal:
+            vertical:
+          label:
+            text: "`B = (${params.y1.toFixed(0)}, ${params.y2.toFixed(0)})`"
+          drag:
+          - directions: x
+            param: y1
+            expression: params.y1 + drag.dx
+          - directions: y
+            param: y2
+            expression: params.y2 + drag.dy
+      - Segment:
+          a: [params.x1, params.x2]
+          b: [params.y1, params.y2]
+          lineStyle: dotted
+          color: grey
+      - Point:
+          coordinates: [calcs.c1, calcs.c2]
+          color: purple
+          droplines:
+            vertical:
+            horizontal:
+          drag:
+          - directions: xy
+            param: t
+            expression: ((drag.x - params.y1)/(params.x1 - params.y1))
+          label:
+            text: "`C = (${calcs.c1.toFixed(0)}, ${calcs.c2.toFixed(0)})`"
+    sidebar:
+      controls:
+      - title: Convex COmnbinations
+        description: Bundle C is a convex combination of bundles A and B.
+        sliders:
+        - param: t
+          label: t
+        divs:
+        - html: "`Bundle A has ${params.x1.toFixed(0)} units of good 1 and ${params.x2.toFixed(0)}
+            units of good 2.`"
+        - html: "`Bundle B has ${params.y1.toFixed(0)} units of good 1 and ${params.y2.toFixed(0)}
+            units of good 2.`"
+        - html: "`Each coordinate for bundle C is the weighted average of ${(100*params.t).toFixed(0)}% bundle A and ${(100*(1-params.t)).toFixed(0)}% bundle B: $$c_1 = ${params.t.toFixed(1)} \\\\times ${params.x1.toFixed(0)} + ${(1-params.t).toFixed(1)}\\\\times ${params.y1.toFixed(0)} = ${calcs.c1.toFixed(0)}$$ $$c_2 = ${params.t.toFixed(1)} \\\\times ${params.x2.toFixed(0)} + ${(1-params.t).toFixed(1)}\\\\times ${params.y2.toFixed(0)} = ${calcs.c2.toFixed(0)}$$`"

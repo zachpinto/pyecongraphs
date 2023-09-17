@@ -1,0 +1,186 @@
+schema: EconSchema
+params:
+  - name: NC
+    value: 25
+    min: 1
+    max: 100
+  - name: NF
+    value: 20
+    min: 1
+    max: 49
+  - name: w
+    value: 12
+    min: 10
+    max: 20
+  - name: a
+    value: 16
+    min: 4
+    max: 20
+  - name: K
+    value: 15
+    min: 10
+    max: 20
+  - name: p
+    value: 2
+    min: 2
+    max: 8
+    round: 0.25
+calcs:
+  p: (sqrt(params.NC*params.a*params.w/(params.NF*params.K)))
+  qd: (params.a/params.p)
+  qs: (params.K*params.p/params.w)
+  D: (params.NC*calcs.qd)
+  S: (params.NF*calcs.qs)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 250
+        ticks: none
+        title: Quantity
+      yAxis:
+        ticks: none
+        title: Price
+
+      objects:
+
+      # Price Line
+      - Line:
+          yIntercept: params.p
+          color: green
+          drag:
+            - vertical: p
+
+      - Label:
+          coordinates: [AXIS, params.p]
+          color: green
+          text: p
+          fontSize: 10
+
+      # Price pressure
+
+      - Arrow:
+          begin: [220, 4]
+          end: [220, params.p]
+          color: green
+          trim: 0.8
+          strokeWidth: 1
+          label:
+            text: \text{Price pressure}
+            position: r
+          show: (params.p != 4)
+
+      # Market Equilibrium Point
+      - Point:
+          coordinates: [100, 4]
+          color: green
+          drag:
+          - vertical: p
+          droplines:
+            horizontal: p^*
+
+      - Point:
+          coordinates: [ 100, 4 ]
+          color: green
+          drag:
+            - vertical: p
+          droplines:
+            vertical: "`S(p) = D(p)`"
+          show: (params.p == 4)
+
+      # Market Demand Point
+      - Point:
+          coordinates: [calcs.D, params.p]
+          show: (params.p > calcs.p)
+          drag:
+          - vertical: p
+          droplines:
+            vertical: D(p)
+
+      - Point:
+          coordinates: [calcs.D, params.p]
+          show: (params.p < calcs.p)
+          drag:
+          - vertical: p
+          droplines:
+            vertical: D(p)
+
+      # Market Demand Curve
+      - Curve:
+          ind: y
+          fn: (params.NC*params.a/(y))
+          color: demand
+          label:
+            text: \text{Demand}
+            y: 9
+            position: bl
+            bgcolor: none
+
+      # Market Supply Point
+      - Point:
+          coordinates: [calcs.S, params.p]
+          color: supply
+          show: (params.p > calcs.p)
+          drag:
+          - vertical: p
+          droplines:
+            vertical: S(p)
+
+      - Point:
+          coordinates: [calcs.S, params.p]
+          color: supply
+          show: (params.p < calcs.p)
+          drag:
+          - vertical: p
+          droplines:
+            vertical: S(p)
+
+      # Market Supply Curve
+      - Curve:
+          ind: y
+          fn: (params.NF*params.K*(y)/params.w)
+          color: supply
+          label:
+            text: \text{Supply}
+            y: 9
+            position: br
+            bgcolor: none
+
+      # Excess supply / excess demand
+      - Segment:
+          a: [calcs.D + 0.25,params.p + 0.2]
+          b: [calcs.S - 0.25,params.p + 0.2]
+          show: (params.p >= calcs.p + 0.25)
+          startArrow: true
+          endArrow: true
+          color: colors.supply
+          label:
+            text: "\\begin{matrix}\\text{EXCESS} \\\\ \\text{SUPPLY}\\end{matrix}"
+            fontSize: 7
+            bgcolor: none
+            yPixelOffset: 14
+
+      - Segment:
+          a: [calcs.D - 0.25,params.p - 0.2]
+          b: [calcs.S + 0.25,params.p - 0.2]
+          show: (params.p <= calcs.p - 0.25)
+          startArrow: true
+          endArrow: true
+          color: colors.demand
+          label:
+            text: "\\begin{matrix}\\text{EXCESS} \\\\ \\text{DEMAND}\\end{matrix}"
+            fontSize: 7
+            yPixelOffset: -15
+
+    sidebar:
+      controls:
+        - title: Competitive market forces
+          description: The green line represents the current price in a competitive market. Drag it up and down to see how market forces respond to high and low prices.
+          divs:
+            - html: <p>Market equilibrium occurs at the price $p^*$ at which the quantity supplied equals the quantity demanded.</p>
+            - html: <p>When $p < p^*$, the quantity demanded exceeds the quantity supplied.</p><p>Shortages of goods exerts upward pressure on the market price.</p>
+              show: (params.p < calcs.p)
+            - html: <p>When $p > p^*$, the quantity supplied exceeds the quantity demanded.</p><p>Surpluses of goods exerts downward pressure on the market price.</p>
+              show: (params.p > calcs.p)
+            - html: <p>When $p = p^*$, the quantity demanded equals the quantity supplied.</p><p>There is no price pressure upward or downward, and the market is in equilibrium.</p>
+              show: (params.p == calcs.p)

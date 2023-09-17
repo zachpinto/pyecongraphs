@@ -1,0 +1,85 @@
+schema: EconSchema
+params:
+  - name: p1
+    value: 5
+    max: 10
+    min: 1
+    round: 0.01
+  - name: p2
+    value: 5
+    max: 10
+    min: 1
+    round: 0.01
+  - name: U
+    value: 4
+    max: 7
+    min: 3
+    round: 0.01
+calcs:
+  slope: (params.p1/(params.p1 + params.p2))
+  arrowScale: (sqrt(params.p1*params.p1 + params.p2*params.p2))
+  arrowDX: (2*params.p1/calcs.arrowScale)
+  arrowDY: (2*params.p2/calcs.arrowScale)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Good 1 ($x_1$)
+        ticks: 0
+      yAxis:
+        title: Good 2 ($x_2$)
+        ticks: 0
+      objects:
+
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectSubstitutes:
+                alpha: calcs.slope
+            levels: [ 1,2,3,4,5,6,7,8,9 ]
+
+        - LowestCostBundle:
+            name: X
+            label:
+              text: X^c
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            prices: [params.p1, params.p2]
+            indifferenceCurve:
+              strokeWidth: 5
+              label:
+                text: \text{Constraint}
+            level: params.U
+            budgetLine:
+              label:
+                text: \text{Objective Fn.}
+            droplines:
+              vertical: x_1^c
+              horizontal: x_2^c
+
+        - Arrow:
+            color: grey
+            begin: [ 8.5,8.5 ]
+            end: [ (8.5-calcs.arrowDX),(8.5-calcs.arrowDY) ]
+            label:
+              text: \text{Lower cost}
+
+        - Arrow:
+            color: grey
+            begin: [ 2.5,2.5 ]
+            end: [ (2.5-calcs.arrowDX),(2.5-calcs.arrowDY) ]
+            label:
+              text: \text{Lower cost}
+
+
+    sidebar:
+      controls:
+        - title: Cost Minimization Subject to a Utility Constraint
+          description: The gray contour lines show the level sets of the objective function (in this case, the expenditure function). The solution to this problem is the lowest achievable level set along the constraint (in this case, the indifference curve for utility U).
+          sliders:
+            - param: p1
+              label: p_1
+            - param: p2
+              label: p_2
+            - param: U
+              label: U

@@ -1,0 +1,110 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: beta
+    value: 1
+    min: 0.01
+    max: 1
+    round: "0.01"
+  - name: r
+    value: 0.2
+    min: 0
+    max: 1
+    round: 0.01
+  - name: m1
+    value: "30"
+    min: "0"
+    max: "100"
+    round: "1"
+  - name: m2
+    value: "24"
+    min: "0"
+    max: "50"
+    round: "1"
+  - name: allowBorrowing
+    value: false
+  - name: showBorrowSave
+    value: false
+  - name: showExplanation
+    value: false
+calcs:
+  presentValue: (params.m1 + params.m2/(1 + params.r))
+  futureValue: (params.m1*(1 + params.r) + params.m2)
+  realInterestRate: ((1 + params.r)/(1 + params.pi) - 1)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Dollars in Period 1
+        orient: bottom
+        min: 0
+        max: 60
+      yAxis:
+        title: Dollars in Period 2
+        orient: left
+        min: 0
+        max: 60
+      objects:
+        - type: EconBundle
+          def:
+            name: endowmentBundle
+            coordinates:
+              - params.m1
+              - params.m2
+            droplines:
+              vertical: m_1
+              horizontal: m_2
+            color: gray
+            label:
+              text: \text{Endowment}
+              position: tr
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - 1
+                  - params.beta
+            drag:
+              - directions: x
+                param: m1
+                expression: params.m1 + drag.dx
+              - directions: "y"
+                param: m2
+                expression: params.m2 + drag.dy
+            indifferenceCurve:
+              label:
+                text: ""
+              color: colors.endowment
+              show: params.showIndW
+        - type: EconBudgetLine
+          def:
+            p1: 1 + params.r
+            p2: 1
+            x: params.m1
+            "y": params.m2
+            draggable: false
+            handles: false
+            set: false
+            show: params.allowBorrowing
+        - type: EconBudgetLine
+          def:
+            p1: 1 + params.r
+            p2: 1
+            x: params.m1
+            "y": params.m2
+            draggable: false
+            handles: false
+            set: false
+            sellOnly: true
+    sidebar:
+      controls:
+        - title: Budget Parameters
+          sliders:
+            - param: r
+              label: r
+        - title: Options
+          checkboxes:
+            - param: allowBorrowing
+              label: \text{Allow borrowing}

@@ -1,0 +1,53 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: p
+  value: 16
+  min: 1
+  max: 20
+  round: 0.05
+- name: q
+  value: 10
+  min: 0
+  max: 18
+  round: 0.05
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Quantity ($q$)
+        min: 0
+        max: 20
+      yAxis:
+        title: Price ($p$)
+        orient: left
+        max: 20
+      objects:
+      - type: Line
+        def:
+          yIntercept: params.p
+          color: demand
+          label:
+            text: D
+            x: 18
+          drag:
+            - vertical: p
+      - type: Point
+        def:
+          coordinates:
+          - params.q
+          - params.p
+          drag:
+          - horizontal: q
+          color: colors.demand
+          droplines:
+            vertical: params.q.toFixed(2)
+            horizontal: params.p.toFixed(2)
+    sidebar:
+      controls:
+      - title: Inverse Demand for a Competitive Firm
+        description: Drag the line up or down to change the market price; drag the point to change the output quantity.
+        divs:
+        - html: "`This firm is a price taker, taking the market price $p = ${params.p.toFixed(2)}$ as given. It can sell any quantity it likes at this price, so its inverse demand curve is simply$$\\\\color{${colors.demand}}{p(q) = ${params.p.toFixed(2)}}$$`"

@@ -1,0 +1,221 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: "0.5"
+    min: "0.01"
+    max: "0.99"
+    round: "0.01"
+  - name: p1
+    value: "4"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: p2
+    value: "8"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: w1
+    value: "40"
+    min: "0"
+    max: "100"
+    round: "1"
+  - name: w2
+    value: "30"
+    min: "0"
+    max: "50"
+    round: "1"
+  - name: showIndW
+    value: false
+  - name: showPOC
+    value: false
+  - name: showBuySell
+    value: false
+  - name: showExplanation
+    value: false
+calcs:
+  bottomGraphLeft: (-1*params.w1)
+  bottomGraphRight: (100-params.w1)
+  cutoffPrice: (calcs.endowmentBundle.mrs*params.p2)
+  wealth: (params.w1*params.p1 + params.w2*params.p2)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 100
+      objects:
+        - type: EconPriceOfferCurve
+          def:
+            lineStyle: dashed
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              x: params.w1
+              "y": params.w2
+            good: 1
+            show: params.showPOC
+        - type: EconBundle
+          def:
+            name: endowmentBundle
+            coordinates:
+              - params.w1
+              - params.w2
+            droplines:
+              vertical: \omega_1
+              horizontal: \omega_2
+            color: gray
+            label:
+              text: W
+              position: tr
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            drag:
+              - directions: x
+                param: w1
+                expression: params.w1 + drag.dx
+              - directions: "y"
+                param: w2
+                expression: params.w2 + drag.dy
+            indifferenceCurve:
+              label:
+                text: ""
+              color: colors.endowment
+              show: params.showIndW
+        - type: EconOptimalBundle
+          def:
+            name: optimum
+            label:
+              text: X
+            droplines:
+              vertical: x_1^*
+              horizontal: x_2^*
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            color: colors.utility
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              x: params.w1
+              "y": params.w2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+              label:
+                text: '`BL_{m=${calcs.wealth.toFixed(0)}}`'
+            indifferenceCurve: {}
+        - type: Segment
+          def:
+            a:
+              - params.w1
+              - 10
+            b:
+              - calcs.optimum.x
+              - 10
+            endArrow: true
+            color: colors.supply
+            label:
+              text: '`\\text{Sell ${(params.w1-calcs.optimum.x).toFixed(0)}}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: ((params.showExplanation || params.showBuySell) && (calcs.optimum.x < params.w1))
+        - type: Segment
+          def:
+            a:
+              - params.w1
+              - 10
+            b:
+              - calcs.optimum.x
+              - 10
+            endArrow: true
+            color: colors.demand
+            label:
+              text: '`\\text{Buy ${(calcs.optimum.x-params.w1).toFixed(0)}}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: ((params.showExplanation || params.showBuySell) && (calcs.optimum.x > params.w1))
+        - type: Segment
+          def:
+            a:
+              - 10
+              - params.w2
+            b:
+              - 10
+              - calcs.optimum.y
+            endArrow: true
+            color: colors.supply
+            label:
+              text: '`\\text{Sell ${(params.w2-calcs.optimum.y).toFixed(0)}}`'
+              location: 0.5
+              xPixelOffset: -15
+              align: right
+            show: ((params.showExplanation || params.showBuySell) && (calcs.optimum.x > params.w1))
+        - type: Segment
+          def:
+            a:
+              - 10
+              - params.w2
+            b:
+              - 10
+              - calcs.optimum.y
+            endArrow: true
+            color: colors.demand
+            label:
+              text: '`\\text{Buy ${(calcs.optimum.y-params.w2).toFixed(0)}}`'
+              location: 0.5
+              xPixelOffset: -15
+              align: right
+            show: ((params.showExplanation || params.showBuySell) && (calcs.optimum.x < params.w1))
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: a
+              label: \alpha
+          divs:
+            - html: '`$$u(x_1,x_2) = x_1^\\alpha x_2^{1 - \\alpha} = x_1^{${params.a.toFixed(2)}}x_2^{${(1-params.a).toFixed(2)}}$$`'
+        - title: Budget Parameters
+          sliders:
+            - param: p1
+              label: p_1
+            - param: p2
+              label: p_2
+        - title: Options
+          checkboxes:
+            - param: showIndW
+              label: \text{Show indifference curve through $W$}
+            - param: showPOC
+              label: \text{Show offer curve}
+            - param: showBuySell
+              label: \text{Show buy/sell amounts}
+            - param: showExplanation
+              label: \text{Show explanation}
+          divs:
+            - html: '`<hr/>You start with an endowment of $\\color{${colors.endowment}}{\\omega_1 = ${params.w1.toFixed(0)}}$ units of good 1 and $\\color{${colors.endowment}}{\\omega_2 = ${params.w2.toFixed(0)}}$ of good 2. With $p_1 = ${params.p1.toFixed(2)}$ and $p_2 = ${params.p2.toFixed(2)}$, this has a monetary value of $$\\color{${colors.budget}}{m = p_1\\omega_1 + p_2\\omega_2 \\approx ${calcs.wealth.toFixed(0)}}$$`'
+              show: params.showExplanation
+            - html: '`With this Cobb-Douglas utility function, your <b>gross demands</b> for goods 1 and 2 are $$\\color{${colors.utility}}{x_1^* = \\frac{\\alpha m}{p_1}  \\approx \\frac{${params.a.toFixed(2)} \\times ${calcs.wealth.toFixed(0)}}{${params.p1.toFixed(2)}}  \\approx ${calcs.optimum.x.toFixed(0)}}$$ $$\\color{${colors.utility}}{x_2^* = \\frac{(1 - \\alpha) m}{p_1}  \\approx \\frac{${(1-params.a).toFixed(2)} \\times ${calcs.wealth.toFixed(0)}}{${params.p2.toFixed(2)}}  \\approx ${calcs.optimum.y.toFixed(0)}}$$`'
+              show: params.showExplanation
+            - html: '`Since $x_1^* > \\omega_1$ and $x_2^* < \\omega_2$, you want to buy good 1 and sell good 2: that is, your <b>net demand</b> for good 1 $$\\color{${colors.demand}}{d_1 = x_1^* - \\omega_1 \\approx ${calcs.optimum.x.toFixed(0)} - ${params.w1.toFixed(0)} \\approx ${(calcs.optimum.x - params.w1).toFixed(0)}}$$ and your <b>net supply</b> of good 2 is $$\\color{${colors.supply}}{s_2 = \\omega_2 - x_2^* \\approx ${params.w2.toFixed(0)} - ${calcs.optimum.y.toFixed(0)} \\approx ${(params.w2 - calcs.optimum.y).toFixed(0)}}$$`'
+              show: (params.showExplanation && (params.p1 < calcs.cutoffPrice))
+            - html: '`Since $x_1^* < \\omega_1$ and $x_2^* > \\omega_2$, you want to sell good 1 and buy good 2: that is, your <b>net supply</b> of good 1 $$\\color{${colors.supply}}{s_1 = \\omega_1 - x_1^* \\approx ${params.w1.toFixed(0)} - ${calcs.optimum.x.toFixed(0)} \\approx ${(params.w1 - calcs.optimum.x).toFixed(0)}}$$ and your <b>net demand</b> for good 2 is $$\\color{${colors.demand}}{d_2 = x_2^* - \\omega_2 \\approx ${calcs.optimum.y.toFixed(0)} - ${params.w2.toFixed(0)}\\approx ${(calcs.optimum.y - params.w2).toFixed(0)}}$$`'
+              show: (params.showExplanation && (params.p1 > calcs.cutoffPrice))

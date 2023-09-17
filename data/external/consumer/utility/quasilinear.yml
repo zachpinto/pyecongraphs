@@ -1,0 +1,144 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 16
+    min: 10
+    max: 30
+  - name: a
+    value: 10
+    min: 10
+    max: 20
+  - name: b
+    value: 0.25
+    min: 0.01
+    max: 0.5
+    round: 0.01
+  - name: f
+    value: 0
+calcs:
+  u1: (params.a*log(16) + 10)
+  u2: (params.a*4 + 10)
+  u3: (params.a*16 - params.b*256 + 10)
+  x21: (calcs.u1 - params.a*log(params.x1))
+  x22: (calcs.u2 - params.a*sqrt(params.x1))
+  x23: (calcs.u3 - params.a*params.x1 + params.b*params.x1*params.x1)
+  x2: "((params.f == 0) ? calcs.x21 : (params.f == 1) ? calcs.x22 : calcs.x23)"
+  mrs1: (params.a/params.x1)
+  mrs2: (0.5*params.a/sqrt(params.x1))
+  mrs3: (params.a - 2*params.b*params.x1)
+  mrs: "((params.f == 0) ? calcs.mrs1 : (params.f == 1) ? calcs.mrs2 : calcs.mrs3)"
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Good 1
+        min: 1
+        max: 40
+        ticks: 0
+        intercept: 0
+      yAxis:
+        title: Good 2
+        min: 0
+        max: 40
+        ticks: 0
+        intercept: 1
+      objects:
+        - ContourMap:
+            fn: params.a*log((x)) + (y)
+            levels: [calcs.u1, (calcs.u1 + 10)]
+            color: purple
+            xMin: 0.5
+            yMin: -0.5
+            xMax: 41
+            yMax: 41
+            strokeWidth: 3
+            show: (params.f == 0)
+        - ContourMap:
+            fn: params.a*sqrt((x)) + (y)
+            levels: [ calcs.u2, (calcs.u2 + 10) ]
+            color: purple
+            xMin: 0.5
+            yMin: -0.5
+            xMax: 41
+            yMax: 41
+            strokeWidth: 3
+            show: (params.f == 1)
+        - ContourMap:
+            fn: params.a*(x) - params.b*(x)*(x) + (y)
+            levels: [ calcs.u3, (calcs.u3 + 10) ]
+            color: purple
+            xMin: 0.5
+            yMin: -0.5
+            xMax: 41
+            yMax: 41
+            strokeWidth: 3
+            show: (params.f == 2)
+        - Point:
+            coordinates: [params.x1, calcs.x2]
+            #drag:
+            #- horizontal: x1
+            droplines:
+              horizontal: calcs.x2.toFixed(0)
+        - Point:
+            coordinates: [ params.x1, calcs.x2 + 10 ]
+            #drag:
+            #  - horizontal: x1
+            droplines:
+              horizontal: (calcs.x2+10).toFixed(0)
+              vertical: params.x1.toFixed(0)
+        - Label:
+            coordinates: [1, 10]
+            text: 10
+            position: l
+            color: blue
+            fontSize: 9
+        - Label:
+            coordinates: [ 1, 20 ]
+            text: 20
+            position: l
+            color: blue
+            fontSize: 9
+        - Line:
+            point: [params.x1, calcs.x2]
+            slope: -calcs.mrs
+            color: blue
+            min: params.x1 - 5/sqrt(1 + calcs.mrs*calcs.mrs)
+            max: params.x1 + 5/sqrt(1 + calcs.mrs*calcs.mrs)
+            label:
+              x: params.x1 + 5/sqrt(1 + calcs.mrs*calcs.mrs)
+              text: MRS
+              position: tr
+            #drag:
+            #  - horizontal: x1
+        - Line:
+            point: [ params.x1, calcs.x2 + 10 ]
+            slope: -calcs.mrs
+            color: blue
+            min: params.x1 - 5/sqrt(1 + calcs.mrs*calcs.mrs)
+            max: params.x1 + 5/sqrt(1 + calcs.mrs*calcs.mrs)
+            label:
+              x: params.x1 + 5/sqrt(1 + calcs.mrs*calcs.mrs)
+              text: MRS
+              position: tr
+            #drag:
+            #  - horizontal: x1
+
+
+    sidebar:
+      controls:
+        - title: Quasilinear Utility Functions
+          description: This graph shows the indifference curves passing through (16,10) and (16,20) for three different quasilinear utility functions. As you can see, the MRS's are the same at the two points; in other words, the indifference curves are parallel transforms of each other.
+          sliders:
+            - param: a
+              label: a
+          radioGroup:
+            param: f
+            options:
+              - $u(x_1,x_2) = a \log x_1 + x_2$
+              - $u(x_1,x_2) = a \sqrt{x_1} + x_2$
+              - $u(x_1,x_2) = ax_1 - \tfrac{1}{4}x_1^2 + x_2$
+
+

@@ -1,0 +1,63 @@
+schema: EconSchema
+params:
+- {name: w, value: 8, min: 1, max: 10, round: 0.01}
+- {name: r, value: 2, min: 1, max: 10, round: 0.01}
+- {name: q, value: 16, min: 1, max: 50, round: 1}
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 100
+        ticks: 0
+        title: Labor ($L$)
+      yAxis:
+        max: 100
+        ticks: 0
+        title: Capital ($K$)
+      objects:
+      
+      - Line:
+          slope: params.w/params.r
+          lineStyle: dotted
+          label:
+            y: 100
+            text: \text{Tangency Condition }K = \frac{w}{r}L
+            
+      - Line:
+          slope: params.w/params.r
+          slineStyle: dotted
+          label:
+            x: 100
+            text: \text{Tangency Condition }K = \frac{w}{r}L
+              
+      - LowestCostBundle:
+          name: X
+          color: blue
+          label:
+            text: \text{Cost-minimizing combination of labor and capital}
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          level: params.q
+          droplines:
+            vertical: calcs.X.x.toFixed(0)
+            horizontal: calcs.X.y.toFixed(0)
+          prices: [params.w, params.r]
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`\\\\text{Isoquant for $q = ${params.q.toFixed(0)}$}`"
+              x: 90
+              position: bl
+          budgetLine:
+            color: green
+            label:
+              text: \text{Lowest possible isocost line}
+            
+
+    sidebar:
+      controls:
+      - title: Cost Minimization and the Tangency Condition
+        description: For this example cost-minimizing combination of labor and capital for a given isoquant occurs at the point along the isoquant where the tangency condition holds.

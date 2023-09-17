@@ -1,0 +1,60 @@
+params:
+  - {name: r, value: 0.05, min: 0, max: 0.2, round: 0.001}
+  - {name: x, value: 1000, min: 0, max: 2000, round: 100}
+  - {name: t, value: 10, min: 1, max: 30}
+calcs:
+  pv: (params.x/(1 + params.r)^params.t)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 30
+        title: Years from Now
+      yAxis:
+        max: 2000
+        title: Dollars
+      objects:
+
+        # Point object at coordinates (6,4)
+        - Point:
+            coordinates: [params.t,params.x]
+            draggable: true
+            r: 4
+            label:
+              position: b
+              text: "`\\\\$${params.x.toFixed(0)} \\\\text{ payoff, }${params.t.toFixed(0)}\\\\text{ years from now}`"
+
+        - Curve:
+            fn: calcs.pv*(1 + params.r)^(x)
+            min: 0
+            max: params.t
+            arrow: beginning
+            color: green
+            lineStyle: dotted
+            label:
+              text: "`\\\\text{Growth at }${(params.r*100).toFixed(1)}\\\\% \\\\text{ interest}`"
+              x: (0.75*params.t)
+              position: tl
+
+        - Point:
+            coordinates: [0, calcs.pv]
+            r: 4
+            color: green
+
+        - Label:
+            coordinates: [AXIS, calcs.pv]
+            text: "`PV = ${calcs.pv.toFixed(2)}`"
+            color: green
+            fontSize: 10
+
+
+    sidebar:
+      controls:
+        - title: Present Value of a Future Payoff
+          description: Drag the blue dot to change the payoff (<em>x</em>) and the time until the payoff is received (<em>t</em>). Use the slider to change the interest rate (<em>r</em>).
+          sliders:
+            - param: r
+              label: r
+
+          divs:
+            - html: "`The present value of a $x = \\\\$${params.x.toFixed(0)}$ payoff, $t = ${params.t.toFixed(0)}$ years from now, given an interest rate of $${(params.r*100).toFixed(1)}\\\\%$ with annual compounding, is$$PV = \\\\frac{x}{(1 + r)^t} = \\\\frac{${params.x}}{${(1+params.r).toFixed(3)}^{${params.t.toFixed(0)}}} = ${calcs.pv.toFixed(2)}$$Put another way, if you invested ${calcs.pv.toFixed(2)} at $${(params.r*100).toFixed(1)}\\\\%$ interest, after $t = ${params.t.toFixed(0)}$ years it would be worth $$ ${calcs.pv.toFixed(2)} \\\\times (1 + ${params.r.toFixed(3)})^{${params.t.toFixed(0)}} = ${params.x.toFixed(0)}$$`"

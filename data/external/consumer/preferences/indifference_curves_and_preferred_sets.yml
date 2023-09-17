@@ -1,0 +1,113 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: '10'
+  min: '0'
+  max: '100'
+- name: x2
+  value: '40'
+  min: '0'
+  max: '100'
+- name: y1
+  value: '50'
+  min: '0'
+  max: '100'
+- name: y2
+  value: '20'
+  min: '0'
+  max: '100'
+- name: showPreferred
+  value: true
+- name: showDispreferred
+  value: false
+calcs:
+  bPreferred: (params.x1*params.x2 < params.y1*params.y2)
+  bDispreferred: (params.x1*params.x2 > params.y1*params.y2)
+  bIndifferent: (params.x1*params.x2 == params.y1*params.y2)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      position:
+        x: 0.25
+        y: 0
+        width: 0.5
+        height: 1
+      xAxis:
+        title: Units of Good 1
+        max: 100
+        ticks: 10
+      yAxis:
+        title: Units of Good 2
+        max: 100
+        ticks: 10
+      objects:
+      - EconBundle:
+          color: blue
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.5
+          indifferenceCurve:
+            label:
+              text: \text{Indifference curve through $A$}
+            showPreferred: params.showPreferred
+            showDispreferred: params.showDispreferred
+          coordinates:
+          - params.x1
+          - params.x2
+          droplines:
+            horizontal:
+            vertical:
+          label:
+            text: "`A = (${params.x1.toFixed(0)}, ${params.x2.toFixed(0)})`"
+          drag:
+          - directions: x
+            param: x1
+            expression: params.x1 + drag.dx
+          - directions: y
+            param: x2
+            expression: params.x2 + drag.dy
+      - Point:
+          coordinates:
+          - params.y1
+          - params.y2
+          label:
+            text: "`B = (${params.y1.toFixed(0)}, ${params.y2.toFixed(0)})`"
+          drag:
+          - directions: x
+            param: y1
+            expression: params.y1 + drag.dx
+          - directions: y
+            param: y2
+            expression: params.y2 + drag.dy
+      - Label:
+          coordinates: [(50 + 0.5*params.x1),(50 + 0.5*params.x2)]
+          text: \succ A
+          color: preferred
+          show: params.showPreferred
+          bgcolor: none
+      - Label:
+          coordinates: [(0.5*params.x1),(0.5*params.x2)]
+          text: \prec A
+          color: dispreferred
+          show: params.showDispreferred
+          bgcolor: none
+    sidebar:
+      controls:
+      - title: Indifference Curves and Preferred/Dispreferred Sets
+        checkboxes:
+          - param: showPreferred
+            label: "`\\\\text{ Show \\\\textcolor{${colors.preferred}}{preferred set}}`"
+          - param: showDispreferred
+            label: "`\\\\text{ Show \\\\textcolor{${colors.dispreferred}}{dispreferred set}}`"
+        divs:
+        - html: <hr/>
+        - html: "`Bundle $B$ is in the preferred set to $A$: that is, this person prefers to consume $$B = (${params.y1.toFixed(0)}\\\\text{ units of good 1, }${params.y2.toFixed(0)}\\\\text{ units of good 2})$$ to consuming $$A = (${params.x1.toFixed(0)}\\\\text{ units of good 1, }${params.x2.toFixed(0)}\\\\text{ units of good 2})$$`"
+          show: calcs.bPreferred
+        - html: "`Bundle $B$ is in the dispreferred set to $A$: that is, this person prefers to consume $$A = (${params.x1.toFixed(0)}\\\\text{ units of good 1, }${params.x2.toFixed(0)}\\\\text{ units of good 2})$$ to consuming $$B = (${params.y1.toFixed(0)}\\\\text{ units of good 1, }${params.y2.toFixed(0)}\\\\text{ units of good 2})$$`"
+          show: calcs.bDispreferred
+        - html: "`Bundle $B$ lies along same indifference curve as $A$: that is, this person is indifferent between consuming $$A = (${params.x1.toFixed(0)}\\\\text{ units of good 1, }${params.x2.toFixed(0)}\\\\text{ units of good 2})$$ and consuming $$B = (${params.y1.toFixed(0)}\\\\text{ units of good 1, }${params.y2.toFixed(0)}\\\\text{ units of good 2})$$`"
+          show: calcs.bIndifferent

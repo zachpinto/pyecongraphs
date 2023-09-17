@@ -1,0 +1,144 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: p1
+    value: 2
+    min: 1
+    max: 10
+    round: 0.01
+  - name: p2
+    value: 1
+    min: 1
+    max: 10
+    round: 0.01
+  - name: m
+    value: 12
+    min: 1
+    max: 15
+    round: 0.01
+
+calcs:
+  x: (0.5*params.m/params.p1)
+  y: (0.5*params.m/params.p2)
+  u: ((calcs.x*calcs.y)^0.5)
+  yIntercept: (params.m/params.p2)
+  xIntercept: (params.m/params.p1)
+  priceRatio: (params.p1/params.p2)
+layout:
+  MathboxPlusGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 15
+        title: Good 1
+        ticks: 3
+      yAxis:
+        max: 15
+        title: Good 2
+        ticks: 3
+      objects:
+        - EconBundle:
+            coordinates: [calcs.x, calcs.y]
+            color: demand
+            budgetLine:
+              p1: params.p1
+              p2: params.p2
+              m: params.m
+              handles: true
+              draggable: true
+              color: budget
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            indifferenceCurve:
+              color: utility
+            label:
+              text: X^*
+            droplines:
+              vertical: calcs.x.toFixed(2)
+              horizontal: calcs.y.toFixed(2)
+    mathbox:
+      xAxis:
+        min: 0
+        max: 15
+        step: 2
+        title: Good 1
+      yAxis:
+        min: 0
+        max: 15
+        step: 2
+        title: Good 2
+      zAxis:
+        min: 0
+        max: 10
+        step: 2
+        title: Utility
+      objects:
+        - MathboxFunctionSurface:
+            fn:
+              fn: ((x)*(y))^0.5
+              samplePoints: 20
+            shaded: false
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: (calcs.yIntercept - calcs.priceRatio*(x))
+              fnZ: (((x)*(calcs.yIntercept - calcs.priceRatio*(x)))^0.5)
+              samplePoints: 500
+            strokeWidth: 10
+            stroke: colors.budget
+        - MathboxCurve:
+            fn:
+              fn: ((calcs.u^2)/(x))
+              fnZ: calcs.u
+              samplePoints: 500
+            strokeWidth: 5
+            stroke: colors.utility
+
+        # Optimal Point
+        - MathboxPoint:
+            x: calcs.x
+            y: calcs.y
+            z: calcs.u
+            stroke: colors.blue
+        # Vertical dropline
+        - MathboxLine:
+            x1: calcs.x
+            y1: calcs.y
+            x2: calcs.x
+            y2: calcs.y
+            z2: calcs.u
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Dropline to x axis
+        - MathboxLine:
+            x1: calcs.x
+            y1: calcs.y
+            x2: calcs.x
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Dropline to y axis
+        - MathboxLine:
+            x1: calcs.x
+            y1: calcs.y
+            y2: calcs.y
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+    sidebar:
+      controls:
+        - title: Optimal Choice for a Budget Line
+          sliders:
+            - param: p1
+              label: p_1
+            - param: p2
+              label: p_2
+            - param: m
+              label: m
+          divs:
+            - html: "`$$x_1^*(p_1,p_2,m) = {m \\\\over 2p_1} = {${params.m.toFixed(2)} \\\\over 2 \\\\times ${params.p1.toFixed(2)}} = ${calcs.x.toFixed(2)}$$`"
+            - html: "`$$x_2^*(p_1,p_2,m) = {m \\\\over 2p_2} = {${params.m.toFixed(2)} \\\\over 2 \\\\times ${params.p2.toFixed(2)}} = ${calcs.y.toFixed(2)}$$`"

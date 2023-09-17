@@ -1,0 +1,168 @@
+schema: EconSchema
+params:
+- name: a
+  value: 160
+  min: 160
+  max: 320
+  round: 1
+- name: a2
+  value: 160
+  min: 160
+  max: 320
+- name: L
+  value: 20
+  min: 10
+  max: 30
+calcs:
+  w1: ((params.a + 160)/(2*params.L))
+  w2: ((params.a2 + 160)/(2*params.L))
+  p1e1: (sqrt(2*params.a*calcs.w1))
+  p1e2: (sqrt(2*params.a2*calcs.w2))
+  p2e1: (sqrt(320*calcs.w1))
+  p2e2: (sqrt(320*calcs.w2))
+  Q1e1: (calcs.p1e1/(2*calcs.w1))
+  Q1e2: (calcs.p1e2/(2*calcs.w2))
+  Q2e1: (calcs.p2e1/(2*calcs.w1))
+  Q2e2: (calcs.p2e2/(2*calcs.w2))
+  increaseDemand: (params.a < params.a2)
+  decreaseDemand: (params.a > params.a2)
+  noChange: (params.a == params.a2)
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        max: 8
+        ticks: 0
+        title: Market for Guns (Good 1)
+      yAxis:
+        max: 120
+        ticks: 0
+      objects:
+
+	  # Initial Demand
+      - Curve:
+          fn: params.a/(x)
+          color: demand
+          lineStyle: dotted
+          label:
+            x: 7
+            text: D_1
+          show: (!calcs.noChange)
+
+      # New Demand
+      - Curve:
+          fn: params.a2/(x)
+          color: demand
+          label:
+            x: 7
+            text: '((calcs.noChange) ? "D_1" : "D_1^{\\prime}")'
+          drag:
+            - directions: xy
+              param: a2
+              expression: drag.x*drag.y
+
+
+      # Initial Supply
+      - Line:
+          slope: 2*calcs.w1
+          label:
+            y: 110
+            text: S_1
+          lineStyle: '((calcs.noChange) ? "solid" : "dotted")'
+
+      # New Supply
+      - Line:
+          slope: 2*calcs.w2
+          label:
+            y: 110
+            text: S_1^\prime
+          show: (!calcs.noChange)
+
+      # Equilibrium:
+      - Point:
+          coordinates: [calcs.Q1e1, calcs.p1e1]
+          r: 4
+          color: "((calcs.noChange) ? colors.green : colors.grey)"
+          droplines:
+            vertical: Q_1
+            horizontal: p_1
+
+      # Equilibrium:
+      - Point:
+          coordinates: [calcs.Q1e2, calcs.p1e2]
+          r: 4
+          color: green
+          droplines:
+            vertical: Q_1^\prime
+            horizontal: p_1^\prime
+          show: (!calcs.noChange)
+
+    rightGraph:
+      xAxis:
+        max: 8
+        ticks: 0
+        title: Market for Butter (Good 2)
+      yAxis:
+        max: 120
+        ticks: 0
+      objects:
+
+	  # New Demand
+      - Curve:
+          fn: 160/(x)
+          color: demand
+          label:
+            x: 7
+            text: D_2
+
+
+      # Initial Supply
+      - Line:
+          slope: 2*calcs.w1
+          label:
+            y: 110
+            text: S_2
+          lineStyle: '((calcs.noChange) ? "solid" : "dotted")'
+
+      # New Supply
+      - Line:
+          slope: 2*calcs.w2
+          label:
+            y: 110
+            text: S_2^\prime
+          show: (!calcs.noChange)
+
+      # Equilibrium:
+      - Point:
+          coordinates: [calcs.Q2e1, calcs.p2e1]
+          r: 4
+          color: "((calcs.noChange) ? colors.green : colors.grey)"
+          droplines:
+            vertical: Q_2
+            horizontal: p_2
+
+      # Equilibrium:
+      - Point:
+          coordinates: [calcs.Q2e2, calcs.p2e2]
+          r: 4
+          color: green
+          droplines:
+            vertical: Q_2^\prime
+            horizontal: p_2^\prime
+          show: (!calcs.noChange)
+
+
+
+    sidebar:
+      controls:
+      - title: Equilibrium Effects of a Demand Shift in One Market
+        description: An increase in demand for military goods ("guns") leads to an increase in the equilibrium price and quantity of guns, and shifts the demand for labor by gun manufacturers
+        sliders:
+        - param: a2
+          label: \text{Demand for guns}
+          showNumber: false
+        divs:
+        - html: An increase in the price of grapes shifts the grape jelly supply curve to the left, raising the equilibrium price of grape jelly $(p_1)$. Because grape jelly and peanut butter are complements, this causes a decrease in the demand for peanut butter.
+          show: calcs.decreaseSupply
+        - html: A decrease in the price of grapes shifts the grape jelly supply curve to the right, lowering the equilibrium price of grape jelly $(p_1)$. Because grape jelly and peanut butter are complements, this causes an increase in the demand for peanut butter.
+          show: calcs.increaseSupply

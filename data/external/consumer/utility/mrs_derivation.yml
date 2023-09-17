@@ -1,0 +1,282 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x
+    value: 20
+    min: 10
+    max: 30
+    round: 1
+  - name: dx
+    value: 5
+    max: 10
+    min: 0
+  - name: showProjection
+    value: 1
+calcs:
+  y: (400/params.x)
+  xFinal: (params.x + params.dx)
+  yFinal: (400/calcs.xFinal)
+  zMid: (sqrt(params.x*calcs.yFinal))
+  dy: (calcs.y - calcs.yFinal)
+  dydx: (calcs.dy/params.dx)
+  m: "((params.dx > 0) ? calcs.dydx : (calcs.y/params.x))"
+  lineBuffer: (5*sqrt(10/(1 + calcs.m*calcs.m)))
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 50
+        step: 1
+        title: x
+      yAxis:
+        min: 0
+        max: 50
+        step: 1
+        title: y
+      zAxis:
+        min: 0
+        max: 40
+        step: 10
+        title: z
+      objects:
+        - MathboxFunctionSurface:
+            fn:
+              fn: ((x*y)^0.5)
+              samplePoints: 20
+            shaded: true
+            fill: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: 400/(x)
+              fnZ: 20
+            strokeWidth: 10
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: 400/(y)
+              fnZ: 20
+              ind: y
+            strokeWidth: 10
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: 400/(x)
+              fnZ: 0
+            strokeWidth: 3
+            show: params.showProjection
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxCurve:
+            fn:
+              fn: 400/(y)
+              fnZ: 0
+              ind: y
+            strokeWidth: 3
+            show: params.showProjection
+            stroke: colors.purple
+            opacity: 0.4
+        - MathboxLine:
+            x1: 10
+            x2: 10
+            y1: 40
+            y2: 40
+            z2: 20
+            linestyle: dotted
+            show: params.showProjection
+        - MathboxLine:
+            x1: 10
+            x2: 10
+            y1: 40
+            y2: 40
+            z2: 20
+            linestyle: dotted
+            show: params.showProjection
+        
+        # Intermediate Point
+        - MathboxPoint:
+            x: params.x
+            y: calcs.yFinal
+            z: calcs.zMid
+            stroke: blue
+        # Dropline showing x movement
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.yFinal
+            x2: calcs.xFinal
+            y2: calcs.yFinal
+            stroke: green
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.yFinal
+            x2: params.x
+            y2: calcs.yFinal
+            z2: calcs.zMid
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Final Point
+        - MathboxPoint:
+            x: calcs.xFinal
+            y: calcs.yFinal
+            z: 20
+            stroke: blue
+        # Dropline showing y movement
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.y
+            x2: params.x
+            y2: calcs.yFinal
+            stroke: red
+            strokeWidth: 10
+            lineStyle: dotted
+        # Vertical dropline
+        - MathboxLine:
+            x1: calcs.xFinal
+            y1: calcs.yFinal
+            x2: calcs.xFinal
+            y2: calcs.yFinal
+            z2: 20
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+        # Original point
+        - MathboxPoint:
+            x: params.x
+            y: calcs.y
+            z: 20
+            stroke: blue
+        # Vertical dropline
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.y
+            x2: params.x
+            y2: calcs.y
+            z2: 20
+            stroke: blue
+            strokeWidth: 10
+            lineStyle: dotted
+
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.yFinal
+            z1: calcs.zMid
+            x2: calcs.xFinal
+            y2: calcs.yFinal
+            z2: 20
+            strokeWidth: 10
+            stroke: green
+        - MathboxLine:
+            x1: params.x
+            y1: calcs.y
+            z1: 20
+            x2: params.x
+            y2: calcs.yFinal
+            z2: calcs.zMid
+            strokeWidth: 10
+            stroke: red
+
+        # Lines showing tangency slope
+        - MathboxLine:
+            x1: params.x - 2
+            x2: calcs.xFinal + 2
+            y1: calcs.y + 2*calcs.m
+            y2: calcs.yFinal - 2*calcs.m
+            z1: 20
+            z2: 20
+            strokeWidth: 10
+            stroke: blue
+        - MathboxLine:
+            x1: params.x - 2
+            x2: calcs.xFinal + 2
+            y1: calcs.y + 2*calcs.m
+            y2: calcs.yFinal - 2*calcs.m
+            strokeWidth: 3
+            stroke: blue
+
+    graph:
+      xAxis:
+        max: 50
+        ticks: 0
+      yAxis:
+        max: 50
+        ticks: 0
+      objects:
+        - EconBundle:
+            coordinates: [params.x, calcs.y]
+            color: blue
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            indifferenceCurve: {}
+            droplines:
+              vertical: params.x
+              horizontal: calcs.y.toFixed(2)
+            label:
+              text: A
+            draggable: true
+        - Point:
+            coordinates: [calcs.xFinal, calcs.yFinal]
+            label:
+              text: C
+            droplines:
+              vertical: calcs.xFinal
+              horizontal: calcs.yFinal.toFixed(2)
+            show: (params.dx > 0)
+            drag:
+              - directions: x
+                param: dx
+                expression: (params.dx + drag.dx)
+
+        - Point:
+            coordinates: [params.x, calcs.yFinal]
+            label:
+              text: B
+              position: tr
+            show: (params.dx > 0)
+        - Line:
+            point: [params.x, calcs.y]
+            slope: -calcs.m
+            color: blue
+            min: params.x - calcs.lineBuffer
+            max: calcs.xFinal + calcs.lineBuffer
+            name: MRSLine
+        - Arrow:
+            begin: [8, calcs.y]
+            end: [8, calcs.yFinal]
+            color: red
+            label:
+              text: \Delta x_2
+              position: l
+            show: (params.dx > 0)
+        - Arrow:
+            begin: [params.x, 5]
+            end: [calcs.xFinal, 5]
+            color: green
+            label:
+              text: \Delta x_1
+              position: t
+            show: (params.dx > 0)
+
+    sidebar:
+      controls:
+        - title: Visual Derivation of the MRS Formula
+          description: Moving from point A to point C means giving up some good 2 to get some good 1, but ending up along the same indifference curve.  
+          sliders:
+            - param: x
+              label: x_1
+            - param: dx
+              label: \Delta x_1
+          divs:
+            - html: "`$$\\\\frac{ \\\\Delta x_2 }{ \\\\Delta x_1 } = \\\\frac{ ${calcs.dy.toFixed(2)} }{ ${params.dx.toFixed(2)} } = ${calcs.dydx.toFixed(2)}$$`"
+              show: (params.dx)
+            - html: "`$$\\\\text{MRS at }A = ${calcs.m.toFixed(2)}$$`"
+              show: (!params.dx)

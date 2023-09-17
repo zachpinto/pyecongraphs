@@ -1,0 +1,93 @@
+schema: EconSchema
+params:
+  - name: w
+    value: 8
+    max: 10
+    min: 1
+    round: 0.01
+  - name: r
+    value: 4
+    max: 10
+    min: 1
+    round: 0.01
+  - name: L
+    value: 5
+    min: 1
+    max: 6
+  - name: K
+    value: 3
+    min: 1
+    max: 6
+  - name: showIsocosts
+    value: false
+
+
+calcs:
+  slope: (params.w/(params.w + params.r))
+  arrowScale: (sqrt(params.w*params.w + params.r*params.r))
+  arrowDX: (2*params.w/calcs.arrowScale)
+  arrowDY: (2*params.r/calcs.arrowScale)
+  laborCost: (params.w*params.L)
+  capitalCost: (params.r*params.K)
+  totalCost: (calcs.laborCost + calcs.capitalCost)
+
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Labor ($L$)
+      yAxis:
+        title: Capital ($K$)
+      objects:
+
+        - Point:
+            coordinates: [params.L, params.K]
+            color: budget
+            draggable: true
+            droplines:
+              vertical: L
+              horizontal: K
+
+        - EconBudgetLine:
+            x: params.L
+            y: params.K
+            p1: params.w
+            p2: params.r
+            label:
+              text: "`\\\\text{Isocost line for }c = ${calcs.totalCost.toFixed(2)}`"
+
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectSubstitutes:
+                alpha: calcs.slope
+            levels: [ 1,2,3,4,5,6,7,8,9 ]
+            show: params.showIsocosts
+
+        - Arrow:
+            color: grey
+            begin: [ (8+calcs.arrowDX),(8+calcs.arrowDY) ]
+            end: [ (8-calcs.arrowDX),(8-calcs.arrowDY) ]
+            label:
+              text: \text{Lower cost}
+            show: params.showIsocosts
+
+
+    sidebar:
+      controls:
+        - title: Isocost Lines
+          description: 'An isocost line shows all combinations of labor and capital which cost a certain amount. Try dragging the dot and changing the prices of inputs to see how the isocost line changes. You can also check the box to show a "map" of isocost lines.'
+          sliders:
+            - param: w
+              label: w
+            - param: r
+              label: r
+          checkboxes:
+            - param: showIsocosts
+              label: \text{Show isocost map}
+    explanation:
+      divs:
+      - html: "`When $w = ${params.w.toFixed(2)}$ per hour of labor, the cost of hiring $L = ${params.L}$ hours of labor is ${calcs.laborCost.toFixed(2)}.`"
+      - html: "`When $r = ${params.r.toFixed(2)}$ per unit of capital, the cost of using $K = ${params.K}$ units of capital is ${calcs.capitalCost.toFixed(2)}.`"
+      - html: "`Therefore, the total cost of the input bundle (${params.L},${params.K}) is $${calcs.laborCost.toFixed(2)} + ${calcs.capitalCost.toFixed(2)} = ${calcs.totalCost.toFixed(2)}$.`"
+      - html: "`The isocost line passing through (${params.L},${params.K}) shows all combinations of labor and capital which cost the same amount: that is, $wL + rK = ${calcs.totalCost.toFixed(2)}$.`"
+      - html: "`The magnitude of the slope of the isocost line is $$|\\\\text{slope}| = {w \\\\over r} = {${params.w.toFixed(2)} \\\\over ${params.r.toFixed(2)}} = ${(params.w/params.r).toFixed(2)}$$`"

@@ -1,0 +1,100 @@
+schema: EconSchema
+version: 1
+params:
+  - name: q
+    value: 0.4
+    min: 0
+    max: 1
+    round: 0.01
+calcs:
+  p1: (4*(1-params.p))
+  p2: (4*params.p)
+layout:
+  GameMatrixPlusGraphPlusSidebar:
+    game:
+      players:
+        - Player 1
+        - Player 2
+      strategies:
+        - [U, M, D]
+        - [L (q), R (1 - q)]
+      payoffs:
+        - [[0,0],[4,4]]
+        - [[1,1],[1,1]]
+        - [[4,4],[0,0]]
+
+    graph:
+      xAxis:
+        max: 5
+        title: Payoff if L
+      yAxis:
+        max: 5
+        title: Payoff if R
+      objects:
+
+      # show points for reference
+      - Point:
+          coordinates: [4,0]
+          label:
+            text: D
+
+      - Point:
+          coordinates: [0,4]
+          label:
+            text: U
+
+      - Point:
+          coordinates: [1,1]
+          label:
+            text: M
+
+      - Line:
+          point: [0,4]
+          slope: (-params.q/(1-params.q))
+          color: purple
+
+      - Line:
+          point: [4,0]
+          slope: (-params.q/(1-params.q))
+          color: purple
+
+      - Line:
+          point: [1,1]
+          slope: (-params.q/(1-params.q))
+          color: purple
+
+      - Line:
+          xIntercept: 0
+          invSlope: 0
+          show: (params.q == 1)
+          color: purple
+
+      - Line:
+          xIntercept: 1
+          invSlope: 0
+          show: (params.q == 1)
+          color: purple
+
+      - Line:
+          xIntercept: 4
+          invSlope: 0
+          show: (params.q == 1)
+          color: purple
+
+    sidebar:
+      controls:
+        - title: Beliefs and Expected Payoffs
+          description: The expected payoff from each strategy for player 1 depends on her beliefs about what player 2 will do. This diagram shows indifference curves corresponding to the expected payoff from playing each strategy, if she believes player 2 will play L with probability <em>q</em>.
+          sliders:
+            - param: q
+              label: q
+          divs:
+            - html: "`$$u_1(U\ |\ q = ${params.q.toFixed(2)}) = 0 \\\\times ${params.q.toFixed(2)} + 4 \\\\times ${(1 - params.q).toFixed(2)} = ${(4*(1-params.q)).toFixed(2)}\\\\\\\\u_1(M\ |\ q = ${params.q.toFixed(2)}) = 1 \\\\times ${params.q.toFixed(2)} + 1 \\\\times ${(1 - params.q).toFixed(2)} = 1.00\\\\\\\\u_1(D\ |\ q = ${params.q.toFixed(2)}) = 4 \\\\times ${params.q.toFixed(2)} + 0 \\\\times ${(1 - params.q).toFixed(2)} = ${(4*params.q).toFixed(2)}$$`"
+            - html: "`When $q = ${params.q.toFixed(2)}$, strategy $U$ has the highest expected payoff (lies on the highest indifference curve).`"
+              show: (params.q < 0.5)
+            - html: "`When $q = ${params.q.toFixed(2)}$, strategy $D$  has the highest expected payoff (lies on the highest indifference curve).`"
+              show: (params.q > 0.5)
+            - html: When $q = 0.50$, strategies $U$ and $D$ each have an expected payoff of 2 (and lie on the same indifference curve).
+              show: (params.q == 0.5)
+
+              

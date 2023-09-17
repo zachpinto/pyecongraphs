@@ -1,0 +1,101 @@
+params:
+  - {name: r, value: 0.5, min: 0, max: 1, round: 0.01}
+  - {name: x1, value: 10, min: 0, max: 30}
+  - {name: x2, value: 30, min: 0, max: 30}
+calcs:
+  fv1: (params.x1*(1 + params.r))
+  fv2: (calcs.fv1 + params.x2)
+  pv: (calcs.fv2/(1 + params.r))
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 1.2
+        title: Period
+        ticks: 1
+      yAxis:
+        max: 50
+        ticks: 5
+      objects:
+
+        # Point object at coordinates (6,4)
+        - Point:
+            coordinates: [0,params.x1]
+            draggable: true
+            r: 4
+
+        - Label:
+            coordinates: [AXIS,params.x1]
+            text: "`x_0 = ${params.x1.toFixed(2)}`"
+            color: colors.blue
+            fontSize: 10
+
+        - Point:
+            coordinates: [1,calcs.fv1]
+            r: 4
+            label:
+              text: "`\\\\text{ grows to } ${calcs.fv1.toFixed(2)}`"
+              position: tl
+
+        - Curve:
+            fn: params.x1*(1 + params.r)^(x)
+            min: 0
+            max: 1
+            arrow: beginning
+
+        - Arrow:
+            begin: [1, calcs.fv1]
+            end: [1, calcs.fv2]
+            color: red
+            label:
+              text: "`+x_1 = ${params.x2.toFixed(2)}`"
+              position: r
+              fontSize: 10
+            trim: 0.05
+
+        - Point:
+            coordinates: [1,calcs.fv2]
+            r: 4
+            color: green
+            label:
+              text: "`\\\\text{End up with } ${calcs.fv2.toFixed(2)}`"
+              position: b
+
+
+        - Point:
+            coordinates: [0, calcs.pv]
+            r: 4
+            color: green
+
+        - Label:
+            coordinates: [AXIS, calcs.pv]
+            text: "`PV = ${calcs.pv.toFixed(2)}`"
+            color: green
+            fontSize: 10
+
+        - Curve:
+            fn: calcs.pv*(1 + params.r)^(x)
+            color: green
+            lineStyle: dotted
+            min: 0
+            max: 1
+            arrow: beginning
+
+
+    sidebar:
+      controls:
+        - title: Present Value for Payoffs in Two Periods
+          description: The present value of a payoff stream is the amount which, if invested at the prevailing interest rate at the beginning of period 0, would grow to the same value as the stream of payoffs.
+          sliders:
+            - param: x1
+              label: x_0
+            - param: x2
+              label: x_1
+            - param: r
+              label: r
+          divs:
+            - html: "`This graph illustrates the $\\\\color{${colors.green}}\\\\text{present value }(PV)$ of a payoff stream of $\\\\color{${colors.blue}}x_0 = ${params.x1.toFixed(2)}$ now (in period 0) and $\\\\color{${colors.red}}x_1 = ${params.x2.toFixed(2)}$ in the future (period 1), given an interest rate of $r = ${params.r.toFixed(2)}$, or ${(params.r*100).toFixed(0)}\\%. Use the sliders to see how changing these three variables affects the present value.`"
+    explanation:
+      divs:
+        - html: "`Suppose you invested the period-0 payoff of $\\\\color{${colors.blue}}x_0 = ${params.x1.toFixed(2)}$ at the interest rate of $r = ${params.r.toFixed(2)}$. It would  grow to become $$\\\\color{${colors.blue}}(1 + r)x_0 = (1+${params.r.toFixed(2)}) \\\\times ${params.x1.toFixed(2)} = ${calcs.fv1.toFixed(2)}$$ in period 1. This, added to the period-1 payoff $\\\\color{${colors.red}}x_1 = ${params.x2.toFixed(2)}$, means you end up with a total value of: $$\\\\color{${colors.blue}}(1 + r)x_0\\\\color{000000}+ \\\\color{${colors.red}}x_1 \\\\color{000000} = \\\\color{${colors.blue}}${calcs.fv1.toFixed(2)}\\\\color{000000}+ \\\\color{${colors.red}}${params.x2.toFixed(2)} \\\\color{000000} = \\\\color{${colors.green}}${calcs.fv2.toFixed(2)}$$`"
+        - html: "`If instead you had invested $\\\\color{${colors.green}}PV = ${calcs.pv.toFixed(2)}$ at the interest rate of $r = ${params.r.toFixed(2)}$, it would have grown to become the same amount in period 1: $$\\\\color{${colors.green}}(1 + r)PV = (1+${params.r.toFixed(2)}) \\\\times ${calcs.pv.toFixed(2)} = ${calcs.fv2.toFixed(2)}$$`"

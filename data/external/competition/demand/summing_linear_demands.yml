@@ -1,0 +1,243 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: n1
+  value: 80
+  min: 0
+  max: 100
+- name: n2
+  value: 40
+  min: 0
+  max: 100
+- name: xIntercept1
+  value: 100
+  min: 20
+  max: 400
+  round: 1
+- name: invSlope1
+  value: -2
+  min: -10
+  max: -0.5
+  round: 0.05
+- name: xIntercept2
+  value: 200
+  min: 20
+  max: 400
+  round: 1
+- name: invSlope2
+  value: -2
+  min: -10
+  max: -0.5
+  round: 0.05
+layout:
+  type: ThreeHorizontalGraphs
+  def:
+    leftGraph:
+      xAxis:
+        title: Quantity Demanded by Each Type 1 Consumer
+        orient: bottom
+        min: 0
+        max: 400
+      yAxis:
+        title: Price
+        orient: left
+        min: 0
+        max: 200
+      objects:
+      - type: EconLinearDemand
+        def:
+          name: demand1
+          xIntercept: params.xIntercept1
+          invSlope: params.invSlope1
+          label:
+            text: D_1(p)
+            x: "(0.7*params.xIntercept1)"
+          handles: true
+          draggable: true
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - 0
+          - calcs.demand1.yIntercept
+          b:
+          - 0
+          - 200
+          strokeWidth: 6
+      - type: Line
+        def:
+          color: lightgray
+          yIntercept: calcs.demand1.yIntercept
+          lineStyle: dotted
+    leftControls:
+      title: 'Individual demand: Type 1 Consumers'
+      divs:
+      - html: "`$$D_1(p) = \\\\begin{cases} ${params.xIntercept1.toFixed(0)}${params.invSlope1.toFixed(2)}p
+          & \\\\text{if }p < ${calcs.demand1.yIntercept.toFixed(2)}\\\\\\\\0 & \\\\text{otherwise}\\\\end{cases}$$`"
+    middleGraph:
+      xAxis:
+        title: Quantity Demanded by Each Type 2 Consumer
+        orient: bottom
+        min: 0
+        max: 400
+      yAxis:
+        orient: left
+        min: 0
+        max: 200
+      objects:
+      - type: EconLinearDemand
+        def:
+          name: demand2
+          xIntercept: params.xIntercept2
+          invSlope: params.invSlope2
+          label:
+            text: D_2(p)
+            x: "(0.7*params.xIntercept2)"
+          handles: true
+          draggable: true
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - 0
+          - calcs.demand2.yIntercept
+          b:
+          - 0
+          - 200
+          strokeWidth: 6
+      - type: Line
+        def:
+          color: lightgray
+          yIntercept: calcs.demand1.yIntercept
+          lineStyle: dotted
+      - type: Line
+        def:
+          color: lightgray
+          yIntercept: calcs.demand2.yIntercept
+          lineStyle: dotted
+    middleControls:
+      title: 'Individual demand: Type 2 Consumers'
+      divs:
+      - html: "`$$D_2(p) = \\\\begin{cases} ${params.xIntercept2.toFixed(0)}${params.invSlope2.toFixed(2)}p
+          & \\\\text{if }p < ${calcs.demand2.yIntercept.toFixed(2)}\\\\\\\\0 & \\\\text{otherwise}\\\\end{cases}$$`"
+    rightGraph:
+      xAxis:
+        title: Total Quantity Demanded
+        orient: bottom
+        min: 0
+        max: 40000
+      yAxis:
+        orient: left
+        min: 0
+        max: 200
+      objects:
+      - type: Segment
+        def:
+          color: lightgray
+          lineStyle: dotted
+          a:
+          - 0
+          - calcs.demand2.yIntercept
+          b:
+          - "(params.n1*params.xIntercept1 + params.n1*params.invSlope1*calcs.demand2.yIntercept)"
+          - calcs.demand2.yIntercept
+          show: "(calcs.demand1.yIntercept > calcs.demand2.yIntercept)"
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - "(params.n1*params.xIntercept1 + params.n2*params.xIntercept2)"
+          - 0
+          b:
+          - "(params.n1*params.xIntercept1 + params.n1*params.invSlope1*calcs.demand2.yIntercept)"
+          - calcs.demand2.yIntercept
+          show: "(calcs.demand1.yIntercept > calcs.demand2.yIntercept)"
+          label:
+            text: D(p)
+            location: 0.7
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - 0
+          - calcs.demand1.yIntercept
+          b:
+          - "(params.n1*params.xIntercept1 + params.n1*params.invSlope1*calcs.demand2.yIntercept)"
+          - calcs.demand2.yIntercept
+          show: "(calcs.demand1.yIntercept > calcs.demand2.yIntercept)"
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: lightgray
+          lineStyle: dotted
+          a:
+          - 0
+          - calcs.demand1.yIntercept
+          b:
+          - "(params.n2*params.xIntercept2 + params.n2*params.invSlope2*calcs.demand1.yIntercept)"
+          - calcs.demand1.yIntercept
+          show: "(calcs.demand1.yIntercept < calcs.demand2.yIntercept)"
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - "(params.n1*params.xIntercept1 + params.n2*params.xIntercept2)"
+          - 0
+          b:
+          - "(params.n2*params.xIntercept2 + params.n2*params.invSlope2*calcs.demand1.yIntercept)"
+          - calcs.demand1.yIntercept
+          show: "(calcs.demand1.yIntercept <= calcs.demand2.yIntercept)"
+          label:
+            text: D(p)
+            location: 0.7
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - 0
+          - calcs.demand2.yIntercept
+          b:
+          - "(params.n2*params.xIntercept2 + params.n2*params.invSlope2*calcs.demand1.yIntercept)"
+          - calcs.demand1.yIntercept
+          show: "(calcs.demand1.yIntercept < calcs.demand2.yIntercept)"
+          strokeWidth: 4
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - 0
+          - "(Math.max(calcs.demand1.yIntercept,calcs.demand2.yIntercept))"
+          b:
+          - 0
+          - 200
+          strokeWidth: 6
+    rightControls:
+      title: Market Demand
+      sliders:
+      - param: n1
+        label: N_1
+      - param: n2
+        label: N_2
+      divs:
+      - html: "`$$\\\\begin{aligned}D(p) & = N_1D_1(p) + N_2D_2(p) \\\\\\\\& = ${params.n1.toFixed(0)}D_1(p)
+          + ${params.n2.toFixed(0)}D_2(p)\\\\\\\\&  = \\\\begin{cases} ${(params.n1*params.xIntercept1+params.n2*params.xIntercept2).toFixed(0)}${(params.n1*params.invSlope1
+          + params.n2*params.invSlope2).toFixed(2)}p & \\\\text{if }p < ${calcs.demand2.yIntercept.toFixed(2)}\\\\\\\\${(params.n1*params.xIntercept1).toFixed(0)}${(params.n1*params.invSlope1).toFixed(2)}p
+          & \\\\text{if }${calcs.demand2.yIntercept.toFixed(2)} < p < ${calcs.demand1.yIntercept.toFixed(2)}\\\\\\\\0
+          & \\\\text{otherwise}\\\\end{cases} \\\\end{aligned}$$`"
+        show: "(calcs.demand1.yIntercept > calcs.demand2.yIntercept)"
+      - html: "`$$\\\\begin{aligned}D(p) & = N_1D_1(p) + N_2D_2(p) \\\\\\\\& = ${params.n1.toFixed(0)}D_1(p)
+          + ${params.n2.toFixed(0)}D_2(p)\\\\\\\\&  = \\\\begin{cases} ${(params.n1*params.xIntercept1+params.n2*params.xIntercept2).toFixed(0)}${(params.n1*params.invSlope1
+          + params.n2*params.invSlope2).toFixed(2)}p & \\\\text{if }p < ${calcs.demand1.yIntercept.toFixed(2)}\\\\\\\\${(params.n2*params.xIntercept2).toFixed(0)}${(params.n2*params.invSlope2).toFixed(2)}p
+          & \\\\text{if }${calcs.demand1.yIntercept.toFixed(2)} < p < ${calcs.demand2.yIntercept.toFixed(2)}\\\\\\\\0
+          & \\\\text{otherwise}\\\\end{cases} \\\\end{aligned}$$`"
+        show: "(calcs.demand1.yIntercept < calcs.demand2.yIntercept)"
+      - html: "`$$\\\\begin{aligned}D(p) & = N_1D_1(p) + N_2D_2(p) \\\\\\\\& = ${params.n1.toFixed(0)}D_1(p)
+          + ${params.n2.toFixed(0)}D_2(p)\\\\\\\\&  = \\\\begin{cases} ${(params.n1*params.xIntercept1+params.n2*params.xIntercept2).toFixed(0)}${(params.n1*params.invSlope1
+          + params.n2*params.invSlope2).toFixed(2)}p & \\\\text{if }p < ${calcs.demand2.yIntercept.toFixed(2)}\\\\\\\\0
+          & \\\\text{otherwise}\\\\end{cases} \\\\end{aligned}$$`"
+        show: "(calcs.demand1.yIntercept == calcs.demand2.yIntercept)"

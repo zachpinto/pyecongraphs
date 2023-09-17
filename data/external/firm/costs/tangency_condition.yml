@@ -1,0 +1,73 @@
+schema: EconSchema
+params:
+- {name: w, value: 8, min: 1, max: 10, round: 0.01}
+- {name: r, value: 2, min: 1, max: 10, round: 0.01}
+- {name: q, value: 16, min: 1, max: 50, round: 1}
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 100
+        ticks: 0
+        title: Labor ($L$)
+      yAxis:
+        max: 100
+        ticks: 0
+        title: Capital ($K$)
+      objects:
+      
+      - Line:
+          slope: params.w/params.r
+          lineStyle: dotted
+          label:
+            y: 100
+            text: \text{Tangency Condition }K = \frac{w}{r}L
+            
+      - Line:
+          slope: params.w/params.r
+          slineStyle: dotted
+          label:
+            x: 100
+            text: \text{Tangency Condition }K = \frac{w}{r}L
+              
+      - LowestCostBundle:
+          name: X
+          color: blue
+          label: 
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          level: params.q
+          droplines:
+            vertical: calcs.X.x.toFixed(2)
+            horizontal: calcs.X.y.toFixed(2)
+          prices: [params.w, params.r]
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`\\\\text{Isoquant for $q = ${params.q.toFixed(0)}$}`"
+              x: 90
+              position: bl
+          budgetLine:
+            color: green
+            label:
+              text: "`\\\\text{Isocost line for $c = ${calcs.X.cost.toFixed(2)}$}`"
+            
+
+    sidebar:
+      controls:
+      - title: Lagrange Cost Minimization
+        description:
+        sliders:
+        - param: w
+          label: w
+        - param: r
+          label: r
+        - param: q
+          label: q
+    explanation:
+        divs:
+          - html: "`Conditional Demands for Labor and Capital: $$L^*(w,r,q) = ${calcs.X.x.toFixed(2)}$$ $$K^*(w,r,q) = ${calcs.X.y.toFixed(2)}$$`"
+          - html: "`Cost of producing $q = ${params.q.toFixed(0)}$ units of output: $$\\\\begin{aligned}c(q) &= wL^*(w,r,q) + rK^*(w,r,q)\\\\\\\\ &= ${params.w.toFixed(2)} \\\\times ${calcs.X.x.toFixed(2)} + ${params.r.toFixed(2)} \\\\times ${calcs.X.y.toFixed(2)}\\\\\\\\&= ${calcs.X.cost.toFixed(2)}\\\\end{aligned}$$`"

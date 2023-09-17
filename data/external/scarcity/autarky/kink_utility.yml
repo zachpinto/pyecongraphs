@@ -1,0 +1,197 @@
+schema: EconSchema
+params:
+- {name: L, min: 5, max: 95, round: 1, value: 75}
+calcs:
+  L2: (100-params.L)
+  x2: (6*(sqrt(calcs.L2)))
+  x1: (10*(sqrt(params.L)))
+  mrt: (0.6*sqrt(params.L/calcs.L2))
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 160
+        title: Fish ($x_1$)
+      yAxis:
+        max: 80
+        title: Coconuts ($x_2$)
+
+      objects:
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            PerfectComplements:
+              coefficients: [4,5]
+          levels: [60, 120, 180, 240, 300]
+
+      # PPF
+      - Ellipse:
+          c: [0,0]
+          rx: 100
+          ry: 60
+          color: red
+          strokeWidth: 2
+          label:
+            text: PPF
+            coordinates: [101,5]
+            position: l
+
+
+      # Bundle
+      - EconBundle:
+          name: X
+          coordinates: [calcs.x1, calcs.x2]
+          drag:
+          - directions: x
+            param: L
+            expression: (drag.x/10)^2
+          utilityFunction:
+            PerfectComplements:
+              coefficients: [4,5]
+          indifferenceCurve:
+            label:
+              text:
+            showPreferred: true
+          droplines:
+            vertical: calcs.x1.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+      - Line:
+          slope: 0.8
+          lineStyle: dotted
+          color: utility
+          max: 90
+          label:
+            text: "`4x_1 = 5x_2`"
+            x: 90
+            position: bl
+            bgcolor:
+
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: (-calcs.mrt)
+          min: calcs.x1-16
+          max: calcs.x1+16
+          label:
+            text: MRT
+            x: calcs.x1-16
+            position: b
+            bgcolor: none
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: 0
+          color: colors.demand
+          min: calcs.x1 - 16
+          max: calcs.x1 + 16
+          strokeWidth: 4
+          label:
+            text: MRS
+            x: calcs.x1 + 16
+            position: t
+            bgcolor: none
+          show: params.L > 36
+      - Segment:
+          a: [calcs.x1, calcs.x2 - 20]
+          b: [calcs.x1, calcs.x2 + 20]
+          color: colors.demand
+          strokeWidth: 4
+          label:
+            text: MRS
+            location: 0.01
+            bgcolor: none
+            position: l
+          show: params.L < 36
+
+    bottomGraph:
+      xAxis:
+        max: 100
+        title: Labor Devoted to Fish Production ($L_1$)
+      yAxis:
+        max: 5.5
+        title: Coconuts per Fish
+      objects:
+      - Point:
+         coordinates: [params.L, 5.46]
+         droplines:
+           vertical: params.L
+         show: params.L < 36
+         drag:
+           - horizontal: L
+      - Point:
+         coordinates: [params.L, 0]
+         droplines:
+           vertical: params.L
+           horizontal: \infty
+         show: params.L > 36
+         drag:
+           - horizontal: L
+      - Point:
+         coordinates: [params.L, calcs.mrt]
+         color: orange
+         droplines:
+           vertical: params.L
+           horizontal: calcs.mrt.toFixed(2)
+         drag:
+           - horizontal: L
+      - Point:
+         coordinates: [36,5.46]
+         fill: white
+         stroke: blue
+         r: 4
+         droplines:
+           horizontal: \infty
+      - Point:
+         coordinates: [36,0.02]
+         fill: white
+         stroke: blue
+         r: 4
+      - Curve:
+         fn: (0.6*sqrt((x)/(100-(x))))
+         color: supply
+         samplePoints: 200
+         label:
+           text: MRT
+           x: 90
+      - Line:
+         yIntercept: 5.46
+         color: demand
+         strokeWidth: 3
+         max: 36
+         label:
+           text: MRS
+           x: 10
+           position: t
+           bgcolor:
+      - Line:
+         yIntercept: 0
+         color: demand
+         strokeWidth: 5
+         min: 36
+         label:
+           text: MRS
+           x: 90
+           position: b
+           bgcolor:
+      - Line:
+         xIntercept: 36
+         color: demand
+         lineStyle: dashed
+         strokeWidth: "((params.L == 36) ? 3 : 1)"
+
+
+    sidebar:
+      controls:
+      - title: "MRS vs MRT: Perfect Complements"
+        sliders:
+        - param: L
+          label: L_1
+        divs:
+        - html: "`<h4>Utility Function:</h4>$$u(x_1,x_2) = \\\\min\\\\{4x_1,5x_2\\\\}$$ $$MRS(${calcs.x1.toFixed(0)},${calcs.x2.toFixed(0)}) = \\\\infty$$`"
+          show: params.L < 36
+        - html: "`<h4>Utility Function:</h4>$$u(x_1,x_2) = \\\\min\\\\{4x_1,5x_2\\\\}$$ $$MRS(${calcs.x1.toFixed(0)},${calcs.x2.toFixed(0)}) = \\\\text{undefined}$$`"
+          show: params.L == 36
+        - html: "`<h4>Utility Function:</h4>$$u(x_1,x_2) = \\\\min\\\\{4x_1,5x_2\\\\} $$ $$MRS(${calcs.x1.toFixed(0)},${calcs.x2.toFixed(0)}) = 0$$`"
+          show: params.L > 36
+        - html: "`<h4>Production Functions:</h4> $$x_1 = f_1(L_1) = 10\\\\sqrt{L_1}$$ $$x_2 =f_2(L_2) = 6\\\\sqrt{L_2}$$ $$MRT(${calcs.x1.toFixed(0)},${calcs.x2.toFixed(0)}) = ${calcs.mrt.toFixed(2)}$$`"
+
+    

@@ -1,0 +1,174 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: p1
+    value: "3"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: p2
+    value: "3"
+    min: "0.1"
+    max: "10"
+    round: "0.01"
+  - name: m
+    value: "120"
+    min: "0"
+    max: "400"
+    round: "1"
+  - name: w1
+    value: "10"
+    min: "0"
+    max: "50"
+    round: "1"
+  - name: w2
+    value: "30"
+    min: "0"
+    max: "50"
+    round: "1"
+  - name: showExp
+    value: false
+  - name: showNum
+    value: false
+calcs:
+  wealth: (params.p1*params.w1 + params.p2*params.w2).toFixed(2)
+  incomeMax1: (params.m/params.p1).toFixed(2)
+  incomeMax2: (params.m/params.p2).toFixed(2)
+  endowmentMax1: (params.w1 + params.p2*params.w2/params.p1).toFixed(2)
+  endowmentMax2: (params.p1*params.w1/params.p2 + params.w2).toFixed(2)
+layout:
+  type: TwoHorizontalGraphsPlusSidebar
+  def:
+    leftGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 50
+        ticks: 0
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+        ticks: 0
+      objects:
+        - type: EconBudgetLine
+          def:
+            p1: params.p1
+            p2: params.p2
+            m: params.m
+            label:
+              text: BL_m
+            draggable: true
+            handles: true
+            set: false
+            xInterceptLabel: '`${params.showNum ? calcs.incomeMax1 : ''\\frac{m}{p_1}''}`'
+            yInterceptLabel: '`${params.showNum ? calcs.incomeMax2 : ''\\frac{m}{p_2}''}`'
+    rightGraph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 50
+        ticks: 0
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 50
+        ticks: 0
+      objects:
+        - type: EconBudgetLine
+          def:
+            p1: params.p1
+            p2: params.p2
+            x: params.w1
+            "y": params.w2
+            draggable: false
+            handles: true
+            set: false
+            xInterceptLabel: '`${params.showNum ? calcs.endowmentMax1 : ''\\omega_1 + \\frac{p_2}{p_1}\\omega_2''}`'
+            yInterceptLabel: '`${params.showNum ? calcs.endowmentMax2 : ''\\omega_2 + \\frac{p_1}{p_2}\\omega_1''}`'
+        - type: EconBundle
+          def:
+            name: endowmentBundle
+            coordinates:
+              - params.w1
+              - params.w2
+            droplines:
+              vertical: \omega_1
+              horizontal: \omega_2
+            color: gray
+            label:
+              text: W
+              position: bl
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+            drag:
+              - directions: x
+                param: w1
+                expression: params.w1 + drag.dx
+              - directions: "y"
+                param: w2
+                expression: params.w2 + drag.dy
+    leftControls:
+      title: Income Budget Line
+      sliders:
+        - param: m
+          label: m
+      divs:
+        - html: <div height='30px'> </div><hr/>
+          show: params.showExp
+        - html: '`If the consumer spent their entire income on good 1, they could buy $$\\frac{m}{p_1} = \\frac{${params.m}}{${params.p1.toFixed(2)}} = ${calcs.incomeMax1}$$`'
+          show: (params.showExp && params.showNum)
+        - html: '`If the consumer spent their entire income on good 1, they could buy $$\\frac{m}{p_1} \\text{ units of good 1}$$`'
+          show: (params.showExp && !params.showNum)
+        - html: '`If they spent their entire income on good 2, they could buy $$\\frac{m}{p_2} = \\frac{${params.m}}{${params.p2.toFixed(2)}} = ${calcs.incomeMax2}$$`'
+          show: (params.showExp && params.showNum)
+        - html: '`If they spent their entire income on good 2, they could buy $$\\frac{m}{p_2} \\text{ units of good 2}$$`'
+          show: (params.showExp && !params.showNum)
+    rightControls:
+      title: Endowment Budget Line
+      sliders:
+        - param: w1
+          label: \omega_1
+        - param: w2
+          label: \omega_2
+      divs:
+        - html: <hr/>
+          show: params.showExp
+        - html: '`Given $p_1 =${params.p1.toFixed(2)}$ and $p_2 =${params.p2.toFixed(2)}$, the endowment $W$ corresponds to money wealth of $$p_1\\omega_1 + p_2\\omega_2 = ${calcs.wealth}$$`'
+          show: (params.showExp && params.showNum)
+        - html: '`Given $p_1$ and $p_2$, the endowment $W$ corresponds to money wealth of $$p_1\\omega_1 + p_2\\omega_2$$`'
+          show: (params.showExp && !params.showNum)
+        - html: '`If the consumer spent this all on good 1, they could buy $$\\frac{p_1\\omega_1 + p_2\\omega_2}{p_1} = \\frac{${calcs.wealth}}{${params.p1.toFixed(2)}} = ${calcs.endowmentMax1}$$`'
+          show: (params.showExp && params.showNum)
+        - html: '`If the consumer spent this all on good 1, they could buy $$\\frac{p_1\\omega_1 + p_2\\omega_2}{p_1} = \\omega_1 + \\frac{p_2}{p_1}\\omega_2$$`'
+          show: (params.showExp && !params.showNum)
+        - html: '`If they spent it all on good 2, they could buy $$\\frac{p_1\\omega_1 + p_2\\omega_2}{p_2} = \\frac{${calcs.wealth}}{${params.p2.toFixed(2)}} = ${calcs.endowmentMax2}$$`'
+          show: (params.showExp && params.showNum)
+        - html: '`If they spent it all on good 2, they could buy $$\\frac{p_1\\omega_1 + p_2\\omega_2}{p_2} = \\omega_2 + \\frac{p_1}{p_2}\\omega_2$$`'
+          show: (params.showExp && !params.showNum)
+    sidebar:
+      controls:
+        - title: Prices
+          sliders:
+            - param: p1
+              label: p_1
+            - param: p2
+              label: p_2
+          checkboxes:
+            - param: showNum
+              label: \text{Show numbers}
+            - param: showExp
+              label: \text{Show explanation}
+          divs:
+            - html: <hr/>
+            - html: '`Both graphs show the budget line of a consumer facing prices $p_1 =${params.p1.toFixed(2)}$ and $p_2 =${params.p2.toFixed(2)}$. Therefore the slope of both budget lines is $$-\\frac{p_1}{p_2} = -\\frac{${params.p1.toFixed(2)}}{${params.p2.toFixed(2)}} = -${(params.p1/params.p2).toFixed(2)}$$`'
+            - html: '`The graph on the left shows the budget line for a consumer with money income $m =${params.m.toFixed(0)}$.`'
+            - html: '`The graph on the right shows the budget line for a consumer with an endowment of $\\omega_1 = ${params.w1}$ units of good 1 and $\\omega_2 = ${params.w2}$ units of good 2.`'
+            - html: Notice that as the price changes, the left graph pivots around one of the interecepts, while the right graph pivots around point $W$.

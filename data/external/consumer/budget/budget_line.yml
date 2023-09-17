@@ -1,0 +1,69 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: x1
+  value: 2
+  min: 0
+  max: 10
+- name: x2
+  value: 4
+  min: 0
+  max: 10
+- name: p1
+  value: 4
+  min: 2
+  max: 12
+  round: 0.01
+- name: p2
+  value: 2
+  min: 2
+  max: 12
+  round: 0.01
+- name: m
+  value: 24
+  min: 0
+  max: 40
+  round: 1
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Apples (Good 1)
+        max: 12
+      yAxis:
+        title: Bananas (Good 2)
+        max: 12
+      objects:
+      - EconBudgetLine:
+          p1: params.p1
+          p2: params.p2
+          m: params.m
+          draggable: true
+          handles: true
+          set: false
+          xInterceptLabel: "\\overline x_1"
+          yInterceptLabel: "\\overline x_2"
+          label:
+            text: \text{ |slope| = }{p_1 \over p_2}
+    sidebar:
+      controls:
+      - title: The Budget Line
+        description: Change the prices or income, either by using the sliders or dragging the
+          intercepts of the budget line.
+        sliders:
+        - param: p1
+          label: p_1
+        - param: p2
+          label: p_2
+        - param: m
+          label: m
+        divs:
+        - html: "`$$\\\\overline x_1 = \\\\frac{m}{p_1} = \\\\frac{\\\\$${params.m.toFixed(0)}}{\\\\$${params.p1.toFixed(2)}/\\\\text{apple}}
+            = ${(params.m/params.p1).toFixed(2)}\\\\text{ apples}$$`"
+        - html: "`$$\\\\overline x_2 = \\\\frac{m}{p_2} = \\\\frac{\\\\$${params.m.toFixed(0)}}{\\\\$${params.p2.toFixed(2)}/\\\\text{banana}}
+            = ${(params.m/params.p2).toFixed(2)}\\\\text{ bananas}$$`"
+        - html: "`$$\\\\frac{p_1}{p_2} = \\\\frac{\\\\$${params.p1.toFixed(2)}/\\\\text{apple}}{\\\\$${params.p2.toFixed(2)}/\\\\text{banana}}
+                    = ${(params.p1/params.p2).toFixed(2)}\\\\text{ bananas per apple}$$`"

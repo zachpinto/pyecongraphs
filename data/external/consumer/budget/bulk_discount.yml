@@ -1,0 +1,102 @@
+schema: EconSchema
+params:
+- {name: m, min: 10, max: 50, round: 1, value: 40}
+- {name: xhat, min: 5, max: 15, value: 10}
+- {name: pH, min: 0.5, max: 10, round: 0.01, value: 2}
+- {name: pL, min: 0.5, max: 40, round: 0.01, value: 1}
+- {name: p, value: 0}
+calcs:
+  xhat: (params.gift/params.p)
+  xIntercept: ((params.m + params.gift)/params.p)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 50
+        title: Boxes of Mac and Cheese
+      yAxis:
+        max: 50
+        title: Dollars Spent on Other Things
+      objects:
+        - Line:
+           yIntercept: params.m
+           slope: -params.pH
+           color: lightGrey
+           lineStyle: dotted
+        - Line:
+           yIntercept: params.m
+           slope: -params.pL
+           color: lightGrey
+           lineStyle: dotted
+        - EconBudgetLine:
+            p1: params.pH
+            p2: 1
+            m: params.m
+            label:
+              text:
+            set: (params.p == 0)
+            show: (params.p == 0)
+        - EconBudgetLine:
+            p1: params.pL
+            p2: 1
+            m: params.m
+            label:
+              text: 
+            set: (params.p == 1)
+            show: (params.p == 1)
+        - Line:
+            yIntercept: params.m
+            slope: -params.pH
+            max: params.xhat
+            label:
+              text: 
+            show: (params.p == 2)
+            color: budget
+        - Line:
+            yIntercept: params.m
+            slope: -params.pL
+            min: params.xhat
+            label:
+              text: 
+            show: (params.p == 2)
+            color: budget
+        - Area:
+            fn: params.m - params.pH*(x)
+            color: green
+            show: (params.p == 2)
+            max: params.xhat
+        - Area:
+            fn: params.m - params.pL*(x)
+            color: green
+            show: (params.p == 2)
+            min: params.xhat
+        - Line:
+           xIntercept: params.xhat
+           lineStyle: dotted
+           ind: y
+           label:
+             text: \hat x
+             y: 45
+           color: grey
+           drag:
+           - horizontal: xhat
+           show: (params.p == 2)
+    sidebar:
+      controls:
+      - title: "Kinked Budget Constraint Example: Bulk Discount"
+        description: "You have to pay full price up to a threshold; if you buy more than the threshold, you pay a lower price (on all units)."
+        sliders:
+        - param: pH
+          label: p_\text{full}
+        - param: pL
+          label: p_\text{discount}
+        - param: m
+          label: m
+        - param: xhat
+          label: \hat x
+        radioGroup:
+          param: p
+          options:
+          - Full price
+          - Discount price
+          - Bulk discount deal

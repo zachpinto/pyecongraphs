@@ -1,0 +1,544 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: p
+  value: 1
+  min: 0.2
+  max: 5
+  round: 0.01
+- name: A11
+  value: 4
+  min: 1
+  max: 5
+  round: 0.01
+- name: A21
+  value: 2
+  min: 1
+  round: 0.01
+- name: A12
+  value: 2
+  min: 1
+  max: 5
+  round: 0.01
+- name: A22
+  value: 4
+  min: 1
+  round: 0.01
+calcs:
+  y11: "((params.p*params.A11 > params.A21) ? 100*params.A11 : (params.p*params.A11
+    < params.A21) ? 0 : 50*params.A11)"
+  y21: "((params.p*params.A11 < params.A21) ? 100*params.A21 : (params.p*params.A11
+    > params.A21) ? 0 : 50*params.A21)"
+  y12: "((params.p*params.A12 > params.A22) ? 100*params.A12 : (params.p*params.A12
+    < params.A22) ? 0 : 50*params.A12)"
+  y22: "((params.p*params.A12 < params.A22) ? 100*params.A22 : (params.p*params.A12
+    > params.A22) ? 0 : 50*params.A22)"
+  p2: "(1/params.p)"
+  max11: "(100*params.A11)"
+  max21: "(100*params.A21)"
+  max12: "(100*params.A12)"
+  max22: "(100*params.A22)"
+  m1: "(100*max(params.p*params.A11,params.A21))"
+  m2: "(100*max(params.p*params.A12,params.A22))"
+  produce11: "(params.p*params.A11 > params.A21)"
+  produce12: "(params.p*params.A12 > params.A22)"
+  cutoffP11: "(params.A21/params.A11)"
+  cutoffP21: "(params.A11/params.A21)"
+  cutoffP12: "(params.A22/params.A12)"
+  cutoffP22: "(params.A12/params.A22)"
+layout:
+  type: FourGraphs
+  def:
+    topLeftGraph:
+      xAxis:
+        title: Quantity of Good 1 produced by A
+        orient: bottom
+        min: 0
+        max: 500
+      yAxis:
+        title: Quantity of Good 2 produced by A
+        orient: left
+        min: 0
+        max: 500
+      objects:
+      - type: Line
+        def:
+          color: colors.longRun
+          xIntercept: calcs.max11
+          yIntercept: calcs.max21
+          label:
+            text: PPF
+            x: 20
+      - type: Point
+        def:
+          color: colors.longRun
+          coordinates:
+          - calcs.max11
+          - 0
+          r: 4
+          drag:
+          - directions: x
+            param: A11
+            expression: drag.x/100
+      - type: Point
+        def:
+          color: colors.longRun
+          coordinates:
+          - 0
+          - calcs.max21
+          r: 4
+          drag:
+          - directions: y
+            param: A21
+            expression: drag.y/100
+      - type: Point
+        def:
+          color: colors.supply
+          coordinates:
+          - calcs.y11
+          - calcs.y21
+          droplines:
+            vertical: y_1^*
+            horizontal: y_2^*
+          label:
+            text: Y^*
+            position: tr
+      - type: EconOptimalBundle
+        def:
+          name: bundleA
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: 0.5
+          budgetLine:
+            p1: params.p
+            p2: 1
+            m: "(calcs.m1)"
+            handles: false
+            draggable: false
+            color: colors.budget
+            label:
+              text: "`p_1x_1 + p_2x_2 = ${calcs.produce11 ? calcs.max11.toFixed(0)
+                + 'p_1' : calcs.max12.toFixed(0) + 'p_2'}`"
+          label:
+            text: X^A
+            position: bl
+          color: colors.demand
+          indifferenceCurve:
+            color: colors.demand
+      - type: Label
+        def:
+          text: "`MRT = \\\\frac{${calcs.max21.toFixed(0)}}{${calcs.max11.toFixed(0)}}
+            = ${(calcs.max21/calcs.max11).toFixed(2)}`"
+          position: tr
+          coordinates:
+          - "(0.5*calcs.max11)"
+          - "(0.5*calcs.max21)"
+          color: colors.supply
+      - type: Label
+        def:
+          text: "`\\\\frac{p_1}{p_2} = ${params.p.toFixed(2)}`"
+          position: bl
+          coordinates:
+          - "(0.5*calcs.m1/params.p)"
+          - "(0.5*calcs.m1)"
+          color: colors.budget
+      - type: Segment
+        def:
+          a:
+          - calcs.bundleA.x
+          - 10
+          b:
+          - calcs.y11
+          - 10
+          startArrow: true
+          endArrow: true
+          color: colors.price
+          label:
+            text: "`\\\\text{${(calcs.bundleA.x > calcs.y11) ? 'Import' : 'Export'}
+              }`"
+            location: 0.5
+      - type: Segment
+        def:
+          a:
+          - 10
+          - calcs.bundleA.y
+          b:
+          - 10
+          - calcs.y21
+          startArrow: true
+          endArrow: true
+          color: colors.price
+          label:
+            text: "`\\\\text{${(calcs.bundleA.y > calcs.y21) ? 'Import' : 'Export'}
+              }`"
+            location: 0.5
+    bottomLeftGraph:
+      xAxis:
+        title: Quantity of Good 1 produced by B
+        orient: bottom
+        min: 0
+        max: 500
+      yAxis:
+        title: Quantity of Good 2 produced by B
+        orient: left
+        min: 0
+        max: 500
+      objects:
+      - type: Line
+        def:
+          color: colors.longRun
+          xIntercept: calcs.max12
+          yIntercept: calcs.max22
+          label:
+            text: PPF
+            x: 20
+      - type: Point
+        def:
+          color: colors.longRun
+          coordinates:
+          - calcs.max12
+          - 0
+          r: 4
+          drag:
+          - directions: x
+            param: A12
+            expression: drag.x/100
+      - type: Point
+        def:
+          color: colors.longRun
+          coordinates:
+          - 0
+          - calcs.max22
+          r: 4
+          drag:
+          - directions: y
+            param: A22
+            expression: drag.y/100
+      - type: Point
+        def:
+          color: colors.supply
+          coordinates:
+          - calcs.y12
+          - calcs.y22
+          droplines:
+            vertical: y_1^*
+            horizontal: y_2^*
+          label:
+            text: Y^*
+            position: tr
+      - type: EconOptimalBundle
+        def:
+          name: bundleB
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: 0.5
+          budgetLine:
+            p1: params.p
+            p2: 1
+            m: "(calcs.m2)"
+            handles: false
+            draggable: false
+            color: colors.budget
+            label:
+              text: "`p_1x_1 + p_2x_2 = ${calcs.produce2 ? calcs.max21.toFixed(0)
+                + 'p_1' : calcs.max22.toFixed(0) + 'p_2'}`"
+          label:
+            text: X^B
+            position: bl
+          color: colors.demand
+          indifferenceCurve:
+            color: colors.demand
+      - type: Label
+        def:
+          text: "`MRT = \\\\frac{${calcs.max22.toFixed(0)}}{${calcs.max12.toFixed(0)}}
+            = ${(calcs.max22/calcs.max12).toFixed(2)}`"
+          position: tr
+          coordinates:
+          - "(0.5*calcs.max12)"
+          - "(0.5*calcs.max22)"
+          color: colors.supply
+      - type: Label
+        def:
+          text: "`\\\\frac{p_1}{p_2} = ${params.p.toFixed(2)}`"
+          position: bl
+          coordinates:
+          - "(0.5*calcs.m2/params.p)"
+          - "(0.5*calcs.m1)"
+          color: colors.budget
+      - type: Segment
+        def:
+          a:
+          - calcs.bundleB.x
+          - 10
+          b:
+          - calcs.y12
+          - 10
+          startArrow: true
+          endArrow: true
+          color: colors.price
+          label:
+            text: "`\\\\text{${(calcs.bundleB.x > calcs.y12) ? 'Import' : 'Export'}
+              }`"
+            location: 0.5
+      - type: Segment
+        def:
+          a:
+          - 10
+          - calcs.bundleB.y
+          b:
+          - 10
+          - calcs.y22
+          startArrow: true
+          endArrow: true
+          color: colors.price
+          label:
+            text: "`\\\\text{${(calcs.bundleB.y > calcs.y22) ? 'Import' : 'Export'}
+              }`"
+            location: 0.5
+    topRightGraph:
+      xAxis:
+        title: Quantity of Good 1 Produced by Both
+        orient: bottom
+        min: 0
+        max: 1000
+      yAxis:
+        title: Relative Price of Good 1 $(p_1/p_2)$
+        orient: left
+        min: 0
+        max: 2.5
+      objects:
+      - type: Segment
+        def:
+          color: colors.supply
+          a:
+          - "(calcs.max11+calcs.max12)"
+          - "(Math.max(calcs.cutoffP12,calcs.cutoffP11))"
+          b:
+          - "(calcs.max11+calcs.max12)"
+          - 2.5
+          label:
+            text: S_1
+            y: 2.25
+      - type: Segment
+        def:
+          color: colors.supply
+          a:
+          - "(calcs.max11+calcs.max12)"
+          - "(Math.max(calcs.cutoffP12,calcs.cutoffP11))"
+          b:
+          - "((calcs.cutoffP12 > calcs.cutoffP11) ? calcs.max11 : calcs.max12)"
+          - "(Math.max(calcs.cutoffP12,calcs.cutoffP11))"
+      - type: Segment
+        def:
+          color: colors.supply
+          a:
+          - "((calcs.cutoffP12 > calcs.cutoffP11) ? calcs.max11 : calcs.max12)"
+          - "(Math.min(calcs.cutoffP12,calcs.cutoffP11))"
+          b:
+          - "((calcs.cutoffP12 > calcs.cutoffP11) ? calcs.max11 : calcs.max12)"
+          - "(Math.max(calcs.cutoffP12,calcs.cutoffP11))"
+      - type: Segment
+        def:
+          color: colors.supply
+          a:
+          - "((calcs.cutoffP12 > calcs.cutoffP11) ? calcs.max11 : calcs.max12)"
+          - "(Math.min(calcs.cutoffP12,calcs.cutoffP11))"
+          b:
+          - 0
+          - "(Math.min(calcs.cutoffP12,calcs.cutoffP11))"
+      - type: Segment
+        def:
+          color: colors.supply
+          a:
+          - 0
+          - 0
+          b:
+          - 0
+          - "(Math.min(calcs.cutoffP12,calcs.cutoffP11))"
+          linewidth: 2
+      - type: Line
+        def:
+          color: colors.budget
+          yIntercept: params.p
+          drag:
+          - directions: y
+            param: p
+            expression: drag.y
+      - type: Point
+        def:
+          coordinates:
+          - "(calcs.y11+calcs.y12)"
+          - params.p
+          color: colors.supply
+          droplines:
+            vertical: y_1^A + y_1^B
+      - type: Point
+        def:
+          coordinates:
+          - "(calcs.bundleA.x+calcs.bundleB.x)"
+          - params.p
+          color: colors.demand
+          droplines:
+            vertical: x_1^A + x_1^B
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - "(0.5*(calcs.max11+calcs.max12))"
+          - 2.5
+          b:
+          - "(0.5*(calcs.max11+calcs.max12))"
+          - "(Math.max(calcs.cutoffP11,calcs.cutoffP12))"
+          label:
+            text: D_1
+            location: 0.5
+      - type: Curve
+        def:
+          color: colors.demand
+          univariateFunction:
+            ind: y
+            fn: "((0.5*calcs.max11)+(0.5*calcs.max22/(y)))"
+            min: calcs.cutoffP12
+            max: calcs.cutoffP11
+          show: calcs.cutoffP11 < calcs.cutoffP12
+      - type: Curve
+        def:
+          color: colors.demand
+          univariateFunction:
+            ind: y
+            fn: "((0.5*calcs.max12)+(0.5*calcs.max21/(y)))"
+            min: calcs.cutoffP11
+            max: calcs.cutoffP12
+          show: calcs.cutoffP11 > calcs.cutoffP12
+      - type: Curve
+        def:
+          color: colors.demand
+          univariateFunction:
+            ind: y
+            fn: "(0.5*(calcs.max21+calcs.max22)/(y))"
+            max: "(Math.min(calcs.cutoffP11,calcs.cutoffP12))"
+    bottomRightGraph:
+      xAxis:
+        title: Quantity of Good 2 Produced by Both
+        orient: bottom
+        min: 0
+        max: 1000
+      yAxis:
+        title: Relative Price of Good 2 $(p_2/p_1)$
+        orient: left
+        min: 0
+        max: 2.5
+      objects:
+      - type: Segment
+        def:
+          color: colors.supply
+          a:
+          - "(calcs.max21+calcs.max22)"
+          - "(Math.max(calcs.cutoffP22,calcs.cutoffP21))"
+          b:
+          - "(calcs.max21+calcs.max22)"
+          - 2.5
+          label:
+            text: S_2
+            y: 2.25
+      - type: Segment
+        def:
+          color: colors.supply
+          a:
+          - "(calcs.max21+calcs.max22)"
+          - "(Math.max(calcs.cutoffP22,calcs.cutoffP21))"
+          b:
+          - "((calcs.cutoffP22 > calcs.cutoffP21) ? calcs.max21 : calcs.max22)"
+          - "(Math.max(calcs.cutoffP22,calcs.cutoffP21))"
+      - type: Segment
+        def:
+          color: colors.supply
+          a:
+          - "((calcs.cutoffP22 > calcs.cutoffP21) ? calcs.max21 : calcs.max22)"
+          - "(Math.min(calcs.cutoffP22,calcs.cutoffP21))"
+          b:
+          - "((calcs.cutoffP22 > calcs.cutoffP21) ? calcs.max21 : calcs.max22)"
+          - "(Math.max(calcs.cutoffP22,calcs.cutoffP21))"
+      - type: Segment
+        def:
+          color: colors.supply
+          a:
+          - "((calcs.cutoffP22 > calcs.cutoffP21) ? calcs.max21 : calcs.max22)"
+          - "(Math.min(calcs.cutoffP22,calcs.cutoffP21))"
+          b:
+          - 0
+          - "(Math.min(calcs.cutoffP22,calcs.cutoffP21))"
+      - type: Segment
+        def:
+          color: colors.supply
+          a:
+          - 0
+          - 0
+          b:
+          - 0
+          - "(Math.min(calcs.cutoffP22,calcs.cutoffP21))"
+          linewidth: 2
+      - type: Line
+        def:
+          color: colors.budget
+          yIntercept: calcs.p2
+          drag:
+          - directions: y
+            param: p
+            expression: "(1/drag.y)"
+      - type: Point
+        def:
+          coordinates:
+          - "(calcs.y21 + calcs.y22)"
+          - calcs.p2
+          color: colors.supply
+          droplines:
+            vertical: y_2^A + y_2^B
+      - type: Point
+        def:
+          coordinates:
+          - "(calcs.bundleA.y+calcs.bundleB.y)"
+          - calcs.p2
+          color: colors.demand
+          droplines:
+            vertical: x_2^A + x_2^B
+      - type: Segment
+        def:
+          color: colors.demand
+          a:
+          - "(0.5*(calcs.max21+calcs.max22))"
+          - 2.5
+          b:
+          - "(0.5*(calcs.max21+calcs.max22))"
+          - "(Math.max(calcs.cutoffP21,calcs.cutoffP22))"
+          label:
+            text: D_1
+            location: 0.5
+      - type: Curve
+        def:
+          color: colors.demand
+          univariateFunction:
+            ind: y
+            fn: "((0.5*calcs.max21)+(0.5*calcs.max12/(y)))"
+            min: calcs.cutoffP22
+            max: calcs.cutoffP21
+          show: calcs.cutoffP21 < calcs.cutoffP22
+      - type: Curve
+        def:
+          color: colors.demand
+          univariateFunction:
+            ind: y
+            fn: "((0.5*calcs.max22)+(0.5*calcs.max11/(y)))"
+            min: calcs.cutoffP21
+            max: calcs.cutoffP22
+          show: calcs.cutoffP21 > calcs.cutoffP22
+      - type: Curve
+        def:
+          color: colors.demand
+          univariateFunction:
+            ind: y
+            fn: "(0.5*(calcs.max11+calcs.max12)/(y))"
+            max: "(Math.min(calcs.cutoffP21,calcs.cutoffP22))"

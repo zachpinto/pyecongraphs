@@ -1,0 +1,41 @@
+params:
+  - {name: rho, min: -20, max: 20, value: 0, round: 0.03}
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        min: 1
+        max: 50
+        title: Labor ($L$)
+        intercept: 1
+        ticks: 0
+      yAxis:
+        min: 1
+        max: 50
+        title: Capital ($K$)
+        intercept: 1
+        ticks: 0
+      objects:
+      - ContourMap:
+          levels: [5,10,15,20,25,30,35,40,45]
+          yMax: 51
+          xMax: 51
+          fn: "(0.5*(x)^(params.rho)+0.5*(y)^(params.rho))^(1/params.rho)"
+          strokeWidth: 2
+          color: colors.blue
+      - ContourMap:
+          levels: [5,10,15,20,25,30,35,40,45]
+          yMax: 51
+          xMax: 51
+          fn: "((x)*(y))^0.5"
+          show: "(params.rho == 0)"
+          strokeWidth: 2
+          color: colors.blue
+    sidebar:
+       controls:
+       - title: "CES Production Function: isoquant map"
+         sliders:
+         - param: rho
+           label: \rho
+         divs:
+         - html: $$f(L,K) = (\tfrac{1}{2}L^\rho + \tfrac{1}{2}K^\rho)^\frac{1}{\rho}$$

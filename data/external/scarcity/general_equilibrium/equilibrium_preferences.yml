@@ -1,0 +1,74 @@
+schema: EconSchema
+params:
+  - { name: alpha, min: 0.09, max: 0.91, value: 0.64, round: 0.01 }
+  - { name: p1, min: 1, max: 5, value: 4, round: 0.1 }
+  - { name: p2, min: 1, max: 5, value: 3, round: 0.1 }
+calcs:
+  p: (sqrt(params.alpha/(1-params.alpha)))
+  x1: (100*calcs.p/((1+calcs.p*calcs.p)^0.5))
+  x2: (100/((1+calcs.p*calcs.p)^0.5))
+  m: (calcs.p*calcs.x1 + calcs.x2)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        max: 200
+        ticks: 2
+        title: Good 1
+      yAxis:
+        max: 200
+        title: Good 2
+        ticks: 2
+
+      objects:
+
+
+        # PPF
+        - Circle:
+            c: [ 0,0 ]
+            r: 100
+            stroke: red
+            fill: none
+            strokeWidth: 2
+
+        - Label:
+            text: PPF
+            coordinates: [ 100,5 ]
+            align: left
+            color: red
+            fontSize: 9
+            bgcolor: none
+
+        # DemandBundle
+        - EconOptimalBundle:
+            r: 4
+            name: X
+            color: demand
+            utilityFunction:
+              CobbDouglas:
+                alpha: params.alpha
+            budgetLine:
+              p1: calcs.p
+              p2: 1
+              m: calcs.m
+              color: budget
+              label:
+                text:
+            label:
+              text: "`Y^* = X^*`"
+            indifferenceCurve:
+              color: utility
+              label:
+                text: \text{Ind. curve}
+                x: 190
+            droplines:
+              vertical: calcs.X.x.toFixed(0)
+              horizontal: calcs.X.y.toFixed(0)
+
+    sidebar:
+      controls:
+        - title: General Equilibrium as a Function of Alpha
+          description: Firms choose bundle Y*; consumers choose bundle X*. The price ratio for which these two coincide is the competitive general equilibrium.
+          sliders:
+            - param: alpha
+              label: \alpha

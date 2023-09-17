@@ -1,0 +1,204 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: beta
+    value: 0.5
+    min: 0.01
+    max: 1
+    round: 0.01
+  - name: r
+    value: 0.2
+    min: 0
+    max: 1
+    round: 0.01
+  - name: m1
+    value: 30
+    min: 0
+    max: 80
+  - name: m2
+    value: 24
+    min: 0
+    max: 40
+  - name: showBuySell
+    value: 0
+  - name: showIndW
+    value: 0
+calcs:
+  cutoffPrice: (calcs.endowmentBundle.mrs - 1)
+  wealth: (params.m1*(1 + params.r) + params.m2)
+  borrow: (params.m2 > params.beta*params.m1*(1 + params.r))
+  save: (params.m2 < params.beta*params.m1*(1 + params.r))
+  hold: (params.m2 == params.beta*params.m1*(1 + params.r))
+layout:
+  RectanglePlusTwoSquaresPlusSidebar:
+    topGraph:
+      xAxis:
+        title: Present Consumption ($c_1$)
+        orient: bottom
+        min: 0
+        max: 80
+        ticks: 0
+      yAxis:
+        title: Future Consumption ($c_2$)
+        orient: left
+        min: 0
+        max: 40
+        ticks: 0
+      objects:
+        - EconBundle:
+            name: endowmentBundle
+            coordinates:
+              - params.m1
+              - params.m2
+            droplines:
+              vertical: params.m1
+              horizontal: params.m2
+            color: endowment
+            label:
+              text: \text{$E$}
+              position: tr
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: (1/(1 + params.beta))
+            drag:
+              - horizontal: m1
+              - vertical: m2
+            indifferenceCurve:
+              label:
+                text: ''
+              color: colors.endowment
+              show: params.showIndW
+        - EconOptimalBundle:
+            name: optimum
+            label:
+              text: X
+            droplines:
+              vertical: calcs.optimum.x.toFixed(2)
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: (1/(1 + params.beta))
+            color: colors.demand
+            budgetLine:
+              p1: (1 + params.r)
+              p2: 1
+              x: params.m1
+              y: params.m2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+            indifferenceCurve: {}
+        - Arrow:
+            begin: [params.m1,3]
+            end: [calcs.optimum.x, 3]
+            color: colors.supply
+            show: calcs.save
+            label:
+              text: s
+        - Arrow:
+            begin: [params.m1,3]
+            end: [calcs.optimum.x, 3]
+            color: colors.demand
+            show: calcs.borrow
+            label:
+              text: b
+    bottomLeftGraph:
+      xAxis:
+        title: Demand for Borrowing
+        orient: bottom
+        max: 10
+      yAxis:
+        title: Interest Rate ($r$)
+        orient: left
+        max: 1
+      objects:
+        - Curve:
+            fn: (1/(1+params.beta))*(-params.beta*params.m1 + params.m2/(1 + (y)))
+            ind: y
+
+        - Segment:
+            a: [0, calcs.cutoffPrice]
+            b: [0,20]
+            color: colors.demand
+            strokeWidth: 4
+        - Segment:
+            a: [0, params.r]
+            b: [10, params.r]
+            color: colors.budget
+            drag:
+              - vertical: r
+            label:
+              text: r
+              location: 0.05
+        - Point:
+            coordinates:
+              - max(calcs.optimum.x - params.m1, 0)
+              - params.r
+            label:
+              text: b^*(r)
+            color: colors.demand
+            droplines:
+              vertical: "(Math.max(calcs.optimum.x - params.m1, 0)).toFixed(2)"
+            drag:
+              - vertical: r
+    bottomRightGraph:
+      xAxis:
+        title: Supply of Savings
+        orient: bottom
+        max: 10
+      yAxis:
+        orient: left
+        min: 0
+        max: 1
+      objects:
+        - Curve:
+            fn: params.m1 - (1/(1+params.beta))*(params.m1 + params.m2/(1 + (y)))
+            ind: y
+            color: supply
+        - Segment:
+            a: [0, calcs.cutoffPrice]
+            b: [0,0]
+            color: colors.supply
+            strokeWidth: 4
+        - Segment:
+            a: [0, params.r]
+            b: [10, params.r]
+            color: colors.budget
+            drag:
+              - vertical: r
+            label:
+              text: r
+              location: 0.05
+        - Point:
+            coordinates:
+              - max(params.m1 - calcs.optimum.x, 0)
+              - params.r
+            label:
+              text: s^*(r)
+              position: tl
+            color: colors.supply
+            droplines:
+              vertical: "(math.max(params.m1 - calcs.optimum.x, 0)).toFixed(2)"
+            drag:
+              - vertical: p1
+
+    sidebar:
+      controls:
+        - title: Demand for borrowing and supply of saving
+          description: Change the endwoment income stream by dragging point E, or change the interest rate and "patience parameter" using the sliders.
+          sliders:
+            - param: r
+              label: r
+            - param: beta
+              label: \beta
+          divs:
+            - html: "`When the interest rate is $\\\\color{${colors.budget}}{r = ${(params.r).toFixed(2)}}$, this agent wants to  $\\\\color{${colors.supply}}\\\\text{save ${(params.m1 - calcs.optimum.x).toFixed(2)}}$.`"
+              show: calcs.save
+            - html: "`When the interest rate is $\\\\color{${colors.budget}}{r = ${(params.r).toFixed(2)}}$, this agent wants to $\\\\color{${colors.demand}}\\\\text{borrow ${(calcs.optimum.x - params.m1).toFixed(2)}}$.`"
+              show: calcs.borrow
+            - html: "`When $\\\\color{${colors.budget}}{p_1 = ${(1 + params.r).toFixed(0)}}$, this agent is already at their optimal bundle, so they want to neither $\\\\color{${colors.demand}}\\\\text{borrow}$ nor $\\\\color{${colors.supply}}\\\\text{save}$.`"
+              show: calcs.hold

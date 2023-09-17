@@ -1,0 +1,195 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: beta
+    value: 1
+    min: 0.01
+    max: 1
+    round: "0.01"
+  - name: r
+    value: 0.2
+    min: 0
+    max: 1
+    round: 0.01
+  - name: m1
+    value: "30"
+    min: "0"
+    max: "100"
+    round: "1"
+  - name: m2
+    value: "24"
+    min: "0"
+    max: "50"
+    round: "1"
+  - name: showIndW
+    value: false
+  - name: showBorrowSave
+    value: false
+  - name: showExplanation
+    value: false
+calcs:
+  cutoffInterestRate: (calcs.endowmentBundle.mrs-1)
+  presentValue: (params.m1 + params.m2/(1 + params.r))
+  futureValue: (params.m1*(1 + params.r) + params.m2)
+  realInterestRate: ((1 + params.r)/(1 + params.pi) - 1)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Dollars in Period 1
+        orient: bottom
+        min: 0
+        max: 60
+      yAxis:
+        title: Dollars in Period 2
+        orient: left
+        min: 0
+        max: 60
+      objects:
+        - type: EconBundle
+          def:
+            name: endowmentBundle
+            coordinates:
+              - params.m1
+              - params.m2
+            droplines:
+              vertical: m_1
+              horizontal: m_2
+            color: gray
+            label:
+              text: \text{Endowment}
+              position: tr
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - 1
+                  - params.beta
+            drag:
+              - directions: x
+                param: m1
+                expression: params.m1 + drag.dx
+              - directions: "y"
+                param: m2
+                expression: params.m2 + drag.dy
+            indifferenceCurve:
+              label:
+                text: ""
+              color: colors.endowment
+              show: params.showIndW
+        - type: EconOptimalBundle
+          def:
+            name: optimum
+            label:
+              text: X
+            droplines:
+              vertical: c_1^*
+              horizontal: c_2^*
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - 1
+                  - params.beta
+            color: colors.utility
+            budgetLine:
+              p1: 1 + params.r
+              p2: 1
+              x: params.m1
+              "y": params.m2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+            indifferenceCurve: {}
+        - type: Segment
+          def:
+            a:
+              - params.m1
+              - 10
+            b:
+              - calcs.optimum.x
+              - 10
+            endArrow: true
+            color: colors.supply
+            label:
+              text: '`\\text{Save ${(params.m1-calcs.optimum.x).toFixed(2)}}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.optimum.x < params.m1))
+        - type: Segment
+          def:
+            a:
+              - params.m1
+              - 10
+            b:
+              - calcs.optimum.x
+              - 10
+            endArrow: true
+            color: colors.demand
+            label:
+              text: '`\\text{Borrow ${(calcs.optimum.x-params.m1).toFixed(2)}}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.optimum.x > params.m1))
+        - type: Segment
+          def:
+            a:
+              - 10
+              - params.m2
+            b:
+              - 10
+              - calcs.optimum.y
+            endArrow: true
+            color: colors.supply
+            label:
+              text: '`\\text{Repay ${(params.m2-calcs.optimum.y).toFixed(2)}}`'
+              location: 0.5
+              xPixelOffset: -15
+              align: right
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.optimum.x > params.m1))
+        - type: Segment
+          def:
+            a:
+              - 10
+              - params.m2
+            b:
+              - 10
+              - calcs.optimum.y
+            endArrow: true
+            color: colors.demand
+            label:
+              text: '`\\text{Grows to ${(calcs.optimum.y-params.m2).toFixed(2)}}`'
+              location: 0.5
+              xPixelOffset: -15
+              align: right
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.optimum.x < params.m1))
+    sidebar:
+      controls:
+        - title: Preference Parameters
+          sliders:
+            - param: beta
+              label: \beta
+          divs:
+            - html: '`$$u(c_1,c_2) = \\ln c_1 + \\beta \\ln c_2 = \\ln c_1 + {${params.beta.toFixed(2)}}\\ln c_2$$`'
+        - title: Budget Parameters
+          sliders:
+            - param: r
+              label: r
+        - title: Options
+          checkboxes:
+            - param: showIndW
+              label: \text{Show indifference curve through endowment}
+            - param: showBorrowSave
+              label: \text{Show borrow/save amounts}
+          divs:
+            - html: '`<hr/>You start with an endowment of $\\color{${colors.endowment}}{m_1 = ${params.m1.toFixed(0)}}$ dollars in period 1 and $\\color{${colors.endowment}}{\\omega_2 = ${params.m2.toFixed(0)}}$ dollars in period 2. At an interest rate of $p_2 = ${(params.r*100).toFixed(0)}$%, this has a present value of $$\\color{${colors.budget}}{PV = m_1 + \\frac{m_2}{1+r} \\approx ${calcs.presentValue}}$$`'
+              show: params.showExplanation
+            - html: '`With this Cobb-Douglas utility function, your <b>gross demands</b> for goods 1 and 2 are $$\\color{${colors.utility}}{x_1^* = \\frac{\\alpha m}{p_1}  \\approx \\frac{${params.a.toFixed(2)} \\times ${calcs.wealth.toFixed(0)}}{${params.p1.toFixed(2)}}  \\approx ${calcs.optimum.x.toFixed(0)}}$$ $$\\color{${colors.utility}}{x_2^* = \\frac{(1 - \\alpha) m}{p_1}  \\approx \\frac{${(1-params.a).toFixed(2)} \\times ${calcs.wealth.toFixed(0)}}{${params.p2.toFixed(2)}}  \\approx ${calcs.optimum.y.toFixed(0)}}$$`'
+              show: params.showExplanation
+            - html: '`Since $x_1^* > \\omega_1$ and $x_2^* < \\omega_2$, you want to buy good 1 and sell good 2: that is, your <b>net demand</b> for good 1 $$\\color{${colors.demand}}{d_1 = x_1^* - \\omega_1 \\approx ${calcs.optimum.x.toFixed(0)} - ${params.m1.toFixed(0)} \\approx ${(calcs.optimum.x - params.m1).toFixed(0)}}$$ and your <b>net supply</b> of good 2 is $$\\color{${colors.supply}}{s_2 = \\omega_2 - x_2^* \\approx ${params.m2.toFixed(0)} - ${calcs.optimum.y.toFixed(0)} \\approx ${(params.m2 - calcs.optimum.y).toFixed(0)}}$$`'
+              show: (params.showExplanation && (params.p1 < calcs.cutoffPrice))
+            - html: '`Since $x_1^* < \\omega_1$ and $x_2^* > \\omega_2$, you want to sell good 1 and buy good 2: that is, your <b>net supply</b> of good 1 $$\\color{${colors.supply}}{s_1 = \\omega_1 - x_1^* \\approx ${params.m1.toFixed(0)} - ${calcs.optimum.x.toFixed(0)} \\approx ${(params.m1 - calcs.optimum.x).toFixed(0)}}$$ and your <b>net demand</b> for good 2 is $$\\color{${colors.demand}}{d_2 = x_2^* - \\omega_2 \\approx ${calcs.optimum.y.toFixed(0)} - ${params.m2.toFixed(0)}\\approx ${(calcs.optimum.y - params.m2).toFixed(0)}}$$`'
+              show: (params.showExplanation && (params.p1 > calcs.cutoffPrice))

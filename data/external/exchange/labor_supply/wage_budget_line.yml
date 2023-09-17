@@ -1,0 +1,134 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: a
+  value: '0.5'
+  min: '0.01'
+  max: '0.99'
+  round: '0.01'
+- name: w
+  value: '10'
+  min: '0.1'
+  max: '50'
+  round: '0.01'
+- name: M
+  value: '60'
+  min: '0'
+  max: '250'
+  round: '10'
+- name: L
+  value: 10
+  max: 24
+  round: 1
+- name: showBuySell
+  value: true
+calcs:
+  wealth: 24*params.w + params.M
+  consumptionEndowment: params.M
+  leisure: (24 - params.L)
+  consumption: (params.M + params.w*params.L)
+  wageIncome: params.w*params.L
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Hours of Leisure
+        orient: bottom
+        min: 0
+        max: 24
+        ticks: 8
+      yAxis:
+        title: Consumption (Dollars)
+        orient: left
+        min: 0
+        max: 500
+      objects:
+      - EconBudgetLine:
+          x: 24
+          y: params.M
+          p1: params.w
+          p2: 1
+      - Point:
+          coordinates: [calcs.leisure, calcs.consumption]
+          droplines:
+            vertical:
+            horizontal:
+          drag:
+            - directions: x
+              param: L
+              expression: params.L - drag.dx
+
+      - type: EconBundle
+        def:
+          name: endowmentBundle
+          coordinates:
+          - 24
+          - calcs.consumptionEndowment
+          droplines:
+            vertical: '24'
+            horizontal: M
+          color: endowment
+          label:
+            text: \text{Endowment}
+          drag:
+          - vertical: M
+
+      - type: Segment
+        def:
+          a:
+          - 24
+          - params.M*0.5
+          b:
+          - calcs.leisure
+          - params.M*0.5
+          endArrow: true
+          color: colors.supply
+          label:
+            text: "`\\\\text{Work ${params.L} hours}`"
+            location: 0.5
+            yPixelOffset: -15
+      - type: Segment
+        def:
+          a:
+          - 0
+          - params.M*0.5
+          b:
+          - calcs.leisure
+          - params.M*0.5
+          endArrow: true
+          color: colors.demand
+          label:
+            text: "`\\\\text{Enjoy ${calcs.leisure} hours
+              of leisure}`"
+            location: 0.5
+            yPixelOffset: -15
+      - type: Segment
+        def:
+          a:
+          - calcs.leisure * 0.5
+          - calcs.consumptionEndowment
+          b:
+          - calcs.leisure * 0.5
+          - calcs.consumption
+          endArrow: true
+          color: colors.demand
+          label:
+            text: "`\\\\text{Earn \\\\$${calcs.wageIncome.toFixed(0)}}`"
+            location: 0.5
+            xPixelOffset: -15
+            align: right
+    sidebar:
+      controls:
+      - title: The Wage Budget Line
+        description: The budget line for a worker who can choose how many hours to work at a constant wage
+        sliders:
+        - param: w
+          label: w
+        - param: M
+          label: M
+        - param: L
+          label: L
+

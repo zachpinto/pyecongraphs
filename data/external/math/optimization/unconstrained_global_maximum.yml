@@ -1,0 +1,148 @@
+params:
+  - name: showMin
+    value: true
+  - name: showMax
+    value: true
+  - name: x
+    value: 1
+    min: 0
+    max: 5
+    round: 0.01
+calcs:
+  y: (16 + 8*params.x - 2*params.x*params.x)
+  dydx: (8 - 4*params.x)
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        min: 0
+        max: 6
+      yAxis:
+        min: -10
+        max: 30
+      objects:
+
+        # Graph labels
+        - Label:
+            coordinates: [ 0,30 ]
+            text: y
+            position: b
+
+        - Label:
+            coordinates: [ 6,0 ]
+            text: x
+            position: r
+
+        # Function
+        - Curve:
+            fn: (16 + 8*(x) - 2*(x)*(x))
+            color: purple
+            label:
+              text: f(x)
+              x: 5.5
+
+        # Critical Points
+        - Point:
+            coordinates: [ 2,24 ]
+            r: 3
+            color: grey
+            droplines:
+              vertical:
+
+        # Point
+        - Point:
+            coordinates: [ params.x, calcs.y ]
+            color: purple
+            r: 4
+            droplines:
+              vertical: params.x.toFixed(2)
+            drag:
+              - horizontal: x
+
+          # Line
+        - Line:
+            point: [ params.x, calcs.y ]
+            min: params.x - 0.5
+            max: params.x + 0.5
+            label:
+              text: "`f^\\\\prime(x) = ${calcs.dydx.toFixed(2)}`"
+              x: params.x - 0.5
+              position: l
+            slope: calcs.dydx
+            color: blue
+            drag:
+              - horizontal: x
+
+
+
+    bottomGraph:
+      xAxis:
+        min: 0
+        max: 6
+      yAxis:
+        min: -15
+        max: 10
+      objects:
+
+        # Graph labels
+        - Label:
+            coordinates: [ 0,10 ]
+            text: \frac{dy}{dx}
+            position: b
+
+        - Label:
+            coordinates: [ 6,0 ]
+            text: x
+            position: r
+
+        # Derivative
+        - Line:
+            yIntercept: 8
+            slope: -4
+            color: blue
+            label:
+              text: f^\prime(x)
+              x: 5.5
+
+        - Point:
+            coordinates: [ -1,0 ]
+            r: 3
+            color: grey
+            droplines:
+              vertical:
+
+        - Point:
+            coordinates: [ 1,0 ]
+            r: 3
+            color: grey
+            droplines:
+              vertical:
+
+        - Point:
+            coordinates: [ 2,0 ]
+            r: 3
+            color: grey
+            droplines:
+              vertical:
+
+        # Point
+        - Point:
+            coordinates: [ params.x, calcs.dydx ]
+            r: 4
+            droplines:
+              horizontal: calcs.dydx.toFixed(2)
+              vertical: params.x.toFixed(2)
+            drag:
+              - horizontal: x
+
+
+    sidebar:
+      controls:
+        - title: derivative of a univariate function
+          description: At each of the critical points, the derivative of the function is equal to zero.
+          sliders:
+            - param: x
+              label: x
+          divs:
+            - html: "`$$\\\\color{${colors.purple}}{f(x) = 16+8x-2x^2 = ${calcs.y.toFixed(2)}}$$`"
+            - html: "`$$\\\\color{${colors.blue}}{f^\\\\prime(x) = 8-4x = ${calcs.dydx.toFixed(2)}}$$`"

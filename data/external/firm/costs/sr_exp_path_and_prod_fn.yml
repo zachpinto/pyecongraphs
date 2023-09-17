@@ -1,0 +1,152 @@
+schema: EconSchema
+params:
+- {name: w, value: 8, min: 1, max: 10, round: 0.01}
+- {name: r, value: 2, min: 1, max: 10, round: 0.01}
+- {name: K, value: 32, min: 24, max: 48, round: 1}
+calcs:
+  L1: (16*16/params.K)
+  L2: (32*32/params.K)
+  L3: (48*48/params.K)
+  fnLabel: (min((55*55/params.K),100))
+layout:
+  TwoVerticalGraphsPlusSidebar:
+    topGraph:
+      xAxis:
+        max: 100
+        ticks: 0
+        title: Labor ($L$)
+      yAxis:
+        max: 50
+        ticks: 0
+        title: Capital ($K$)
+      objects:
+
+      - Line:
+          yIntercept: params.K
+          color: red
+          drag:
+            - vertical: K
+          label:
+            x: 100
+            text: \text{SR Expansion Path}
+
+      - EconBundle:
+          name: X3
+          color: red
+          coordinates: [calcs.L1, params.K]
+          r: 4
+          label:
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          droplines:
+            vertical: calcs.L1.toFixed(0)
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`q = 16`"
+              x: 100
+              position: r
+
+
+      - EconBundle:
+          name: X4
+          color: red
+          coordinates: [calcs.L2, params.K]
+          r: 4
+          label:
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          droplines:
+            vertical: calcs.L2.toFixed(0)
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`q = 32`"
+              x: 100
+              position: r
+
+
+      - EconBundle:
+          name: X5
+          color: red
+          coordinates: [calcs.L3, params.K]
+          r: 4
+          label:
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          droplines:
+            vertical: calcs.L3.toFixed(0)
+            horizontal: "`\\\\overline K = ${params.K.toFixed(0)}`"
+          indifferenceCurve:
+            color: blue
+            label:
+              text: "`q = 48`"
+              x: 100
+              position: r
+
+    bottomGraph:
+      xAxis:
+        max: 100
+        ticks: 0
+        title: Labor ($L$)
+      yAxis:
+        max: 60
+        ticks: 0
+        title: Output ($q$)
+      objects:
+      - Label:
+          text: "`f(L|\\\\overline{K}=${params.K})`"
+          x: calcs.fnLabel
+          y: 55
+          color: production
+          position: tl
+      - Curve:
+          fn: (sqrt((x)*params.K))
+          samplePoints: 500
+
+
+      - Point:
+          color: red
+          coordinates: [calcs.L1, 16]
+          r: 4
+          droplines:
+            vertical: calcs.L1.toFixed(0)
+            horizontal: 16
+
+
+      - Point:
+          color: red
+          coordinates: [calcs.L2, 32]
+          r: 4
+          droplines:
+            vertical: calcs.L2.toFixed(0)
+            horizontal: 32
+
+      - Point:
+          color: red
+          coordinates: [calcs.L3, 48]
+          r: 4
+          utilityFunction:
+            CobbDouglas:
+              coefficients: [1]
+              exponents: [0.5,0.5]
+            samplePoints: 500
+          droplines:
+            vertical: calcs.L3.toFixed(0)
+            horizontal: 48
+    sidebar:
+      controls:
+      - title: Short-Run Expansion Path and Production Function
+        description: "The top graph shows the isoquants for 16, 32, and 48 units of output, and the quantity of labor required to produce each. The bottom graph shows the short-run production function: output as a function of labor."
+        sliders:
+        - param: K
+          label: \overline K

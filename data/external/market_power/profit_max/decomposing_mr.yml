@@ -1,0 +1,161 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: y
+  value: 4
+  min: 1
+  max: 15
+  round: 1
+- name: dy
+  value: 1
+  min: 0.01
+  max: 2
+  round: 0.01
+calcs:
+  y2: "(params.y+params.dy)"
+layout:
+  type: TwoHorizontalGraphs
+  def:
+    leftGraph:
+      xAxis:
+        title: Output ($q$)
+        orient: bottom
+        min: 0
+        max: 20
+        ticks: 2
+      yAxis:
+        title: Total Revenue (Dollars)
+        orient: left
+        min: 0
+        max: 120
+        ticks: 0
+      objects:
+      - type: Curve
+        def:
+          univariateFunction:
+            fn: "((calcs.demand.yIntercept + calcs.demand.slope*(x))*(x))"
+            max: calcs.demand.xIntercept
+          color: colors.demand
+          label:
+            text: r(q)
+            x: 18
+      - type: Line
+        def:
+          point:
+          - params.y
+          - "((calcs.demand.yIntercept + calcs.demand.slope*params.y)*params.y)"
+          point2:
+          - calcs.y2
+          - "((calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)*calcs.y2)"
+          color: colors.marginalRevenue
+      - type: Point
+        def:
+          coordinates:
+          - params.y
+          - "((calcs.demand.yIntercept + calcs.demand.slope*params.y)*params.y)"
+          drag:
+          - directions: x
+            param: y
+            expression: params.y + drag.dx
+          color: colors.demand
+          droplines:
+            vertical: params.y.toFixed(0)
+            horizontal: "((calcs.demand.yIntercept + calcs.demand.slope*params.y)*params.y).toFixed(0)"
+      - type: Point
+        def:
+          coordinates:
+          - calcs.y2
+          - "((calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)*calcs.y2)"
+          drag:
+          - directions: x
+            param: dy
+            expression: drag.x - params.y
+          color: colors.demand
+          droplines:
+            vertical: calcs.y2.toFixed(0)
+            horizontal: "((calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)*calcs.y2).toFixed(0)"
+    rightGraph:
+      xAxis:
+        title: Output ($q$)
+        orient: bottom
+        min: 0
+        max: 20
+        ticks: 1
+      yAxis:
+        title: Price (Dollars per unit)
+        orient: left
+        min: 0
+        max: 20
+        ticks: 1
+      objects:
+      - type: EconLinearDemand
+        def:
+          name: demand
+          xIntercept: 20
+          invSlope: -1
+          label:
+            text: "'p(q) = 20 - q'"
+            x: 19
+          handles: false
+          draggable: false
+      - type: Rectangle
+        def:
+          a:
+          - 0
+          - 0
+          b:
+          - params.y
+          - "(calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)"
+          color: gray
+          label:
+            text: "\\text{unchanged}\\\\ \\text{revenue}"
+      - type: Rectangle
+        def:
+          a:
+          - 0
+          - "(calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)"
+          b:
+          - params.y
+          - "(calcs.demand.yIntercept + calcs.demand.slope*params.y)"
+          color: colors.loss
+          label:
+            text: "\\text{lost revenue}"
+      - type: Rectangle
+        def:
+          a:
+          - params.y
+          - 0
+          b:
+          - calcs.y2
+          - "(calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)"
+          color: colors.profit
+          label:
+            text: "\\text{new revenue}"
+            rotate: 90
+      - type: Point
+        def:
+          coordinates:
+          - params.y
+          - "(calcs.demand.yIntercept + calcs.demand.slope*params.y)"
+          drag:
+          - directions: x
+            param: y
+            expression: params.y + drag.dx
+          color: colors.demand
+          droplines:
+            vertical: params.y.toFixed(0)
+            horizontal: "(calcs.demand.yIntercept + calcs.demand.slope*params.y).toFixed(0)"
+      - type: Point
+        def:
+          coordinates:
+          - calcs.y2
+          - "(calcs.demand.yIntercept + calcs.demand.slope*calcs.y2)"
+          drag:
+          - directions: x
+            param: dy
+            expression: drag.x - params.y
+          color: colors.demand
+          droplines:
+            vertical: calcs.y2.toFixed(0)
+            horizontal: "(calcs.demand.yIntercept + calcs.demand.slope*calcs.y2).toFixed(0)"

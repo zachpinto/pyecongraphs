@@ -1,0 +1,212 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: demandIntercept
+  value: 80
+  min: 20
+  max: 100
+  round: 1
+- name: demandSlope
+  value: 2
+  min: 1
+  max: 5
+  round: 0.1
+- name: a
+  value: 0.8
+  min: 0
+  max: 1
+  round: 0.01
+- name: showRegions
+  value: false
+calcs:
+  p: "(params.a*params.demandIntercept/params.demandSlope)"
+  q: "(params.demandIntercept*(1-params.a))"
+  price: "(params.a*params.demandIntercept/params.demandSlope)"
+  quantity: "(params.demandIntercept*(1-params.a))"
+  e: "(params.demandSlope*calcs.price/calcs.quantity)"
+layout:
+  type: OneWideGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Quantity
+        orient: bottom
+        min: 0
+        max: 110
+        ticks: 0
+      yAxis:
+        title: Price
+        orient: left
+        min: 0
+        max: 55
+        ticks: 0
+      objects:
+      - type: EconLinearDemand
+        def:
+          name: demand
+          xIntercept: params.demandIntercept
+          invSlope: "-params.demandSlope"
+          label:
+            text: "`Q = ${params.demandIntercept} - ${(params.demandSlope == 1) ?
+              '' : params.demandSlope.toFixed(1)}P`"
+            x: "(0.9*params.demandIntercept)"
+            align: left
+            xPixelOffset: 15
+            show: "!params.showRegions"
+          handles: true
+          draggable: false
+          strokeWidth: 4
+          xInterceptLabel: "`a = ${params.demandIntercept}`"
+          yInterceptLabel: "`\\\\frac{a}{b} = ${calcs.demand.yIntercept.toFixed(2)}`"
+      - type: Point
+        def:
+          color: colors.grey
+          coordinates:
+          - "(0.5*calcs.demand.xIntercept)"
+          - "(0.5*calcs.demand.yIntercept)"
+          droplines:
+            vertical: "`\\\\frac{a}{2} = ${0.5*calcs.demand.xIntercept}`"
+            horizontal: "`\\\\frac{a}{2b} = ${(0.5*calcs.demand.yIntercept).toFixed(2)}`"
+          r: 4
+          show: params.showRegions
+      - type: Point
+        def:
+          color: colors.grey
+          coordinates:
+          - 100
+          - calcs.p
+          r: 0
+          droplines:
+            horizontal: "`P = ${calcs.price.toFixed(2)}`"
+          drag:
+          - directions: y
+            param: a
+            expression: drag.y/calcs.demand.yIntercept
+      - type: Point
+        def:
+          color: colors.demand
+          coordinates:
+          - calcs.q
+          - calcs.p
+          lineStyle: dotted
+          droplines:
+            vertical: "`Q = ${calcs.quantity.toFixed(2)}`"
+          drag:
+          - directions: y
+            param: a
+            expression: "(drag.y/calcs.demand.yIntercept)"
+      - type: Segment
+        def:
+          a:
+          - params.demandIntercept
+          - 0
+          b:
+          - "(0.5*params.demandIntercept)"
+          - "(0.5*calcs.demand.yIntercept)"
+          color: colors.red
+          startArrow: true
+          endArrow: true
+          label:
+            text: "\\text{Inelastic Region}"
+          show: params.showRegions
+      - type: Segment
+        def:
+          a:
+          - 0
+          - calcs.demand.yIntercept
+          b:
+          - "(0.5*params.demandIntercept)"
+          - "(0.5*calcs.demand.yIntercept)"
+          color: colors.green
+          startArrow: true
+          endArrow: true
+          label:
+            text: "\\text{Elastic Region}"
+          show: params.showRegions
+      - type: Segment
+        def:
+          a:
+          - "(0.5*params.demandIntercept+5)"
+          - "(0.5*calcs.demand.yIntercept+5)"
+          b:
+          - "(0.5*params.demandIntercept+1)"
+          - "(0.5*calcs.demand.yIntercept+1)"
+          color: colors.grey
+          endArrow: true
+          label:
+            text: "\\text{Unit Elastic}"
+            location: '1'
+            position: bl
+          show: params.showRegions
+      - type: Segment
+        def:
+          a:
+          - params.demandIntercept + 5
+          - 5
+          b:
+          - params.demandIntercept + 1
+          - 1
+          color: colors.red
+          endArrow: true
+          label:
+            text: "\\text{Perfectly Inlastic}"
+            location: '1'
+            position: bl
+          show: params.showRegions
+      - type: Segment
+        def:
+          a:
+          - 5
+          - calcs.demand.yIntercept + 5
+          b:
+          - 1
+          - calcs.demand.yIntercept + 1
+          color: colors.green
+          endArrow: true
+          label:
+            text: "\\text{Perfectly Elastic}"
+            location: '1'
+            position: bl
+          show: params.showRegions
+    sidebar:
+      controls:
+      - title: Elasticity along a Linear Demand Curve
+        description: Use the sliders to change its x-intercept and slope; drag the
+          price line up and down to see how elasticity changes along the demand curve.
+        checkboxes:
+        - param: showRegions
+          label: "\\text{Show regions of elasticity}"
+        sliders:
+        - param: demandIntercept
+          label: a
+        - param: demandSlope
+          label: b
+    explanation:
+      divs:
+      - html: This demand curve has the equation
+      - html: "`$$\\\\begin{aligned}Q &= a - bP \\\\\\\\&= ${params.demandIntercept}
+          - ${(params.demandSlope == 1) ? '' : params.demandSlope.toFixed(1)}P\\\\end{aligned}$$`"
+      - html: "`Therefore, a \\$1 increase in price leads to a ${params.demandSlope.toFixed(1)}-unit
+          decrease in quantity: $$\\\\frac{\\\\Delta Q}{\\\\Delta P} = -b = -${params.demandSlope.toFixed(1)}$$`"
+      - html: "`So at the point $(Q = ${calcs.quantity.toFixed(2)}, P = ${calcs.price.toFixed(2)})$,
+          the elasticity is`"
+      - html: "`$$\\\\begin{aligned}\\\\epsilon_{Q,P} &= \\\\frac{\\\\Delta Q}{\\\\Delta
+          P}\\\\times \\\\frac{P}{Q}\\\\\\\\&=-${params.demandSlope.toFixed(2)}\\\\times
+          \\\\frac{${calcs.price.toFixed(2)}}{${calcs.quantity.toFixed(2)}}\\\\\\\\&
+          = -${(params.a == 1 ? '\\\\infty' : calcs.e.toFixed(2))}\\\\end{aligned}$$`"
+      - html: Since $|\epsilon| = 0$, we say that demand is <strong>perfectly inelastic</strong>
+          at this point.
+        show: "(params.a == 0)"
+      - html: Since $|\epsilon| < 1$, we say that demand is <strong>inelastic</strong>
+          at this point.
+        show: "(params.a > 0 && params.a < 0.5)"
+      - html: Since $|\epsilon| = 1$, we say that demand is <strong>unit elastic</strong>
+          at this point.
+        show: "(params.a == 0.5)"
+      - html: Since $|\epsilon| > 1$, we say that demand is <strong>elastic</strong>
+          at this point.
+        show: "(params.a > 0.5 && params.a < 1)"
+      - html: Since $|\epsilon| = -\infty$, we say that demand is <strong>perfectly
+          elastic</strong> at this point.
+        show: "(params.a == 1)"

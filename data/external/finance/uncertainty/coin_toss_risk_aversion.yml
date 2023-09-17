@@ -1,0 +1,124 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: r
+  value: '0.5'
+  min: '0.25'
+  max: '2'
+  round: '0.01'
+calcs:
+  u1: "(100^params.r)"
+  UEC: "(250^params.r)"
+  u2: "(400^params.r)"
+  EU: "(0.5*(100^params.r)+(1-0.5)*(400^params.r))"
+  EC: "(0.5*100 + (1-0.5)*400)"
+  CE: "((0.5*(100^params.r)+(1-0.5)*(400^params.r))^(1/params.r))"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Consumption
+        orient: bottom
+        min: 0
+        max: 500
+        ticks: 0
+      yAxis:
+        title: Utility
+        orient: left
+        min: 0
+        max: "(500^params.r)"
+        ticks: 0
+      objects:
+      - type: Curve
+        def:
+          univariateFunction:
+            fn: "(x)^params.r"
+          samplePoints: 500
+          label:
+            text: u(c)
+            x: 450
+          color: colors.utility
+      - type: Point
+        def:
+          coordinates:
+          - '100'
+          - calcs.u1
+          color: colors.red
+          droplines:
+            vertical: '100'
+            horizontal: u(100)
+      - type: Point
+        def:
+          coordinates:
+          - '400'
+          - calcs.u2
+          color: colors.green
+          droplines:
+            vertical: '400'
+            horizontal: u(400)
+      - type: Point
+        def:
+          coordinates:
+          - calcs.EC
+          - calcs.UEC
+          color: colors.endowment
+          droplines:
+            vertical: '250'
+            horizontal: u(250)
+      - type: Segment
+        def:
+          a:
+          - 50
+          - "(calcs.UEC*1.01)"
+          b:
+          - 50
+          - "(calcs.u2*0.99)"
+          endArrow: true
+          color: colors.green
+          label:
+            text: "\\text{Utility gain if win}"
+      - type: Segment
+        def:
+          a:
+          - 50
+          - "(calcs.UEC*0.99)"
+          b:
+          - 50
+          - "(calcs.u1*1.01)"
+          endArrow: true
+          color: colors.red
+          label:
+            text: "\\text{Utility loss if lose}"
+    sidebar:
+      controls:
+      - title: Utility from a Bet
+        sliders:
+        - param: r
+          label: r
+        divs:
+        - html: "`$$\\\\textcolor{${colors.utility}}{u(c) = c^r = c^{${params.r.toFixed(2)}}}$$
+            $$\\\\textcolor{${colors.green}}{u(400) - u(250) = ${calcs.u2.toFixed(1)}
+            - ${calcs.UEC.toFixed(1)} = ${(calcs.u2 - calcs.UEC).toFixed(1)}}$$ $$\\\\textcolor{${colors.red}}{u(250)
+            - u(100) = ${calcs.UEC.toFixed(1)} - ${calcs.u1.toFixed(1)} = ${(calcs.UEC
+            - calcs.u1).toFixed(1)}}$$`"
+        - html: 'When $r < 1$, the function exhibits <b>diminishing marginal utility</b>:
+            that is, as you get more money, each additional dollar brings you less
+            additional utility.<br/><br/>Therefore the utility gain you get from winning
+            is less than the utility loss from losing, so it''s better to <b>not take</b>
+            the bet.'
+          show: params.r < 1
+        - html: 'When $r > 1$, the function exhibits <b>increasing marginal utility</b>:
+            that is, as you get more money, each additional dollar brings you more
+            additional utility.<br/><br/>Therefore the utility gain you get from winning
+            is more than the utility loss from losing, so it''s better to <b>take</b>
+            the bet.'
+          show: params.r > 1
+        - html: 'When $r = 1$, the function exhibits <b>constant marginal utility</b>:
+            that is, as you get more money, each additional dollar brings you the
+            same additional utility.<br/><br/>Therefore the utility gain you get from
+            winning is equal to the utility loss from losing, so you''re <b>indifferent</b>
+            between taking the bet and not taking it.'
+          show: params.r == 1

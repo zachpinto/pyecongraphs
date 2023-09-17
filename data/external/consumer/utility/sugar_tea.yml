@@ -1,0 +1,150 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 16
+    min: 0
+    max: 40
+    round: 1
+  - name: x2
+    value: 16
+    min: 0
+    max: 40
+    round: 1
+  - name: showRidge
+    value: false
+calcs:
+  u: (min(0.5*params.x1, 0.125*params.x2))
+  x1base: (2*calcs.u)
+  x2base: (8*calcs.u)
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 40
+        ticks: 4
+        title: Sugar
+      yAxis:
+        min: 0
+        max: 40
+        ticks: 4
+        title: Tea
+      zAxis:
+        min: 0
+        max: 5
+        ticks: 5
+        title: Utility
+      objects:
+        - Plane:
+            z: calcs.u
+            fill: blue
+            opacity: 0.5
+        - FunctionSurface:
+            fn:
+              fn: 0.5*(x)
+              samplePoints: 200
+              domainCondition: (4*(x)<=(y))
+            shaded: true
+            fill: purple
+            opacity: 0.4
+        - FunctionSurface:
+            fn:
+              fn: 0.125*(y)
+              samplePoints: 200
+              domainCondition: (4*(x)>=(y))
+            shaded: true
+            fill: purple
+            opacity: 0.4
+        - Line:
+            x1: 0
+            x2: 10
+            y1: 0
+            y2: 40
+            z1: 0
+            z2: 5
+            strokeWidth: 10
+            stroke: orange
+            show: params.showRidge
+        - Line:
+            x1: calcs.x1base
+            x2: calcs.x1base
+            y1: calcs.x2base
+            y2: 40
+            z1: calcs.u
+            z2: calcs.u
+            strokeWidth: 10
+            stroke: utility
+        - Line:
+            x1: calcs.x1base
+            x2: 40
+            y1: calcs.x2base
+            y2: calcs.x2base
+            z1: calcs.u
+            z2: calcs.u
+            strokeWidth: 10
+            stroke: utility
+        - MathboxPoint:
+            x: params.x1
+            y: params.x2
+            z: calcs.u
+            droplines: true
+
+
+    graph:
+      xAxis:
+        max: 40
+        ticks: 4
+        title: Sugar (Cubes)
+      yAxis:
+        max: 40
+        ticks: 4
+        title: Tea (Ounces)
+      objects:
+        - Line:
+            slope: 4
+            show: params.showRidge
+            ind: y
+            label:
+              text: "`{x_1 \\\\over 2} = {x_2 \\\\over 8}`"
+              y: 40
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectComplements:
+                coefficients: [0.5, 0.125]
+            levels: [ 1,2,3,4]
+        - EconBundle:
+            coordinates: [ params.x1, params.x2 ]
+            color: blue
+            r: 4
+            label:
+              text:
+            droplines:
+              vertical: params.x1
+              horizontal: params.x2
+            utilityFunction:
+              PerfectComplements:
+                coefficients: [0.5, 0.125]
+            drag:
+              - horizontal: x1
+              - vertical: x2
+            indifferenceCurve:
+              label:
+                text: "`u(x_1,x_2) = ${calcs.u.toFixed(1)}`"
+                x: 30
+
+
+    sidebar:
+      controls:
+        - title: Preferences over Tea and Sugar
+          checkboxes:
+            - param: showRidge
+              label: \text{Show âridge conditionâ at $x_1/2 = x_2/8$}
+          divs:
+            - html: "`${params.x1} cubes of sugar and ${params.x2} ounces of tea can make $$u(${params.x1}, ${params.x2}) = ${calcs.u.toFixed(2)}$$ cups of tea, using ${calcs.x1base.toFixed(2)} cubes of sugar and ${calcs.x2base.toFixed(2)} ounces of tea.`"
+            - html: "`Because there is extra sugar $(x_1 > ${calcs.x1base.toFixed(2)})$, having even more sugar would not raise utility $(MU_1 = 0)$; so the indifference curve is horizontal at this point.`"
+              show: (params.x1 > calcs.x1base)
+            - html: "`Because there is extra tea $(x_2 > ${calcs.x2base.toFixed(2)})$, having even more tea would not raise utility $(MU_2 = 0)$; so the indifference curve is vertical at this point.`"
+              show: (params.x2 > calcs.x2base)

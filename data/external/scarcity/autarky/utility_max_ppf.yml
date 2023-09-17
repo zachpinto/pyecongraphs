@@ -1,0 +1,138 @@
+{
+  "schema": "EconSchema",
+  "version": 1,
+  "params": [
+    {
+      "name": "p",
+      "value": 1,
+      "min": 0.5,
+      "max": 2,
+      "round": 0.01
+    },
+    {
+      "name": "a",
+      "value": 0.65,
+      "min": 0.01,
+      "max": 0.99,
+      "round": 0.01
+    },
+    {
+      "name": "b",
+      "value": 0.5,
+      "min": 0.3,
+      "max": 1,
+      "round": 0.01
+    },
+    {
+      "name": "max1",
+      "value": 100,
+      "min": 20,
+      "max": 140,
+      "round": 0.01
+    },
+    {
+      "name": "max2",
+      "value": 60,
+      "min": 20,
+      "max": 140,
+      "round": 0.01
+    },
+    {
+      "name": "L1",
+      "value": 40,
+      "min": 1,
+      "max": 99,
+      "round": 1
+    }
+  ],
+  "calcs": {
+    "y1": "(100*params.p/((1+params.p*params.p)^0.5))",
+    "y2": "(100/((1+params.p*params.p)^0.5))",
+    "showSurplus": "(params.p < 0.98 || params.p > 1.02)",
+    "p2": "(1/params.p)"
+  },
+  "layout": {
+    "type": "OneGraphPlusSidebar",
+    "def": {
+      "graph": {
+        "xAxis": {
+          "title": "Quantity of Good 1",
+          "orient": "bottom",
+          "min": 0,
+          "max": 150
+        },
+        "yAxis": {
+          "title": "Quantity of Good 2",
+          "orient": "left",
+          "min": 0,
+          "max": 150
+        },
+        "objects": [
+          {
+            "type": "EconPPF",
+            "def": {
+              "max1": "params.max1",
+              "max2": "params.max2",
+              "curvature": "params.b",
+              "L1": "params.L1",
+              "handles": true,
+              "draggable": true,
+              "label": {
+                "text": "PPF",
+                "t": 5
+              }
+            }
+          },
+          {
+            "type": "EconBundle",
+            "def": {
+              "coordinates": ["calcs.ppf.y1","calcs.ppf.y2"],
+              "utilityFunction": {
+                "type": "CobbDouglas",
+                "def": {
+                  "alpha": "params.a"
+                }
+              },
+              "indifferenceCurve": {
+              }
+
+            }
+          }
+
+        ]
+      },
+      "sidebar": {
+        "controls": [
+          {
+            "title": "Utility Maximization in Autarky",
+            "sliders": [
+              {
+                "param": "a",
+                "label": "\\alpha"
+              },
+              {
+                "param": "b",
+                "label": "b"
+              },
+              {
+                "param": "L1",
+                "label": "L_1"
+              }
+            ],
+            "divs": [
+              {
+                "html": "Preferences: $$u(x_1,x_2) = \\alpha x_1 + (1-\\alpha)x_2$$"
+              },
+              {
+                "html": "'Returns to scale: $$f_i(L) = A_iL^b$$'"
+              },
+              {
+                "html": "`Allocation of labor: $$L_1 = ${params.L1.toFixed(0)}, L_2 = ${(100-params.L1).toFixed(0)}$$`"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

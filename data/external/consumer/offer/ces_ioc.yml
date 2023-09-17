@@ -1,0 +1,156 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: '0.5'
+    min: '0.05'
+    max: '0.95'
+    round: '0.01'
+  - name: p
+    value: '4'
+    min: '1'
+    max: '10'
+    round: '0.1'
+  - name: q
+    value: '4'
+    min: '1'
+    max: '10'
+    round: '0.1'
+  - name: m
+    value: '160'
+    min: '0'
+    max: '400'
+    round: '1'
+  - name: r
+    value: 0.25
+    min: -4
+    max: 0.8
+    round: '0.05'
+  - name: showPOC
+    value: false
+  - { name: s, min: 0.01, max: 1.8, value: 0.5, round: 0.01 }
+restrictions:
+  - expression: params.a*params.m/params.p
+    min: '1'
+    max: '100'
+  - expression: params.m/params.q
+    min: '1'
+    max: '50'
+calcs:
+  iocSlope: ((1-params.a)*params.p/(params.a*params.q))^(1/(1-calcs.r))
+  pr: (params.p/params.q)
+  r: "(params.s < 1) ? (1 - 1/(params.s)) : (params.s - 1)"
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        max: 50
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        max: 50
+      objects:
+        - Line:
+            slope: calcs.iocSlope
+        - Line:
+            slope: 1
+            lineStyle: dotted
+            label:
+              x: 45
+              text: IOC_{p_1/p_2 = 1}
+              position: tl
+        - Label:
+            coordinates: [45, (45*calcs.iocSlope)]
+            text: "`IOC_{p_1/p_2 = ${calcs.pr.toFixed(2)}}`"
+            show: (params.p < params.q)
+            color: orange
+        - Label:
+            coordinates: [ (45/calcs.iocSlope), 45 ]
+            text: "`IOC_{p_1/p_2 = ${calcs.pr.toFixed(2)}}`"
+            show: (params.p > params.q)
+            color: orange
+
+
+        - EconPriceOfferCurve:
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: calcs.r
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+            label:
+              text: POC
+              t: 2
+            good: 1
+            min: 0.5
+            max: 30
+        - EconOptimalBundle:
+            color: demand
+            show: (calcs.r != 0)
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: calcs.r
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+              color: budget
+            label:
+              text: X^*
+            droplines:
+              vertical: x_1^*
+              horizontal: x_2^*
+        - EconOptimalBundle:
+            color: demand
+            show: (calcs.r == 0)
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                alpha: params.a
+                r: calcs.r
+            budgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+              color: budget
+            label:
+              text: X^*
+            droplines:
+              vertical: x_1^*
+              horizontal: x_2^*
+        - EconBudgetLine:
+              p1: params.p
+              p2: params.q
+              m: params.m
+              label: BL
+              draggable: true
+              handles: true
+              set: false
+    sidebar:
+      controls:
+        - title: Utility Function
+          sliders:
+            - param: s
+              label: r
+              showNumber: false
+          divs:
+            - html: "`$$r = ${calcs.r.toFixed(2)}$$`"
+            - html: "`$$u(x_1,x_2) = (x_1^r + x_2^r)^{1/r}$$`"
+        - title: Budget Parameters
+          sliders:
+            - param: p
+              label: p_1
+            - param: q
+              label: p_2
+            - param: m
+              label: m

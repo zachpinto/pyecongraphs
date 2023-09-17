@@ -1,0 +1,204 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: r
+  value: '0.5'
+  min: '0.05'
+  max: '2'
+  round: '0.01'
+- name: pi
+  value: '0.5'
+  min: '0'
+  max: '1'
+  round: '0.01'
+- name: c1
+  value: '16'
+  min: '0'
+  max: '80'
+  round: '1'
+- name: c2
+  value: '64'
+  min: '0'
+  max: '80'
+  round: '1'
+calcs:
+  u1: "(params.c1^params.r)"
+  u2: "(params.c2^params.r)"
+  EU: "(params.pi*(params.c1^params.r)+(1-params.pi)*(params.c2^params.r))"
+  EC: "(params.pi*params.c1 + (1-params.pi)*params.c2)"
+  CE: "((params.pi*(params.c1^params.r)+(1-params.pi)*(params.c2^params.r))^(1/params.r))"
+layout:
+  type: TwoHorizontalGraphsPlusSidebar
+  def:
+    leftGraph:
+      xAxis:
+        title: Consumption
+        orient: bottom
+        min: 0
+        max: 100
+        intercept: 1
+      yAxis:
+        title: Utility
+        orient: left
+        min: 1
+        max: "(100^params.r)"
+      objects:
+      - type: Curve
+        def:
+          univariateFunction:
+            fn: "(x)^params.r"
+          samplePoints: 100
+          label:
+            text: u(c)
+            x: 80
+          color: colors.utility
+      - type: Segment
+        def:
+          a:
+          - params.c1
+          - calcs.u1
+          b:
+          - params.c2
+          - calcs.u2
+          lineStyle: dotted
+          color: colors.endowment
+      - type: Point
+        def:
+          coordinates:
+          - params.c1
+          - calcs.u1
+          color: colors.red
+          droplines:
+            vertical: c_1
+            horizontal: u(c_1)
+          drag:
+          - directions: x
+            param: c1
+            expression: params.c1 + drag.dx
+      - type: Point
+        def:
+          coordinates:
+          - params.c2
+          - calcs.u2
+          color: colors.green
+          droplines:
+            vertical: c_2
+            horizontal: u(c_2)
+          drag:
+          - directions: x
+            param: c2
+            expression: params.c2 + drag.dx
+      - type: Point
+        def:
+          coordinates:
+          - calcs.EC
+          - calcs.EU
+          color: colors.endowment
+          droplines:
+            vertical: "\\mathbb{E}[c]"
+            horizontal: "\\mathbb{E}[u(c)]"
+      - type: Point
+        def:
+          coordinates:
+          - calcs.CE
+          - calcs.EU
+          color: colors.orange
+          droplines:
+            vertical: CE
+            horizontal: "\\mathbb{E}[u(c)]"
+    rightGraph:
+      xAxis:
+        title: Consumption in State of the World 1
+        orient: bottom
+        min: 0
+        max: 80
+      yAxis:
+        title: Consumption in State of the World 2
+        orient: left
+        min: 0
+        max: 80
+      objects:
+      - type: Line
+        def:
+          slope: 1
+          label:
+            location: 0.9
+            text: c_1 = c_2
+          max: 80
+          lineStyle: dotted
+      - type: Point
+        def:
+          coordinates:
+          - params.c1
+          - params.c2
+          color: colors.red
+          droplines:
+            vertical: c_1
+          drag:
+          - directions: x
+            param: c1
+            expression: params.c1 + drag.dx
+      - type: Point
+        def:
+          coordinates:
+          - params.c1
+          - params.c2
+          droplines:
+            horizontal: c_2
+          color: colors.green
+          drag:
+          - directions: y
+            param: c2
+            expression: params.c2 + drag.dy
+      - type: EconBundle
+        def:
+          name: endowmentBundle
+          coordinates:
+          - params.c1
+          - params.c2
+          droplines: {}
+          color: colors.endowment
+          label: {}
+          utilityFunction:
+            type: CES
+            def:
+              alpha: params.pi
+              r: params.r
+          drag:
+          - directions: x
+            param: c1
+            expression: params.c1 + drag.dx
+          - directions: y
+            param: c2
+            expression: params.c2 + drag.dy
+          indifferenceCurve:
+            label:
+              text: "\\mathbb{E}[u(c)]"
+            color: colors.orange
+      - type: Point
+        def:
+          coordinates:
+          - calcs.CE
+          - calcs.CE
+          droplines:
+            horizontal: CE
+            vertical: CE
+          color: colors.orange
+    sidebar:
+      controls:
+      - title: Risk Aversion and Certainty Equivalence
+        sliders:
+        - param: r
+          label: r
+        - param: pi
+          label: "\\pi"
+        divs:
+        - html: "`$$\\\\color{${colors.utility}}{u(c) = c^r = c^{${params.r.toFixed(2)}}}$$`"
+        - html: "`$$\\\\color{${colors.orange}}{\\\\begin{aligned}\\\\mathbb{E}[u(c)]
+            &= \\\\pi u(c_1) + (1-\\\\pi) u(c_2) \\\\\\\\&= ${params.pi.toFixed(2)}\\\\times${params.c1.toFixed(0)}^{${params.r.toFixed(2)}}
+            + ${(1-params.pi).toFixed(2)}\\\\times${params.c2.toFixed(0)}^{${params.r.toFixed(2)}}
+            \\\\\\\\&= ${calcs.EU.toFixed(2)}\\\\end{aligned}}$$`"
+        - html: "`$$\\\\color{${colors.orange}}{CE = ${calcs.EU.toFixed(2)}^{1/r}
+            = ${calcs.CE.toFixed(0)}}$$`"

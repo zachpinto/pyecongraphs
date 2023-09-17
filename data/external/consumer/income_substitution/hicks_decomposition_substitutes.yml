@@ -1,0 +1,202 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: a
+    value: 0.5
+    min: '0.05'
+    max: '0.95'
+    round: '0.01'
+  - name: r
+    value: 0.5
+    min: -4
+    max: 0.8
+    round: '0.05'
+  - name: p11
+    value: 2
+    min: '0.1'
+    max: '10'
+    round: '0.01'
+  - name: p12
+    value: 4
+    min: '0.1'
+    max: '10'
+    round: '0.01'
+  - name: p2
+    value: 2
+    min: '0.1'
+    max: '10'
+    round: '0.01'
+  - name: m
+    value: 36
+    min: '0'
+    max: 200
+    round: '1'
+  - name: showX
+    value: true
+  - name: showY
+    value: true
+  - name: showZ
+    value: true
+  - name: showIOC
+    value: false
+  - name: showPOC
+    value: false
+  - name: showIncEffect1
+    value: false
+  - name: showIncEffect2
+    value: false
+  - name: showSubEffect1
+    value: false
+  - name: showSubEffect2
+    value: false
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        orient: bottom
+        min: 0
+        max: 20
+        ticks: 0
+      yAxis:
+        title: Units of Good 2
+        orient: left
+        min: 0
+        max: 20
+        ticks: 0
+      objects:
+        - type: EconPriceOfferCurve
+          def:
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: 1
+              p2: params.p2
+              m: params.m
+            label:
+              text: POC
+              t: 1.1
+            good: 1
+            min: 0.5
+            max: 30
+            show: params.showPOC
+        - type: Line
+          def:
+            point:
+              - calcs.X.x
+              - calcs.X.y
+            stroke: colors.incomeOffer
+            lineStyle: dotted
+            show: params.showIOC
+            label:
+              text: "`x_2 = x_1`"
+              x: 17.5
+        - type: Line
+          def:
+            point:
+              - calcs.Y.x
+              - calcs.Y.y
+            stroke: colors.incomeOffer
+            show: params.showIOC
+            label:
+              text: "`x_2 = 4x_1`"
+              x: 4.5
+        - type: EconHicksBundle
+          def:
+            name: Y
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              color: grey
+              strokeWidth: 0.5
+              label:
+                text:
+            level: calcs.X.level
+            p1: params.p12
+            label:
+              text: B
+            droplines:
+              vertical: 4
+              horizontal: 16
+            indifferenceCurve:
+              inMap: true
+            show: params.showY
+        - type: EconOptimalBundle
+          def:
+            name: Z
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p12
+              p2: params.p2
+              m: params.m
+              label:
+                text: BL_2
+            label:
+              text: C
+            droplines:
+              vertical: 3
+              horizontal: 12
+            indifferenceCurve:
+              label:
+                text: U_2
+            show: params.showZ
+        - type: EconOptimalBundle
+          def:
+            name: X
+            utilityFunction:
+              type: CES
+              def:
+                alpha: params.a
+                r: params.r
+            budgetLine:
+              p1: params.p11
+              p2: params.p2
+              m: params.m
+              label:
+                text: BL_1
+            label:
+              text: A
+            droplines:
+              horizontal: 9
+              vertical: 9
+            indifferenceCurve:
+              label:
+                text: U_1
+            show: params.showX
+        - Label:
+            coordinates: [18, AXIS]
+            color: budget
+            text: 18
+            fontSize: 10
+        - Label:
+            coordinates: [AXIS, 18]
+            color: budget
+            text: 18
+            fontSize: 10
+    sidebar:
+      controls:
+        - title: Hicks decomposition with substitutes
+          checkboxes:
+            - param: showIOC
+              label: "\\text{Show income offer curves}"
+          divs:
+            - html: "$$u(x_1,x_2) = \\sqrt{x_1} + \\sqrt{x_2}$$"
+            - html: "$$BL_1: p_1 = 2, p_2 = 2, m = 36$$"
+            - html: "$$BL_2: p_1 = 4, p_2 = 2, m = 36$$"
+

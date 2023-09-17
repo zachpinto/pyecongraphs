@@ -1,0 +1,275 @@
+schema: EconSchema
+params:
+  - name: NC
+    value: 25
+    min: 1
+    max: 100
+  - name: NF
+    value: 20
+    min: 1
+    max: 49
+  - name: w
+    value: 12
+    min: 10
+    max: 20
+  - name: a
+    value: 16
+    min: 4
+    max: 20
+  - name: K
+    value: 15
+    min: 10
+    max: 20
+  - name: p
+    value: 8
+    min: 2
+    max: 8
+    round: 0.1
+calcs:
+  p: (sqrt(params.NC*params.a*params.w/(params.NF*params.K)))
+  qd: (params.a/params.p)
+  qs: (params.K*params.p/params.w)
+  D: (params.NC*calcs.qd)
+  S: (params.NF*calcs.qs)
+layout:
+  ThreeHorizontalGraphs:
+    leftGraph:
+      xAxis:
+        title: Quantity Bought by Each Consumer ($x$)
+      yAxis:
+        title: Price ($p$)
+      objects:
+
+      # Price Label
+      - Label:
+          coordinates: [AXIS, params.p]
+          text: params.p.toFixed(1)
+          color: green
+          fontSize: 10
+
+      # Price Line
+      - Line:
+          yIntercept: params.p
+          color: green
+          label:
+            x: 9.5
+            text: p
+          drag:
+            - vertical: p
+
+      # Individual Demand Point
+      - Point:
+          coordinates: [calcs.qd, params.p]
+          label:
+            text: d(p)
+          drag:
+          - vertical: p
+          droplines:
+            vertical: calcs.qd.toFixed(2)
+
+      # Individual Demand Curve
+      - Curve:
+          ind: y
+          fn: (params.a/(y))
+          color: demand
+          label:
+            text: \text{Ind. Consumer Demand Curve}
+            y: 9
+            position: bl
+            bgcolor: none
+
+    leftControls:
+      title: Individual Demand
+      sliders:
+        - param: a
+          label: a
+      divs:
+        - html: "`$$d(p) = {a \\\\over p} = {${params.a.toFixed(0)} \\\\over p} \\\\Rightarrow d(${params.p.toFixed(1)}) = ${calcs.qd.toFixed(2)}$$`"
+
+    middleGraph:
+      xAxis:
+        max: 250
+
+      objects:
+
+      # Price Line
+      - Line:
+          yIntercept: params.p
+          color: green
+          label:
+            x: 237.5
+            text: p
+          drag:
+            - vertical: p
+
+      # Market Equilibrium Point
+      - Point:
+          coordinates: [calcs.D, params.p]
+          color: green
+          drag:
+          - vertical: p
+          droplines:
+            vertical: calcs.D.toFixed(0)
+            horizontal: params.p.toFixed(1)
+
+      # Market Demand Point
+      - Point:
+          coordinates: [calcs.D, params.p]
+          show: (params.p > calcs.p)
+          label:
+            text: D(p)
+            position: tr
+          drag:
+          - vertical: p
+          droplines:
+            vertical: calcs.D.toFixed(0)
+
+      - Point:
+          coordinates: [calcs.D, params.p]
+          show: (params.p < calcs.p)
+          label:
+            text: D(p)
+            position: bl
+          drag:
+          - vertical: p
+          droplines:
+            vertical: calcs.D.toFixed(0)
+
+      # Market Demand Curve
+      - Curve:
+          ind: y
+          fn: (params.NC*params.a/(y))
+          color: demand
+          label:
+            text: \text{Market Demand Curve}
+            y: 9
+            position: bl
+            bgcolor: none
+
+      # Market Supply Point
+      - Point:
+          coordinates: [calcs.S, params.p]
+          color: supply
+          show: (params.p > calcs.p)
+          label:
+            text: S(p)
+            position: tl
+          drag:
+          - vertical: p
+          droplines:
+            vertical: calcs.S.toFixed(0)
+
+      - Point:
+          coordinates: [calcs.S, params.p]
+          color: supply
+          show: (params.p < calcs.p)
+          label:
+            text: S(p)
+            position: br
+          drag:
+          - vertical: p
+          droplines:
+            vertical: calcs.S.toFixed(0)
+
+      # Market Supply Curve
+      - Curve:
+          ind: y
+          fn: (params.NF*params.K*(y)/params.w)
+          color: supply
+          label:
+            text: \text{Market Supply Curve}
+            y: 1
+            position: tl
+            bgcolor: none
+
+      # Excess supply / excess demand
+      - Segment:
+          a: [calcs.D + 0.25,params.p + 0.2]
+          b: [calcs.S - 0.25,params.p + 0.2]
+          show: (params.p > calcs.p + 0.25)
+          startArrow: true
+          endArrow: true
+          color: colors.supply
+          label:
+            text: "\\begin{matrix}\\text{EXCESS} \\\\ \\text{SUPPLY}\\end{matrix}"
+            fontSize: 7
+            bgcolor: none
+            yPixelOffset: 14
+
+      - Segment:
+          a: [calcs.D - 0.25,params.p - 0.2]
+          b: [calcs.S + 0.25,params.p - 0.2]
+          show: (params.p < calcs.p - 0.25)
+          startArrow: true
+          endArrow: true
+          color: colors.demand
+          label:
+            text: "\\begin{matrix}\\text{EXCESS} \\\\ \\text{DEMAND}\\end{matrix}"
+            fontSize: 7
+            yPixelOffset: -15
+
+    middleControls:
+      title: Market Supply and Demand
+      sliders:
+      - param: NC
+        label: N_C
+      - param: NF
+        label: N_F
+      divs:
+        - html: "`$$D(p) = N_C \\\\times d(p) = ${params.NC.toFixed(0)} \\\\times {${params.a.toFixed(0)} \\\\over p} \\\\Rightarrow D(${params.p.toFixed(1)}) = ${calcs.D.toFixed(0)}$$`"
+        - html: "`$$S(p) = N_F \\\\times s(p) = ${params.NF.toFixed(0)} \\\\times {${params.K.toFixed(0)}p \\\\over ${params.w.toFixed(0)}} \\\\Rightarrow S(${params.p.toFixed(1)}) = ${calcs.S.toFixed(0)}$$`"
+
+    rightGraph:
+      xAxis:
+        max: 20
+      objects:
+
+      # Price Label
+      - Label:
+          coordinates: [AXIS, params.p]
+          text: params.p.toFixed(1)
+          color: green
+          fontSize: 10
+
+      # Price Line
+      - Line:
+          yIntercept: params.p
+          color: green
+          label:
+            x: 19
+            text: p
+          drag:
+            - vertical: p
+
+      # Market Supply Point
+      - Point:
+          coordinates: [calcs.qs, params.p]
+          color: supply
+          label:
+            text: s(p)
+            position: tl
+          drag:
+          - vertical: p
+          droplines:
+            vertical: calcs.qs.toFixed(2)
+
+      # Market Demand Curve
+      - Curve:
+          ind: y
+          fn: (params.K*(y)/params.w)
+          color: supply
+          label:
+            text: \text{Ind. Firm Supply Curve}
+            y: 1
+            position: tl
+            bgcolor: none
+
+    rightControls:
+      title: Individual Firm Supply
+      sliders:
+        - param: w
+          label: w
+        - param: K
+          label: \overline K
+      divs:
+        - html: "`$$s(p) = {\\\\overline Kp \\\\over w} = {${params.K.toFixed(0)}p \\\\over ${params.w.toFixed(0)}} \\\\Rightarrow s(${params.p.toFixed(1)}) = ${calcs.qs.toFixed(2)}$$`"

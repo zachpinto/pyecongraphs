@@ -1,0 +1,142 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 40
+    min: 1
+    max: 80
+    round: 1
+  - name: x2
+    value: 10
+    min: 1
+    max: 80
+    round: 1
+calcs:
+  u: (sqrt(params.x1*params.x2))
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 80
+        ticks: 4
+        title: Good 1
+      yAxis:
+        min: 0
+        max: 80
+        ticks: 4
+        title: Good 2
+      zAxis:
+        min: 0
+        max: 80
+        ticks: 4
+        title: Utility
+      objects:
+        - Plane:
+            z: calcs.u
+            fill: blue
+            opacity: 0.5
+        - FunctionSurface:
+            fn:
+              fn: "((x)*(y))^0.5"
+              samplePoints: 20
+            shaded: true
+            fill: purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "calcs.u*calcs.u/(x)"
+              fnZ: calcs.u
+            strokeWidth: 10
+            stroke: purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "calcs.u*calcs.u/(y)"
+              fnZ: calcs.u
+              ind: y
+            strokeWidth: 10
+            stroke: purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "calcs.u*calcs.u/(x)"
+              fnZ: 0
+            strokeWidth: 3
+            stroke: purple
+            opacity: 0.4
+        - Curve:
+            fn:
+              fn: "calcs.u*calcs.u/(y)"
+              fnZ: 0
+              ind: y
+            strokeWidth: 3
+            stroke: purple
+            opacity: 0.4
+
+        - Line:
+            x1: (calcs.u*calcs.u/80)
+            x2: (calcs.u*calcs.u/80)
+            y1: 80
+            y2: 80
+            z2: calcs.u
+            linestyle: dotted
+        - Line:
+            x1: 80
+            x2: 80
+            y1: (calcs.u*calcs.u/80)
+            y2: (calcs.u*calcs.u/80)
+            z2: calcs.u
+            linestyle: dotted
+        - MathboxPoint:
+            x: params.x1
+            y: params.x2
+            z: calcs.u
+            droplines: true
+
+
+    graph:
+      xAxis:
+        max: 80
+        ticks: 4
+        title: Good 1
+      yAxis:
+        max: 80
+        ticks: 4
+        title: Good 2
+      objects:
+        - EconIndifferenceMap:
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            levels: [ 10, 20, 30, 40, 50, 60, 70]
+        - EconBundle:
+            coordinates: [ params.x1, params.x2 ]
+            color: blue
+            r: 4
+            label:
+              text:
+            droplines:
+              vertical: params.x1
+              horizontal: params.x2
+            utilityFunction:
+              CobbDouglas:
+                alpha: 0.5
+            drag:
+              - horizontal: x1
+              - vertical: x2
+            indifferenceCurve:
+              label:
+                text: "`u(x_1,x_2) = ${calcs.u.toFixed(1)}`"
+                x: 60
+
+
+    sidebar:
+      controls:
+        - title: Utility Functions and Indifference Maps
+          description: Drag the point in the right-hand graph to see how the location of the indifference curve changes.
+    explanation:
+      divs:
+            - html: "`The 3D graph on the left shows the utility function $$u(x_1,x_2) = \\\\sqrt{x_1x_2}$$Bundle $(x_1,x_2) = (${params.x1}, ${params.x2})$ provides utility $$u(${params.x1}, ${params.x2}) = \\\\sqrt{${params.x1} \\\\times ${params.x2}} = ${calcs.u.toFixed(1)}$$Therefore the equation of the indifference curve passing through that point is$$\\\\sqrt{x_1x_2} = ${calcs.u.toFixed(1)}$$or, solving for $x_2$,$$x_2 = \\\\frac{${calcs.u.toFixed(1)}^2}{x_1}$$`"

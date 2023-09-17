@@ -1,0 +1,428 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: p
+  value: 1
+  min: 0.2
+  max: 5
+  round: 0.01
+- name: A11
+  value: 4
+  min: 1
+  max: 5
+  round: 0.01
+- name: A21
+  value: 2
+  min: 1
+  round: 0.01
+- name: A12
+  value: 2
+  min: 1
+  max: 5
+  round: 0.01
+- name: A22
+  value: 4
+  min: 1
+  round: 0.01
+calcs:
+  y11: "((params.p*params.A11 > params.A21) ? 100*params.A11 : (params.p*params.A11
+    < params.A21) ? 0 : 50*params.A11)"
+  y21: "((params.p*params.A11 < params.A21) ? 100*params.A21 : (params.p*params.A11
+    > params.A21) ? 0 : 50*params.A21)"
+  y12: "((params.p*params.A12 > params.A22) ? 100*params.A12 : (params.p*params.A12
+    < params.A22) ? 0 : 50*params.A12)"
+  y22: "((params.p*params.A12 < params.A22) ? 100*params.A22 : (params.p*params.A12
+    > params.A22) ? 0 : 50*params.A22)"
+  p2: "(1/params.p)"
+  max11: "(100*params.A11)"
+  max21: "(100*params.A21)"
+  max12: "(100*params.A12)"
+  max22: "(100*params.A22)"
+  m1: "(100*max(params.p*params.A11,params.A21))"
+  m2: "(100*max(params.p*params.A12,params.A22))"
+  produce11: "(params.p*params.A11 > params.A21)"
+  produce12: "(params.p*params.A12 > params.A22)"
+  cutoffP11: "(params.A21/params.A11)"
+  cutoffP21: "(params.A11/params.A21)"
+  cutoffP12: "(params.A22/params.A12)"
+  cutoffP22: "(params.A12/params.A22)"
+layout:
+  type: FourGraphs
+  def:
+    topLeftGraph:
+      xAxis:
+        title: Quantity of Good 1 produced by A
+        orient: bottom
+        min: 0
+        max: 500
+      yAxis:
+        title: Quantity of Good 2 produced by A
+        orient: left
+        min: 0
+        max: 500
+      objects:
+      - type: Line
+        def:
+          color: colors.longRun
+          xIntercept: calcs.max11
+          yIntercept: calcs.max21
+          label:
+            text: PPF
+            x: 100
+      - type: Point
+        def:
+          color: colors.longRun
+          coordinates:
+          - calcs.max11
+          - 0
+          r: 4
+          drag:
+          - directions: x
+            param: A11
+            expression: drag.x/100
+      - type: Point
+        def:
+          color: colors.longRun
+          coordinates:
+          - 0
+          - calcs.max21
+          r: 4
+          drag:
+          - directions: y
+            param: A21
+            expression: drag.y/100
+      - type: Point
+        def:
+          color: colors.supply
+          coordinates:
+          - calcs.y11
+          - calcs.y21
+          droplines:
+            vertical: y_1^*
+            horizontal: y_2^*
+          label:
+            text: Y^A
+            position: bl
+      - type: EconOptimalBundle
+        def:
+          name: bundleA
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          budgetLine:
+            p1: params.p
+            p2: 1
+            m: "(calcs.m1)"
+            handles: false
+            draggable: false
+            color: colors.budget
+            label: {}
+          label:
+            text: X^A
+            position: bl
+          color: colors.demand
+          indifferenceCurve:
+            color: colors.demand
+      - type: Segment
+        def:
+          a:
+          - calcs.bundleA.x
+          - 10
+          b:
+          - calcs.y11
+          - 10
+          startArrow: true
+          endArrow: true
+          color: colors.supply
+          label:
+            text: "`\\\\text{Export $s_1^*$}`"
+            location: 0.5
+      - type: Segment
+        def:
+          a:
+          - 10
+          - calcs.bundleA.y
+          b:
+          - 10
+          - calcs.y21
+          startArrow: true
+          endArrow: true
+          color: colors.demand
+          label:
+            text: "`\\\\text{Import $d_2^*$}`"
+            location: 0.5
+    bottomLeftGraph:
+      xAxis:
+        title: Quantity of Good 1 produced by B
+        orient: bottom
+        min: 0
+        max: 500
+      yAxis:
+        title: Quantity of Good 2 produced by B
+        orient: left
+        min: 0
+        max: 500
+      objects:
+      - type: Line
+        def:
+          color: colors.longRun
+          xIntercept: calcs.max12
+          yIntercept: calcs.max22
+          label:
+            text: PPF
+            x: 80
+      - type: Point
+        def:
+          color: colors.longRun
+          coordinates:
+          - calcs.max12
+          - 0
+          r: 4
+          drag:
+          - directions: x
+            param: A12
+            expression: drag.x/100
+      - type: Point
+        def:
+          color: colors.longRun
+          coordinates:
+          - 0
+          - calcs.max22
+          r: 4
+          drag:
+          - directions: y
+            param: A22
+            expression: drag.y/100
+      - type: Point
+        def:
+          color: colors.supply
+          coordinates:
+          - calcs.y12
+          - calcs.y22
+          droplines:
+            vertical: y_1^*
+            horizontal: y_2^*
+          label:
+            text: Y^B
+            position: bl
+      - type: EconOptimalBundle
+        def:
+          name: bundleB
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          budgetLine:
+            p1: params.p
+            p2: 1
+            m: "(calcs.m2)"
+            handles: false
+            draggable: false
+            color: colors.budget
+            label: {}
+          label:
+            text: X^B
+            position: bl
+          color: colors.demand
+          indifferenceCurve:
+            color: colors.demand
+      - type: Segment
+        def:
+          a:
+          - calcs.bundleB.x
+          - 10
+          b:
+          - calcs.y12
+          - 10
+          startArrow: true
+          endArrow: true
+          color: colors.demand
+          label:
+            text: "`\\\\text{Import $d_1^*$}`"
+            location: 0.5
+      - type: Segment
+        def:
+          a:
+          - 10
+          - calcs.bundleB.y
+          b:
+          - 10
+          - calcs.y22
+          startArrow: true
+          endArrow: true
+          color: colors.supply
+          label:
+            text: "`\\\\text{Export $s_2^*$}`"
+            location: 0.5
+    topRightGraph:
+      xAxis:
+        title: Quantity of Good 1
+        orient: bottom
+        min: 0
+        max: 500
+      yAxis:
+        title: Relative Price of Good 1 $(p_1/p_2)$
+        orient: left
+        min: 0
+        max: 2.5
+      objects:
+      - type: Line
+        def:
+          color: colors.budget
+          yIntercept: params.p
+          drag:
+          - directions: y
+            param: p
+            expression: drag.y
+      - type: EconNetSupplyCurve
+        def:
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          budgetLine:
+            p1: params.p
+            p2: 1
+            x: calcs.y11
+            y: 0
+          good: 1
+          label:
+            text: "\\text{A's Export Supply}"
+            y: 2
+          min: calcs.cutoffP11
+          max: calcs.cutoffP12
+      - type: EconNetSupplyPoint
+        def:
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          budgetLine:
+            p1: params.p
+            p2: 1
+            x: calcs.y11
+            y: 0
+          label: {}
+          good: 1
+      - type: EconNetDemandCurve
+        def:
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          budgetLine:
+            p1: params.p
+            p2: 1
+            x: 0
+            y: calcs.y22
+          good: 1
+          label:
+            text: "\\text{B's Import Demand}"
+            y: 2
+          min: calcs.cutoffP11
+          max: calcs.cutoffP12
+      - type: EconNetDemandPoint
+        def:
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          budgetLine:
+            p1: params.p
+            p2: 1
+            x: 0
+            y: calcs.y22
+          good: 1
+          label: {}
+    bottomRightGraph:
+      xAxis:
+        title: Quantity of Good 2
+        orient: bottom
+        min: 0
+        max: 500
+      yAxis:
+        title: Relative Price of Good 2 $(p_2/p_1)$
+        orient: left
+        min: 0
+        max: 2.5
+      objects:
+      - type: Line
+        def:
+          color: colors.budget
+          yIntercept: calcs.p2
+          drag:
+          - directions: y
+            param: p
+            expression: "(1/drag.y)"
+      - type: EconNetDemandCurve
+        def:
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          budgetLine:
+            p1: 1
+            p2: 1/params.p
+            x: calcs.y11
+            y: 0
+          good: 2
+          label:
+            text: "\\text{A's Import Demand}"
+            y: 2
+          min: calcs.cutoffP22
+          max: calcs.cutoffP21
+      - type: EconNetDemandPoint
+        def:
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          budgetLine:
+            p1: 1
+            p2: "(1/params.p)"
+            x: calcs.y11
+            y: 0
+          label: {}
+          good: 2
+      - type: EconNetSupplyCurve
+        def:
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          budgetLine:
+            p1: 1
+            p2: "(1/params.p)"
+            x: 0
+            y: calcs.y22
+          good: 2
+          label:
+            text: "\\text{B's Export Supply}"
+            y: 2
+          min: calcs.cutoffP22
+          max: calcs.cutoffP21
+      - type: EconNetSupplyPoint
+        def:
+          utilityFunction:
+            type: CES
+            def:
+              alpha: 0.5
+              r: 0.5
+          budgetLine:
+            p1: 1
+            p2: "(1/params.p)"
+            x: 0
+            y: calcs.y22
+          good: 2
+          label: {}

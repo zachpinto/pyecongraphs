@@ -1,0 +1,97 @@
+params:
+  - {name: s, min: 0.01, max: 2, value: 0.5, round: 0.01}
+  - {name: theta, min: 0.4, max: 2.5, value: 2, round: 0.01}
+calcs:
+  rho: "(params.s < 1) ? (1 - 1/(params.s)) : (params.s - 1)"
+  L: "(calcs.rho == 0) ? 20*(params.theta)^(-0.5) : 20*(0.5 + 0.5*(params.theta)^(calcs.rho))^(-1/calcs.rho)"
+  K: (params.theta*calcs.L)
+  MRTS: (-(params.theta)^(1 - calcs.rho))
+  invMRTS: (-(params.theta)^(calcs.rho - 1))
+  dx: (10/(1+params.theta^(2-2*calcs.rho))^(0.5))
+
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        min: 1
+        max: 50
+        title: Labor ($L$)
+        intercept: 1
+        ticks: 0
+      yAxis:
+        min: 1
+        max: 50
+        title: Capital ($K$)
+        intercept: 1
+        ticks: 0
+      objects:
+      - Contour:
+          level: 20
+          yMax: 51
+          xMax: 51
+          fn: "(0.5*(x)^(calcs.rho)+0.5*(y)^(calcs.rho))^(1/calcs.rho)"
+          strokeWidth: 5
+          color: purple
+          show: "(calcs.rho != 0)"
+      - Contour:
+          level: 20
+          yMax: 51
+          xMax: 51
+          fn: "((x)*(y))^0.5"
+          show: "(calcs.rho == 0)"
+          strokeWidth: 5
+          color: purple
+      - ContourMap:
+          levels: [5, 10, 15, 25, 30, 35, 40]
+          yMax: 51
+          xMax: 51
+          fn: "(0.5*(x)^(calcs.rho)+0.5*(y)^(calcs.rho))^(1/calcs.rho)"
+          show: "(calcs.rho != 0)"
+      - ContourMap:
+          levels: [5, 10, 15, 25, 30, 35, 40]
+          yMax: 51
+          xMax: 51
+          fn: "((x)*(y))^0.5"
+          show: "(calcs.rho == 0)"
+      - Line:
+          point: [calcs.L, calcs.K]
+          slope: calcs.MRTS
+          min: (calcs.L - calcs.dx)
+          max: (calcs.L + calcs.dx)
+          color: blue
+          label:
+            x: calcs.L - calcs.dx
+            text: MRTS
+            position: tr
+          show: params.theta <= 1
+      - Line:
+          point: [calcs.L, calcs.K]
+          invSlope: calcs.invMRTS
+          min: (calcs.L - calcs.dx)
+          max: (calcs.L + calcs.dx)
+          ind: y
+          color: blue
+          label:
+            x: calcs.L + calcs.dx
+            text: MRTS
+            position: tr
+          show: params.theta > 1
+      - Point:
+          coordinates: [calcs.L, calcs.K]
+          drag:
+          - directions: xy
+            param: theta
+            expression: drag.y/drag.x
+
+    sidebar:
+       controls:
+       - title: "CES production function: mrts along an isoquant"
+         sliders:
+         - param: s
+           label: \text{Elast. of Sub.}
+           showNumber: false
+
+         divs:
+         - html: $$f(L,K) = (\tfrac{1}{2}L^\rho + \tfrac{1}{2}K^\rho)^\frac{1}{\rho}$$
+         - html: $$MRTS = \left(\frac{K}{L}\right)^{1-\rho}$$
+         - html: "`$$\\\\rho = ${calcs.rho.toFixed(2)}$$`"

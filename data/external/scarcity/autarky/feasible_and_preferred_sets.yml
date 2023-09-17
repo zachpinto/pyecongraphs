@@ -1,0 +1,116 @@
+schema: EconSchema
+params:
+- {name: L, min: 5, max: 95, round: 1, value: 36}
+- {name: showSlopes, value: true}
+calcs:
+  x1: (10*sqrt(params.L))
+  x2: (6*sqrt(100-params.L))
+  L2: (100-params.L)
+  mrt: (0.6*sqrt(params.L/calcs.L2))
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+        title: Fish ($x_1$)
+      yAxis:
+        max: 120
+        title: Coconuts ($x_2$)
+        ticks: 0
+
+      objects:
+
+      # PPF
+      - Ellipse:
+          c: [0,0]
+          rx: 100
+          ry: 60
+          color: red
+          strokeWidth: 2
+          label:
+            text: PPF
+            coordinates: [101,5]
+            position: l
+
+
+      # Bundle
+      - Point:
+          name: X
+          coordinates: [calcs.x1, calcs.x2]
+          drag:
+          - directions: x
+            param: L
+            expression: (drag.x/10)^2
+          label:
+            text: X
+          droplines:
+            vertical: calcs.x1.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: (-calcs.mrt)
+          min: calcs.x1-20
+          max: calcs.x1+20
+          label:
+            text: MRT
+            x: calcs.x1-20
+            position: b
+            bgcolor: none
+          show: params.showSlopes
+
+    rightGraph:
+      xAxis:
+        max: 120
+        ticks: 0
+        title: Fish ($x_1$)
+      yAxis:
+        max: 120
+        title: Coconuts ($x_2$)
+        ticks: 0
+
+      objects:
+
+      # Indifference Map
+      - EconIndifferenceMap:
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.64
+          levels: [10, 20, 30, 40, 50, 60.3, 70, 80, 90, 100, 110]
+
+      # Bundle
+      - EconBundle:
+          name: X
+          coordinates: [calcs.x1, calcs.x2]
+          drag:
+          - directions: x
+            param: L
+            expression: (drag.x/10)^2
+          color: demand
+          utilityFunction:
+            CobbDouglas:
+              alpha: 0.64
+          indifferenceCurve:
+            label:
+              text: \text{Ind. curve}
+              x: 135
+            showPreferred: true
+          droplines:
+            vertical: calcs.x1.toFixed(0)
+            horizontal: calcs.x2.toFixed(0)
+      - Line:
+          point: [calcs.x1, calcs.x2]
+          slope: (-calcs.X.mrs)
+          color: colors.demand
+          min: calcs.x1 * 0.8
+          max: calcs.x1 *1.2
+          label:
+            text: MRS
+            x: calcs.x1 *1.2
+            position: t
+            bgcolor: none
+          show: params.showSlopes
+    sidebar:
+      controls:
+      - title: Feasible and Preferred Sets
+        description: "The left graph shows a sample PPF, with a potential point X along it. The right graph shows the agent's indifference map, and the indifference curve passing through X. Drag X left and right to see how the MRT and MRS change as you make difference choices along the PPF."

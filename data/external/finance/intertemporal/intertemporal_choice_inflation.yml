@@ -1,0 +1,196 @@
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: beta
+    value: 1
+    min: 0.01
+    max: 1
+    round: "0.01"
+  - name: r
+    value: 0.2
+    min: 0
+    max: 1
+    round: 0.01
+  - name: pi
+    value: 0
+    min: 0
+    max: 1
+    round: 0.01
+  - name: m1
+    value: "30"
+    min: "0"
+    max: "100"
+    round: "1"
+  - name: m2
+    value: "24"
+    min: "0"
+    max: "50"
+    round: "1"
+  - name: showIndW
+    value: false
+  - name: showBorrowSave
+    value: false
+  - name: showExplanation
+    value: false
+calcs:
+  cutoffInterestRate: (calcs.endowmentBundle.mrs-1)
+  presentValue: (params.m1 + params.m2*(1 + params.pi)/(1 + params.r))
+  futureValue: (params.m1*(1 + params.r)/(1 + params.pi) + params.m2)
+  realInterestRate: ((1 + params.r)/(1 + params.pi) - 1)
+layout:
+  type: OneGraphPlusSidebar
+  def:
+    graph:
+      xAxis:
+        title: Real Consumption in Period 1
+        orient: bottom
+        min: 0
+        max: 60
+      yAxis:
+        title: Real Consumption in Period 2
+        orient: left
+        min: 0
+        max: 60
+      objects:
+        - type: EconBundle
+          def:
+            name: endowmentBundle
+            coordinates:
+              - params.m1
+              - params.m2
+            droplines:
+              vertical: m_1
+              horizontal: m_2
+            color: gray
+            label:
+              text: \text{Endowment}
+              position: tr
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - 1
+                  - params.beta
+            drag:
+              - directions: x
+                param: m1
+                expression: params.m1 + drag.dx
+              - directions: "y"
+                param: m2
+                expression: params.m2 + drag.dy
+            indifferenceCurve:
+              label:
+                text: ""
+              color: colors.endowment
+              show: params.showIndW
+        - type: EconOptimalBundle
+          def:
+            name: optimum
+            label:
+              text: X
+            droplines:
+              vertical: c_1^*
+              horizontal: c_2^*
+            utilityFunction:
+              type: CobbDouglas
+              def:
+                coefficients:
+                  - 1
+                  - params.beta
+            color: colors.utility
+            budgetLine:
+              p1: 1 + params.r
+              p2: 1 + params.pi
+              x: params.m1
+              "y": params.m2
+              draggable: false
+              handles: false
+              set: false
+              color: colors.budget
+            indifferenceCurve: {}
+        - type: Segment
+          def:
+            a:
+              - params.m1
+              - 10
+            b:
+              - calcs.optimum.x
+              - 10
+            endArrow: true
+            color: colors.supply
+            label:
+              text: '`\\text{Save ${(params.m1-calcs.optimum.x).toFixed(0)}}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.optimum.x < params.m1))
+        - type: Segment
+          def:
+            a:
+              - params.m1
+              - 10
+            b:
+              - calcs.optimum.x
+              - 10
+            endArrow: true
+            color: colors.demand
+            label:
+              text: '`\\text{Borrow ${(calcs.optimum.x-params.m1).toFixed(0)}}`'
+              location: 0.5
+              yPixelOffset: -15
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.optimum.x > params.m1))
+        - type: Segment
+          def:
+            a:
+              - 10
+              - params.m2
+            b:
+              - 10
+              - calcs.optimum.y
+            endArrow: true
+            color: colors.supply
+            label:
+              text: '`\\text{Repay ${(params.m2-calcs.optimum.y).toFixed(0)}}`'
+              location: 0.5
+              xPixelOffset: -15
+              align: right
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.optimum.x > params.m1))
+        - type: Segment
+          def:
+            a:
+              - 10
+              - params.m2
+            b:
+              - 10
+              - calcs.optimum.y
+            endArrow: true
+            color: colors.demand
+            label:
+              text: '`\\text{Earn ${(calcs.optimum.y-params.m2).toFixed(0)}}`'
+              location: 0.5
+              xPixelOffset: -15
+              align: right
+            show: ((params.showExplanation || params.showBorrowSave) && (calcs.optimum.x < params.m1))
+    sidebar:
+      controls:
+        - title: Preference Parameters
+          sliders:
+            - param: beta
+              label: \beta
+          divs:
+            - html: '`$$u(c_1,c_2) = \\ln c_1 + \\beta \\ln c_2 = \\ln c_1 + {${params.beta.toFixed(2)}}\\ln c_2$$`'
+            - html: '`$$\\text{MRS at endowment } = \\frac{m_2}{\\beta m_1} = ${calcs.endowmentBundle.mrs.toFixed(2)}$$`'
+        - title: Budget Parameters
+          sliders:
+            - param: r
+              label: r
+            - param: pi
+              label: \pi
+          divs:
+            - html: '`$$\\text{Real interest rate }\\rho = \\frac{1 + r}{1 + \\pi} - 1 = ${calcs.realInterestRate.toFixed(2)}$$`'
+        - title: Options
+          checkboxes:
+            - param: showIndW
+              label: \text{Show indifference curve through endowment}
+            - param: showBorrowSave
+              label: \text{Show borrow/save amounts}

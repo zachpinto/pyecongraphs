@@ -1,0 +1,340 @@
+---
+schema: EconSchema
+version: 1
+params:
+- name: demandIntercept
+  value: 120
+  min: 20
+  max: 150
+  round: 1
+- name: demandSlope
+  value: -1
+  min: -10
+  max: 0.05
+  round: 0.01
+- name: supplyIntercept
+  value: 20
+  min: 0
+  max: 100
+  round: 1
+- name: supplySlope
+  value: 4
+  min: 2
+  max: 10
+  round: 0.01
+- name: externalityIntercept
+  value: 10
+  min: 0
+  max: 100
+  round: 1
+- name: externalitySlope
+  value: 0.1
+  min: 0
+  max: 10
+  round: 0.01
+- name: q
+  value: 60
+  min: 10
+  max: 150
+- name: showExt
+  value: false
+calcs:
+  equilibriumQuantity: "((params.demandIntercept + params.demandSlope*params.supplyIntercept)/(1
+    - params.demandSlope/params.supplySlope))"
+  optimalQuantity: "((params.demandIntercept + params.demandSlope*(params.supplyIntercept+params.externalityIntercept))/(1
+    - params.demandSlope*(params.externalitySlope + 1/params.supplySlope)))"
+layout:
+  type: ThreeHorizontalGraphs
+  def:
+    leftGraph:
+      xAxis:
+        title: Quantity Consumed
+        orient: bottom
+        min: 0
+        max: 150
+        ticks: 0
+      yAxis:
+        title: Dollars per Unit
+        orient: left
+        min: 0
+        max: 150
+        ticks: 0
+      objects:
+      - type: Area
+        def:
+          univariateFunction1:
+            fn: "(calcs.demand.yIntercept + calcs.demand.slope*(x))"
+            max: params.q
+          fill: colors.green
+      - type: EconLinearDemand
+        def:
+          name: demand
+          xIntercept: params.demandIntercept
+          invSlope: params.demandSlope
+          label:
+            text: MB
+            x: "(0.9*params.demandIntercept)"
+          handles: true
+          draggable: true
+          strokeWidth: 4
+      - type: Point
+        def:
+          color: colors.grey
+          coordinates:
+          - params.q
+          - 150
+          lineStyle: dotted
+          r: 0
+          droplines:
+            vertical: Q
+          drag:
+          - directions: x
+            param: q
+            expression: params.q + drag.dx
+    leftControls:
+      title: Total and Marginal Benefit
+      divs:
+      - html: The total benefit (or <em>gross consumer surplus</em>) is the area under
+          the MB curve, up to the quantity consumed ($Q$).
+    middleGraph:
+      xAxis:
+        title: Quantity Produced
+        orient: bottom
+        min: 0
+        max: 150
+        ticks: 0
+      yAxis:
+        orient: left
+        min: 0
+        max: 150
+        ticks: 0
+      objects:
+      - type: Area
+        def:
+          univariateFunction1:
+            fn: "(calcs.supply.yIntercept + calcs.supply.slope*(x))"
+            max: params.q
+          fill: colors.red
+      - type: Area
+        def:
+          univariateFunction1:
+            fn: "(calcs.socialCost.yIntercept + calcs.socialCost.slope*(x))"
+            max: params.q
+          univariateFunction2:
+            fn: "(calcs.supply.yIntercept + calcs.supply.slope*(x))"
+            max: params.q
+          fill: colors.brown
+          show: params.showExt
+      - type: EconLinearSupply
+        def:
+          name: supply
+          yIntercept: params.supplyIntercept
+          invSlope: params.supplySlope
+          label:
+            text: "(params.showExt ? 'PMC' : 'MC')"
+            x: "(1.1*params.demandIntercept)"
+          color: colors.supply
+          handles: true
+          draggable: true
+          strokeWidth: 4
+      - type: EconLinearSupply
+        def:
+          name: externality
+          yIntercept: params.externalityIntercept
+          slope: params.externalitySlope
+          label:
+            text: MEC
+            x: 100
+          color: colors.brown
+          lineStyle: dashed
+          handles: true
+          draggable: true
+          strokeWidth: 4
+          show: params.showExt
+      - type: EconLinearSupply
+        def:
+          name: socialCost
+          yIntercept: "(params.supplyIntercept + params.externalityIntercept)"
+          slope: "(calcs.supply.slope + calcs.externality.slope)"
+          label:
+            text: SMC
+            x: 100
+          color: colors.red
+          strokeWidth: 4
+          show: params.showExt
+      - type: Point
+        def:
+          color: colors.grey
+          coordinates:
+          - params.q
+          - 150
+          lineStyle: dotted
+          r: 0
+          droplines:
+            vertical: Q
+          drag:
+          - directions: x
+            param: q
+            expression: params.q + drag.dx
+    middleControls:
+      title: Total and Marginal Costs
+      checkboxes:
+      - param: showExt
+        label: "\\text{Show the case of a negative externality}"
+      divs:
+      - html: "`The total cost to firms (i.e., the total opportunity costs of using
+          resources to produce this good instead of other things) is the area under
+          the ${params.showExt ? 'private marginal cost (PMC)' : 'marginal cost (MC)'}
+          curve, up to the quantity produced ($Q$).`"
+      - html: In the presence of a negative externality, the social marginal cost
+          is equal to the private marginal cost (PMC) plus the marginal external cost
+          (MEC). The total external damage is the area between the PMC and SMC curve,
+          up to the quantity produced; it could also be represented as the area under
+          the MEC curve.
+        show: params.showExt
+    rightGraph:
+      xAxis:
+        title: Quantity Produced and Consumed
+        orient: bottom
+        min: 0
+        max: 150
+        ticks: 0
+      yAxis:
+        orient: left
+        min: 0
+        max: 150
+        ticks: 0
+      objects:
+      - type: Area
+        def:
+          univariateFunction1:
+            fn: "(calcs.demand.yIntercept + calcs.demand.slope*(x))"
+            max: "(Math.min(calcs.equilibriumQuantity,params.q))"
+          univariateFunction2:
+            fn: "(calcs.supply.yIntercept + calcs.supply.slope*(x))"
+            max: "(Math.min(calcs.equilibriumQuantity,params.q))"
+          fill: colors.green
+          show: "(!params.showExt)"
+      - type: Area
+        def:
+          univariateFunction1:
+            fn: "(calcs.demand.yIntercept + calcs.demand.slope*(x))"
+            max: "(Math.min(calcs.optimalQuantity,params.q))"
+          univariateFunction2:
+            fn: "(calcs.socialCost.yIntercept + calcs.socialCost.slope*(x))"
+            max: "(Math.min(calcs.optimalQuantity,params.q))"
+          fill: colors.green
+          show: params.showExt
+      - type: Area
+        def:
+          univariateFunction1:
+            fn: "(calcs.socialCost.yIntercept + calcs.socialCost.slope*(x))"
+            min: calcs.optimalQuantity
+            max: "(Math.min(calcs.equilibriumQuantity,params.q))"
+          univariateFunction2:
+            fn: "(calcs.demand.yIntercept + calcs.demand.slope*(x))"
+            min: calcs.optimalQuantity
+            max: "(Math.min(calcs.equilibriumQuantity,params.q))"
+          fill: colors.brown
+          show: "(params.showExt && (params.q > calcs.optimalQuantity))"
+      - type: Area
+        def:
+          univariateFunction1:
+            fn: "(calcs.socialCost.yIntercept + calcs.socialCost.slope*(x))"
+            min: calcs.equilibriumQuantity
+            max: params.q
+          univariateFunction2:
+            fn: "(calcs.supply.yIntercept + calcs.supply.slope*(x))"
+            min: calcs.equilibriumQuantity
+            max: params.q
+          fill: colors.brown
+          show: "(params.showExt && (params.q > calcs.equilibriumQuantity))"
+      - type: Area
+        def:
+          univariateFunction1:
+            fn: "(calcs.demand.yIntercept + calcs.demand.slope*(x))"
+            min: calcs.equilibriumQuantity
+            max: params.q
+          univariateFunction2:
+            fn: "(calcs.supply.yIntercept + calcs.supply.slope*(x))"
+            min: calcs.equilibriumQuantity
+            max: params.q
+          fill: colors.red
+          show: "(params.q > calcs.equilibriumQuantity)"
+      - type: EconLinearDemand
+        def:
+          xIntercept: params.demandIntercept
+          invSlope: params.demandSlope
+          label:
+            text: MB
+            x: "(0.9*params.demandIntercept)"
+          handles: true
+          draggable: true
+          strokeWidth: 4
+      - type: EconLinearSupply
+        def:
+          yIntercept: params.supplyIntercept
+          invSlope: params.supplySlope
+          label:
+            text: "(params.showExt ? 'PMC' : 'MC')"
+            x: "(1.1*params.demandIntercept)"
+          color: colors.supply
+          handles: true
+          draggable: true
+          strokeWidth: 4
+      - type: EconLinearSupply
+        def:
+          yIntercept: "(params.supplyIntercept + params.externalityIntercept)"
+          slope: "(calcs.supply.slope + calcs.externality.slope)"
+          label:
+            text: SMC
+            x: 100
+          color: colors.red
+          strokeWidth: 4
+          show: params.showExt
+      - type: Point
+        def:
+          color: colors.grey
+          coordinates:
+          - params.q
+          - 150
+          lineStyle: dotted
+          r: 0
+          droplines:
+            vertical: Q
+          drag:
+          - directions: x
+            param: q
+            expression: params.q + drag.dx
+    rightControls:
+      title: Total surplus
+      divs:
+      - html: Total surplus is the total benefit (green area, left graph) minus the
+          total cost (red area, center graph). Visually, it's the green area from
+          the left panel minus the red area from the center panel.
+      - html: Because $Q$ is <b>greater than</b> the quantity where $MB = MC$, there
+          are some units being produced at a higher marginal cost than the marginal
+          benefit they bring. These unrecouped costs are seen as the red triangle
+          to the right of the point where the $MC$ and $MB$ curves cross.
+        show: "(!params.showExt && (params.q > calcs.equilibriumQuantity + 1))"
+      - html: Because $Q$ is <b>less than</b> the quantity where $MB = MC$, there
+          is a an opportunity to increase net welfare by producing a higher quantity.
+          This 'deadweight loss' is seen as the empty triangle to the right of the
+          quantity, below the $MB$ curve, and above the $MC$ curve.
+        show: "(!params.showExt && (params.q < calcs.equilibriumQuantity - 1))"
+      - html: Because $Q$ is <b>greater than</b> the quantity where $MB = SMC$, there
+          are some units being produced whose net benefits are not enough to cover
+          the negative external costs. These unrecovered external costs are seen as
+          the brown area to the right of the point where the $SMC$ and $MB$ curves
+          cross.
+        show: "(params.showExt && (params.q > calcs.optimalQuantity + 1))"
+      - html: Because $Q$ is <b>greater than</b> the quantity where $MB = PMC$, there
+          are some units being produced at a higher marginal cost than the marginal
+          benefit they bring. These unrecouped costs are seen as the red triangle
+          to the right of the point where the $PMC$ and $MB$ curves cross.
+        show: "(params.showExt && (params.q > calcs.equilibriumQuantity + 1))"
+      - html: Because $Q$ is <b>less than</b> the quantity where $MB = SMC$, there
+          is a an opportunity to increase net welfare by producing a higher quantity.
+          This 'deadweight loss' is seen as the empty triangle to the right of the
+          quantity, below the $MB$ curve, and above the $SMC$ curve.
+        show: "(params.showExt && (params.q < calcs.optimalQuantity - 1))"

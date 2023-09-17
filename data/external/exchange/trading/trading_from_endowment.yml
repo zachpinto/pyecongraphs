@@ -1,0 +1,66 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 1.6
+params:
+- name: x1
+  value: 5
+  min: 0
+  max: 10
+- name: x2
+  value: 20
+  min: 12
+  max: 25
+- name: end1
+  value: 15
+  min: 12
+  max: 25
+- name: end2
+  value: 5
+  min: 0
+  max: 10
+calcs:
+  dx: (params.end1 - params.x1)
+  dy: (params.x2 - params.end2)
+layout:
+  OneGraphPlusSidebar:
+    graph:
+      xAxis:
+        title: Units of Good 1
+        max: 25
+      yAxis:
+        title: Units of Good 2
+        max: 25
+      objects:
+      - Point:
+          coordinates: [params.end1, params.end2]
+          color: endowment
+          droplines:
+            vertical: e_1
+            horizontal: e_2
+          label:
+            text: "`E = (${params.end1}, ${params.end2})`"
+          drag:
+            - horizontal: end1
+            - vertical: end2
+      - Point:
+          coordinates: [params.x1, params.x2]
+          droplines:
+            vertical: x_1
+            horizontal: x_2
+          label:
+            text: "`X = (${params.x1}, ${params.x2})`"
+          drag:
+            - horizontal: x1
+            - vertical: x2
+      - Arrow:
+          begin: [params.end1, params.end2]
+          end: [params.x1, params.x2]
+          color: demand
+          trim: 0.1
+
+    sidebar:
+      controls:
+      - title: Trading from an Endowment
+        divs:
+          - html: "`This agent starts at endowment bundle $\\\\color{${colors.endowment}}E = (${params.end1}, ${params.end2})$. She trades ${calcs.dx} of her good 1 in exchange for ${calcs.dy} good 2, ending up with bundle $\\\\color{${colors.demand}}X = (${params.x1}, ${params.x2})$.`"

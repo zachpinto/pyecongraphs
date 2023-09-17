@@ -1,0 +1,127 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+  - name: x1
+    value: 10
+    min: 0
+    max: 40
+    round: 1
+  - name: x2
+    value: 10
+    min: 0
+    max: 40
+    round: 1
+  - name: a
+    value: 2
+    min: 2
+    max: 10
+  - name: b
+    value: 8
+    min: 2
+    max: 10
+calcs:
+  u: (params.a*params.x1 + params.b*params.x2)
+  leftX: "((calcs.u < 40*params.b) ? 0 : ((calcs.u - 40*params.b)/params.a))"
+  leftY: "((calcs.u < 40*params.b) ? (calcs.u/params.b) : 40)"
+  rightX: "((calcs.u < 40*params.a) ? (calcs.u/params.a) : 40)"
+  rightY: "((calcs.u < 40*params.a) ? 0 : ((calcs.u - 40*params.a)/params.b))"
+  maxU: (40*(params.a+params.b))
+layout:
+  MathboxPlusGraphPlusSidebar:
+    mathbox:
+      xAxis:
+        min: 0
+        max: 40
+        ticks: 4
+        title: "`2L Bottles`"
+      yAxis:
+        min: 0
+        max: 40
+        ticks: 4
+        title: "`1L Bottles`"
+      zAxis:
+        min: 0
+        max: calcs.maxU
+        ticks: 0
+        title: Utility
+      objects:
+        - Plane:
+            z: calcs.u
+            fill: blue
+            opacity: 0.5
+        - FunctionSurface:
+            fn:
+              fn: params.a*(x) + params.b*(y)
+              samplePoints: 10
+            shaded: true
+            fill: purple
+            opacity: 0.4
+        - Line:
+            x1: calcs.leftX
+            x2: calcs.rightX
+            y1: calcs.leftY
+            y2: calcs.rightY
+            z1: calcs.u
+            z2: calcs.u
+            strokeWidth: 10
+            stroke: utility
+        - MathboxPoint:
+            x: params.x1
+            y: params.x2
+            z: calcs.u
+            droplines: true
+
+
+    graph:
+      xAxis:
+        max: 40
+        ticks: 4
+        title: 2L Bottles of Soda
+      yAxis:
+        max: 40
+        ticks: 4
+        title: 1L Bottles of Soda
+      objects:
+        - EconIndifferenceMap:
+            utilityFunction:
+              PerfectSubstitutes:
+                alpha: (params.a/(params.a+params.b))
+            levels: [ 5, 10, 15, 20, 25, 30, 35 ]
+        - EconBundle:
+            coordinates: [ params.x1, params.x2 ]
+            color: blue
+            r: 4
+            label:
+              text:
+            droplines:
+              vertical: params.x1
+              horizontal: params.x2
+            utilityFunction:
+              PerfectSubstitutes:
+                coefficients: [params.a, params.b]
+            drag:
+              - horizontal: x1
+              - vertical: x2
+            indifferenceCurve:
+              label:
+                text:
+        - Label:
+            coordinates: [ (calcs.leftX + 5), (calcs.leftY - 5*params.a/params.b) ]
+            text: "`u(x_1,x_2) = ${calcs.u.toFixed(0)}`"
+            color: utility
+            position: bl
+
+    sidebar:
+      controls:
+        - title: Perfect substitutes
+          description: "Adjust the parameters a and b to see how the indifference map changes:"
+          sliders:
+            - param: a
+              label: a
+            - param: b
+              label: b
+          divs:
+            - html: "`$$u(x_1,x_2) = ax_1 + bx_2$$`"
+            - html: "`$$u(${params.x1.toFixed(0)},${params.x2.toFixed(0)}) = ${params.a.toFixed(0)} \\\\times ${params.x1.toFixed(0)} + ${params.b.toFixed(0)} \\\\times ${params.x2.toFixed(0)} = ${calcs.u.toFixed(0)}$$`"

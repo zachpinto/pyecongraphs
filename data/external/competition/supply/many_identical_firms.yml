@@ -1,0 +1,120 @@
+schema: EconSchema
+params:
+  - { name: w, value: 4, min: 1, max: 10 }
+  - { name: r, value: 4, min: 1, max: 10 }
+  - { name: K, value: 2, min: 1, max: 10 }
+  - { name: N, value: 16, min: 1, max: 25 }
+  - { name: p, value: 10, min: 10, max: 30 }
+calcs:
+  q: (0.5*params.K*params.p/params.w)
+  S: (calcs.q*params.N)
+layout:
+  TwoHorizontalGraphsPlusSidebar:
+    leftGraph:
+      xAxis:
+        ticks: 0
+        max: 10
+      yAxis:
+        max: 40
+        ticks: 0
+      objects:
+
+        - Label:
+            coordinates: [ AXIS, 40 ]
+            text: p
+
+        - Label:
+            coordinates: [ 10, AXIS ]
+            text: q^j
+
+        - Line:
+            color: supply
+            point: [ calcs.q, params.p ]
+            label:
+              y: 36
+              text: s(p)
+              position: tl
+              bgcolor: none
+
+        - Label:
+            coordinates: [ AXIS, params.p ]
+            color: budget
+            text: params.p.toFixed(0)
+
+        - Line:
+            yIntercept: params.p
+            color: budget
+            label:
+              text: p
+              x: 9
+            drag:
+              - vertical: p
+
+        - Point:
+            coordinates: [ calcs.q, params.p ]
+            droplines:
+              vertical: calcs.q.toFixed(2)
+
+    leftControls:
+      title: Supply by each firm
+      divs:
+        - html: "`$$\\\\begin{aligned}s(p) &= {\\\\overline K p \\\\over 2w}\\\\\\\\ &= {${params.K.toFixed(0)} \\\\times ${params.p.toFixed(0)} \\\\over 2 \\\\times ${params.w.toFixed(0)}} \\\\\\\\ &=${calcs.q.toFixed(2)}\\\\end{aligned}$$`"
+
+    rightGraph:
+      xAxis:
+        max: 200
+        ticks: 0
+      yAxis:
+        max: 40
+        ticks: 0
+      objects:
+
+        - Label:
+            coordinates: [ AXIS, 40 ]
+            text: p
+
+        - Label:
+            coordinates: [ 200, AXIS ]
+            text: Q
+
+        - Line:
+            color: supply
+            point: [ calcs.S, params.p ]
+            ind: y
+            label:
+              y: 36
+              text: S(p)
+              position: tl
+              bgcolor: none
+
+        - Line:
+            yIntercept: params.p
+            color: budget
+            label:
+              text: p
+              x: 90
+            drag:
+              - vertical: p
+        - Point:
+            coordinates: [ calcs.S, params.p ]
+            droplines:
+              vertical: calcs.S.toFixed(0)
+
+    rightControls:
+      title: Market Supply
+      divs:
+        - html: "`$$\\\\begin{aligned}S(p) &= N_F \\\\times s(p)\\\\\\\\ &= ${params.N} \\\\times ${calcs.q.toFixed(2)}\\\\\\\\ &= ${calcs.S.toFixed(0)}\\\\end{aligned}$$`"
+
+    sidebar:
+      controls:
+        - title: Market Supply with Identical Firms
+          description: The left graph shows the qunatity supplied by each firm at each price. The right graph multiplies this amount by the number of firms to get the total quantity supplied in the market.
+          sliders:
+            - param: p
+              label: p
+            - param: w
+              label: w
+            - param: K
+              label: \overline K
+            - param: N
+              label: N_F

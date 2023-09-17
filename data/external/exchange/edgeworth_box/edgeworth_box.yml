@@ -1,0 +1,261 @@
+---
+schema: EconSchema
+version: 1
+aspectRatio: 2
+params:
+- name: w1
+  value: 12
+  min: 0
+  max: 20
+  round: 0.01
+- name: w2
+  value: 2
+  min: 0
+  max: 10
+  round: 0.01
+- name: x1
+  value: 10
+  min: 0
+  max: 20
+  round: 0.01
+- name: x2
+  value: 3
+  min: 0
+  max: 10
+  round: 0.01
+- name: a1
+  value: 0.5
+  min: 0.01
+  max: 1
+  round: 0.01
+- name: a2
+  value: 0.5
+  min: 0.01
+  max: 1
+  round: 0.01
+- name: showPreferred
+  value: false
+- name: showIndifferenceCurves
+  value: false
+- name: showPotentialTrade
+  value: false
+- name: showContractCurve
+  value: false
+layout:
+  EdgeworthBoxPlusTwoGraphsPlusSidebar:
+    totalGood1: 20
+    totalGood2: 10
+    agentA:
+      xAxis:
+        title: A's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: A's Units of Good 2
+        ticks: 5
+      objects:
+      - EconContractCurve:
+          totalGood1: 20
+          totalGood2: 10
+          a: params.a1
+          b: params.a2
+          show: params.showContractCurve
+          label:
+            text: "\\text{Contract Curve}"
+            x: 18
+      - EconBundle:
+          color: colors.blue
+          coordinates:
+          - params.w1
+          - params.w2
+          label: {}
+          droplines:
+            vertical: "e_1^A"
+            horizontal: "e_2^A"
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a1
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: 
+      - EconBundle:
+          coordinates:
+          - params.x1
+          - params.x2
+          label: {}
+          droplines:
+            vertical: x_1^A
+            horizontal: x_2^A
+          show: params.showPotentialTrade
+      - EconBundle:
+          coordinates:
+          - params.w1
+          - params.w2
+          label:
+            text: "\\text{Endowment}"
+          droplines: {}
+          drag:
+          - horizontal: w1
+          - vertical: w2
+          color: colors.endowment
+      - EconBundle:
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+          droplines: {}
+          drag:
+          - directions: x
+            param: x1
+            expression: params.x1 + drag.dx
+          - directions: y
+            param: x2
+            expression: params.x2 + drag.dy
+          color: colors.endowment
+          show: params.showPotentialTrade
+    agentB:
+      xAxis:
+        title: B's Units of Good 1
+        ticks: 10
+      yAxis:
+        title: B's Units of Good 2
+        ticks: 5
+      objects:
+      - EconBundle:
+          coordinates:
+          - (20 - params.w1)
+          - (10 - params.w2)
+          label: {}
+          droplines:
+            vertical: "e_1^B"
+            horizontal: "e_2^B"
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a2
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: 
+            color: colors.orange
+          color: colors.orange
+      - EconBundle:
+          coordinates:
+          - (20-params.x1)
+          - (10-params.x2)
+          label:
+            text: X
+          droplines:
+            vertical: x_1^B
+            horizontal: x_2^B
+          color: colors.orange
+          show: params.showPotentialTrade
+    graph1:
+      xAxis:
+        title: A's Units of Good 1
+        max: 15
+      yAxis:
+        title: A's Units of Good 2
+        max: 15
+      objects:
+      - EconBundle:
+          color: colors.blue
+          coordinates:
+          - params.w1
+          - params.w2
+          label:
+            text: "\\text{Endowment}"
+          droplines:
+            vertical: "e_1^A"
+            horizontal: "e_2^A"
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a1
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: 
+      - EconBundle:
+          color: colors.blue
+          coordinates:
+          - params.x1
+          - params.x2
+          label:
+            text: X
+          droplines:
+            vertical: x_1^A
+            horizontal: x_2^A
+          show: params.showPotentialTrade
+    graph2:
+      xAxis:
+        title: B's Units of Good 1
+        max: 15
+      yAxis:
+        title: B's Units of Good 2
+        max: 15
+      objects:
+      - EconBundle:
+          coordinates:
+          - "(20 - params.w1)"
+          - "(10 - params.w2)"
+          label:
+            text: "\\text{Endowment}"
+          droplines:
+            vertical: "e_1^B"
+            horizontal: "e_2^B"
+          utilityFunction:
+            type: CobbDouglas
+            def:
+              alpha: params.a2
+          indifferenceCurve:
+            show: params.showIndifferenceCurves
+            showPreferred: params.showPreferred
+            label:
+              text: 
+            color: colors.orange
+          color: colors.orange
+      - EconBundle:
+          coordinates:
+          - "(20-params.x1)"
+          - "(10-params.x2)"
+          label:
+            text: X
+          droplines:
+            vertical: x_1^B
+            horizontal: x_2^B
+          color: colors.orange
+          show: params.showPotentialTrade
+    sidebar:
+      controls:
+      - title: The Edgeworth Box
+        checkboxes:
+        - param: showPotentialTrade
+          label: "\\text{show potential trade}"
+        divs:
+        - html: "`At the initial endowment, A (origin bottom-left) has ${params.w1.toFixed(0)}
+            units of good 1 and ${params.w2.toFixed(0)} units of good 2, and B (origin
+            top-right) has ${(200-params.w1).toFixed(0)} units of good 1 and ${(100-params.w2).toFixed(0)}
+            units of good 2`"
+        - html: "`At point $X$, A has ${params.x1.toFixed(0)} units of good 1 and
+            ${params.x2.toFixed(0)} units of good 2, and B has ${(200-params.x1).toFixed(0)}
+            units of good 1 and ${(100-params.x2).toFixed(0)} units of good 2.`"
+          show: params.showPotentialTrade
+      - title: Utility Functions
+        sliders:
+        - param: a1
+          label: "\\alpha^A"
+        - param: a2
+          label: "\\alpha^B"
+        checkboxes:
+        - param: showIndifferenceCurves
+          label: "\\text{show indifference curves}"
+        - param: showPreferred
+          label: "\\text{show preferred bundles}"
+        - param: showContractCurve
+          label: "\\text{show contract curve}"
